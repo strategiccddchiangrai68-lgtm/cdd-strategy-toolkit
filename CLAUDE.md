@@ -8,7 +8,9 @@
 - เจ้าของงาน: เบียร์ (จารุ ชัยพินิจ) นักวิชาการพัฒนาชุมชนชำนาญการ กลุ่มงานยุทธศาสตร์การพัฒนาชุมชน สำนักงานพัฒนาชุมชนจังหวัดเชียงราย
 - ภาษาในโค้ดคอมเมนต์และ UI: ไทย
 - สถานะ: ต้นแบบครบ 5 ขั้น (⓪–④) ผ่าน e2e test ยังไม่ได้ทดสอบกับพัฒนากรในพื้นที่จริง
-- เวอร์ชันที่เผยแพร่อยู่: https://claude.ai/artifact/Vzy1qpBmoeaCRw4wND2t5s (ไฟล์เดียวกับ `docs/index.html` ที่ได้จาก `npm run build`) — กำลังย้ายไป GitHub Pages เพราะพัฒนากรไม่มีบัญชี Claude และ artifact แชร์ได้เฉพาะคนในองค์กร
+- Repo (สาธารณะ): https://github.com/strategiccddchiangrai68-lgtm/cdd-strategy-toolkit — branch `main`
+- เว็บแอป (GitHub Pages จาก `main` โฟลเดอร์ `/docs`): https://strategiccddchiangrai68-lgtm.github.io/cdd-strategy-toolkit/ — แก้ `src/` → `npm run build` → `npm test` → commit แล้ว push ขึ้น `main` เว็บจะอัปเดตเอง
+- เวอร์ชัน artifact เดิม (ต้องมีบัญชี Claude): https://claude.ai/artifact/Vzy1qpBmoeaCRw4wND2t5s (ไฟล์เดียวกับ `docs/index.html` ที่ได้จาก `npm run build`) — กำลังย้ายไป GitHub Pages เพราะพัฒนากรไม่มีบัญชี Claude และ artifact แชร์ได้เฉพาะคนในองค์กร
 
 ---
 
