@@ -94,7 +94,7 @@ function refreshProgress(){
   const i = STEPS.findIndex(s => s.key === view);
   if (i >= 0){
     const s = STEPS[i], st = all[s.key];
-    $('#sh-' + s.key).innerHTML = `<div class="sh-top"><span class="sh-no">ขั้น ${s.no} · ขั้นตอนที่ ${i+1} จาก ${STEPS.length}</span>${badgeHTML(st.s)}</div>
+    $('#sh-' + s.key).innerHTML = `<div class="sh-top"><span class="sh-no">ขั้น ${s.no} · ขั้นตอนที่ ${i+1} จาก ${STEPS.length}</span>${badgeHTML(st.s)}<button class="linkbtn" type="button" data-help="${s.key}" aria-haspopup="dialog">? วิธีทำขั้นนี้</button></div>
       <h2>${esc(s.name)}</h2><p>${esc(s.desc)}</p>${st.issues.length ? issuesHTML(st.issues, s.key, 4) : st.s === 'done' ? '<ul class="issues"><li class="more">ข้อมูลสำคัญของขั้นนี้ครบแล้ว กลับมาแก้ไขได้ทุกเมื่อ</li></ul>' : ''}`;
   }
   // ปุ่มย้อนกลับ/ถัดไป
@@ -189,6 +189,6 @@ function doNavScroll(){
   if (!t) return;
   if (t === 'top'){ window.scrollTo(0, 0); return; }
   const el = document.getElementById(t);
-  if (el){ el.scrollIntoView({ block:'start' }); const h = el.querySelector('h2'); if (h){ h.setAttribute('tabindex', '-1'); h.focus({ preventScroll:true }); } }
+  if (el){ el.scrollIntoView?.({ block:'start' }); const h = el.querySelector('h2'); if (h){ h.setAttribute('tabindex', '-1'); h.focus({ preventScroll:true }); } }
 }
 window.addEventListener('hashchange', () => setTimeout(doNavScroll, 0));

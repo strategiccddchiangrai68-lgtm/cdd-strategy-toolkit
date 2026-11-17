@@ -7,7 +7,7 @@
 
 - เจ้าของงาน: เบียร์ (จารุ ชัยพินิจ) นักวิชาการพัฒนาชุมชนชำนาญการ กลุ่มงานยุทธศาสตร์การพัฒนาชุมชน สำนักงานพัฒนาชุมชนจังหวัดเชียงราย
 - ภาษาในโค้ดคอมเมนต์และ UI: ไทย
-- สถานะ: ต้นแบบครบ 5 ขั้น (⓪–④) ผ่าน e2e test ยังไม่ได้ทดสอบกับพัฒนากรในพื้นที่จริง
+- สถานะ: ต้นแบบครบ 5 ขั้น (⓪–④) + ปรับ UX 4 รอบ (พ.ย. 2569) ผ่าน e2e test 12 ชุด ยังไม่ได้ทดสอบกับพัฒนากรในพื้นที่จริง
 - Repo (สาธารณะ): https://github.com/strategiccddchiangrai68-lgtm/cdd-strategy-toolkit — branch `main`
 - เว็บแอป (GitHub Pages จาก `main` โฟลเดอร์ `/docs`): https://strategiccddchiangrai68-lgtm.github.io/cdd-strategy-toolkit/ — แก้ `src/` → `npm run build` → `npm test` → commit แล้ว push ขึ้น `main` เว็บจะอัปเดตเอง
 - เวอร์ชัน artifact เดิม (ต้องมีบัญชี Claude): https://claude.ai/artifact/Vzy1qpBmoeaCRw4wND2t5s (ไฟล์เดียวกับ `docs/index.html` ที่ได้จาก `npm run build`) — กำลังย้ายไป GitHub Pages เพราะพัฒนากรไม่มีบัญชี Claude และ artifact แชร์ได้เฉพาะคนในองค์กร
@@ -83,6 +83,8 @@
   - คำตอบ AI รอบใหม่ (`draftFromAnswer`) แทนเฉพาะข้อ `ai` ที่ไม่มีใครแตะ; ข้อ review/ok/staff คงไว้ (รหัสชนกับข้อใหม่ → เปลี่ยนรหัสข้อที่คงไว้); คำตอบที่อ่านไม่ได้ไม่ลบร่างเดิม
   - `effPart2()` = SWOT จาก draft + TOWS/ทิศทาง/ยุทธศาสตร์จาก AI → ใช้ตรวจ (`validateAnswer1`), ขั้น ③ (`part2Ctx`, Prompt #2) และรูปเล่ม; ทิศทาง (2.4) และยุทธศาสตร์ (2.5) ยังแก้ในหน้าไม่ได้
   - export เพิ่ม `analysis.swot_review` (= draft) และ `analysis.part2_edited` (= effPart2) คีย์เดิมคงอยู่; ไฟล์ที่ไม่มี draft สร้างจากคำตอบ AI ทุกข้อเป็น ai
+- UX รอบ 4: ขั้น ④ ข้อ ข `bookChecklist()` รายการตรวจ 3 ระดับ fix (ต้องแก้ก่อนส่งออก: ข้อมูลผิด/ขัดกัน) / check (ควรตรวจ: ยังขาด → แถบเหลืองใน Word) / pass พร้อมลิงก์ `data-el` ไปแก้; ดาวน์โหลดขณะมี fix ต้องยืนยันก่อน; `renderPreview()` ตัวอย่างเนื้อหาเล่ม HTML (ติดป้าย Preview, เนื้อหาเดียวกับ `bookData()`, `buildBook` ไม่เปลี่ยน)
+- `js/help.js` แผงช่วยเหลือ (ปุ่ม “? ช่วยเหลือ” และ “วิธีทำขั้นนี้” ในหัวขั้น, `data-help=หัวข้อ`) — Esc ปิด, วนโฟกัสในแผง, คืนโฟกัสเมื่อปิด
 - `parseTisRows()` คืน `skipped:[{row, reason}]` เพิ่ม (แถวที่มีข้อมูลแต่อ่านไม่ได้) แสดงในขั้น ① พร้อมตารางตรวจรายหมู่บ้าน
 - การบันทึกสถานะ: `localStorage` แบบ “ชุดข้อมูลรายตำบล” (workspace) — ทุกขั้นของตำบลหนึ่งอยู่ใน key เดียว
   - `tambon-ws:{อำเภอ}|{ตำบล}|{ปีแผนเดิม}` = `wsSnapshot()` → `{v, updated_at, review:{review,ai,usingSample}, pdf, cur, ana, prj, bk, notice}` (ตำบล/อำเภอ/ปีมาจาก `meta` ขั้น ⓪; ใส่อำเภอเพราะอาจมีตำบลชื่อซ้ำ)

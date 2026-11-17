@@ -349,3 +349,46 @@ table.mini th{ background:var(--brand-soft); }
 .sw-foot{ display:flex; flex-wrap:wrap; gap:8px; align-items:center; justify-content:space-between; }
 .sw-foot label{ display:flex; gap:6px; align-items:center; font-size:13.5px; color:var(--muted); }
 .sw-foot select{ padding:4px 6px; border:1px solid var(--rule); border-radius:6px; background:var(--surface); color:var(--ink); }
+
+/* ===== UX รอบ 4: รายการตรวจก่อนส่งออก ===== */
+.ck-sum{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px; }
+.ck-pill{ display:inline-flex; gap:6px; align-items:center; padding:4px 12px; border-radius:999px; border:1px solid var(--rule); font-size:15px; background:var(--sunk); }
+.ck-pill[data-lv="fix"]{ background:var(--bad-soft); color:var(--bad); border-color:var(--bad); }
+.ck-pill[data-lv="check"]{ background:var(--warn-soft); color:var(--warn); border-color:var(--warn); }
+.ck-pill[data-lv="pass"]{ background:var(--ok-soft); color:var(--ok); border-color:var(--ok); }
+.ck-group{ margin-top:12px; border:1px solid var(--rule); border-left:6px solid var(--rule); border-radius:10px; padding:10px 14px; background:var(--surface); }
+.ck-group[data-lv="fix"]{ border-left-color:var(--bad); } .ck-group[data-lv="check"]{ border-left-color:var(--warn); } .ck-group[data-lv="pass"]{ border-left-color:var(--ok); }
+.ck-group h3{ margin:0 0 6px; font-size:17px; }
+.ck-group[data-lv="fix"] h3{ color:var(--bad); } .ck-group[data-lv="check"] h3{ color:var(--warn); } .ck-group[data-lv="pass"] h3{ color:var(--ok); }
+.ck-group ul{ list-style:none; margin:0; padding:0; display:grid; gap:4px; }
+.ck-group li{ display:flex; flex-wrap:wrap; gap:4px 12px; justify-content:space-between; align-items:baseline; padding:5px 0; border-bottom:1px solid var(--rule); font-size:15px; }
+.ck-group li:last-child{ border-bottom:0; }
+.ck-g{ display:inline-block; min-width:7.5em; color:var(--muted); font-weight:600; }
+.ck-group .go{ color:var(--ink); font-weight:600; text-decoration:underline; text-underline-offset:3px; white-space:nowrap; }
+
+/* ===== ตัวอย่างเนื้อหาเล่ม ===== */
+.bookpv{ margin-top:14px; }
+.pv-note{ padding:10px 12px; border-radius:8px; background:var(--info-soft); border-left:4px solid var(--info); font-size:15px; margin-bottom:10px; }
+.pv{ background:#fff; color:#111; border:1px solid var(--rule); border-radius:8px; padding:24px clamp(16px,5vw,48px); font-size:16px; line-height:1.65; }
+.pv section{ padding:12px 0; border-bottom:1px dashed #ccc; } .pv section:last-child{ border-bottom:0; }
+.pv h3{ font-size:19px; margin:0 0 8px; text-align:center; } .pv h4{ font-size:16.5px; margin:12px 0 4px; }
+.pv-cover{ text-align:center; } .pv-cover h3{ font-size:24px; }
+.pv p{ margin:4px 0; } .pv ol, .pv ul{ margin:4px 0; padding-left:1.6em; }
+.pv table.mini{ background:#fff; color:#111; } .pv table.mini th{ background:#eee; }
+mark.fill{ background:#FFF07A; color:#111; padding:0 3px; border-radius:3px; }
+
+/* ===== แผงช่วยเหลือ ===== */
+.linkbtn{ margin-left:auto; background:none; border:0; padding:4px 2px; color:var(--brand); font-weight:600; font-size:14.5px; text-decoration:underline; text-underline-offset:3px; cursor:pointer; min-height:32px; }
+.helpwrap{ position:fixed; inset:0; z-index:40; display:flex; justify-content:flex-end; }
+.helpwrap[hidden]{ display:none; }
+.helpback{ position:absolute; inset:0; background:rgba(0,0,0,.35); }
+.helppanel{ position:relative; width:min(560px, 100vw); height:100%; overflow:auto; background:var(--surface); color:var(--ink); padding:16px 18px calc(24px + env(safe-area-inset-bottom,0px)); box-shadow:-8px 0 24px rgba(0,0,0,.2); }
+.helppanel:focus{ outline:none; }
+.help-h{ display:flex; justify-content:space-between; align-items:center; gap:10px; position:sticky; top:-16px; background:var(--surface); padding:6px 0 10px; z-index:1; }
+.help-h h2{ margin:0; font-size:21px; }
+.help-sec{ border:1px solid var(--rule); border-radius:10px; margin-bottom:8px; background:var(--surface); }
+.help-sec > summary{ cursor:pointer; padding:10px 12px; font-weight:700; font-size:16.5px; min-height:44px; display:flex; align-items:center; }
+.help-sec > div{ padding:0 14px 10px; font-size:15.5px; }
+.help-sec ol, .help-sec ul{ padding-left:1.3em; margin:6px 0; } .help-sec li{ margin:4px 0; }
+.help-dl dt{ font-weight:700; margin-top:8px; } .help-dl dd{ margin:2px 0 0; color:var(--muted); }
+body.noscroll{ overflow:hidden; }

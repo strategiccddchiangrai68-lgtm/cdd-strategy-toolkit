@@ -23,6 +23,7 @@
         <button class="btn ghost small" id="wsNew" type="button">＋ เริ่มตำบลใหม่</button>
         <button class="btn ghost small" id="wsBackup" type="button">⬇ สำรองเป็นไฟล์ (.json)</button>
         <button class="btn ghost small" id="wsOpen" type="button">⬆ เปิดไฟล์สำรอง (.json)</button>
+        <button class="btn ghost small" id="helpBtn" type="button" data-help="start" aria-haspopup="dialog">? ช่วยเหลือ</button>
       </div>
       <input type="file" id="wsFile" accept=".json,application/json" hidden>
       <div class="savestate" id="saveState" role="status" aria-live="polite" data-s="empty">ยังไม่มีงานให้บันทึก</div>
@@ -508,10 +509,10 @@
   </section>
   <section class="step" id="b2">
     <div class="step-head"><div class="step-no" aria-label="ข้อ ข">ข</div><div>
-      <h2>ความพร้อมของแต่ละส่วน</h2>
-      <p>ตรวจจากข้อมูลในขั้น ⓪ ถึง ③ ส่วนที่ยังไม่พร้อมยังส่งออกได้ แต่จะเป็นแถบเหลืองให้เติมใน Word</p>
+      <h2>ตรวจความพร้อมก่อนส่งออก</h2>
+      <p>แอปตรวจข้อมูลจากขั้น ⓪ ถึง ③ แบ่งเป็น 3 ระดับ กด “ไปแก้” เพื่อไปยังจุดนั้น ส่วนที่ยังขาดจะเป็นแถบเหลือง “ต้องเติม” ในไฟล์ Word</p>
     </div></div>
-    <div class="panel"><ul class="facts" id="bookFacts" style="margin-top:0"></ul></div>
+    <div class="panel"><div id="bookCheck"></div></div>
   </section>
   <section class="step" id="b3">
     <div class="step-head"><div class="step-no" aria-label="ข้อ ค">ค</div><div>
@@ -519,11 +520,20 @@
       <p>ไฟล์ Word ตามแบบฟอร์มรูปเล่มแผนพัฒนาตำบล ส่วนที่ 3 เป็นหน้าแนวนอน ตั้งฟอนต์ TH SarabunPSK ขนาด 16</p>
     </div></div>
     <div class="panel">
-      <div class="row-actions"><button class="btn" id="dlBook" type="button">ดาวน์โหลดรูปเล่ม (.docx)</button></div>
+      <div class="row-actions"><button class="btn ghost" id="previewBtn" type="button" aria-expanded="false" aria-controls="bookPreview">ดูตัวอย่างเนื้อหาเล่ม</button><button class="btn" id="dlBook" type="button">⬇ ดาวน์โหลดรูปเล่ม (.docx)</button></div>
       <p class="note" id="bookNote"></p>
+      <p class="note">เปิดไฟล์ใน Word แล้วถ้าขึ้นแถบสีเหลือง “Protected View” ให้กด <b>Enable Editing</b> ก่อนแก้ไข จากนั้นค้นหาคำว่า “ต้องเติม” เพื่อเติมให้ครบ</p>
+      <div id="bookPreview" class="bookpv" hidden></div>
     </div>
   </section>
 </main>
+</div>
+<div class="helpwrap" id="helpWrap" hidden>
+  <div class="helpback" data-help-close></div>
+  <section class="helppanel" role="dialog" aria-modal="true" aria-labelledby="helpTitle" tabindex="-1">
+    <div class="help-h"><h2 id="helpTitle">ช่วยเหลือการใช้งาน</h2><button class="btn ghost small" type="button" data-help-close>✕ ปิด</button></div>
+    <div id="helpBody"></div>
+  </section>
 </div>
 <nav class="stepbar" id="stepbar" aria-label="ไปขั้นก่อนหน้าหรือถัดไป" hidden></nav>
 <div class="toast" id="toast" role="status" hidden></div>
@@ -547,6 +557,7 @@
 <script src="js/step4-docx.js"></script>
 <script src="js/step4-book.js"></script>
 <script src="js/progress.js"></script>
+<script src="js/help.js"></script>
 <script src="js/workspace.js"></script>
 <script src="js/main.js"></script>
 </body>

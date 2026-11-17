@@ -360,6 +360,49 @@ table.mini th{ background:var(--brand-soft); }
 .sw-foot{ display:flex; flex-wrap:wrap; gap:8px; align-items:center; justify-content:space-between; }
 .sw-foot label{ display:flex; gap:6px; align-items:center; font-size:13.5px; color:var(--muted); }
 .sw-foot select{ padding:4px 6px; border:1px solid var(--rule); border-radius:6px; background:var(--surface); color:var(--ink); }
+
+/* ===== UX รอบ 4: รายการตรวจก่อนส่งออก ===== */
+.ck-sum{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px; }
+.ck-pill{ display:inline-flex; gap:6px; align-items:center; padding:4px 12px; border-radius:999px; border:1px solid var(--rule); font-size:15px; background:var(--sunk); }
+.ck-pill[data-lv="fix"]{ background:var(--bad-soft); color:var(--bad); border-color:var(--bad); }
+.ck-pill[data-lv="check"]{ background:var(--warn-soft); color:var(--warn); border-color:var(--warn); }
+.ck-pill[data-lv="pass"]{ background:var(--ok-soft); color:var(--ok); border-color:var(--ok); }
+.ck-group{ margin-top:12px; border:1px solid var(--rule); border-left:6px solid var(--rule); border-radius:10px; padding:10px 14px; background:var(--surface); }
+.ck-group[data-lv="fix"]{ border-left-color:var(--bad); } .ck-group[data-lv="check"]{ border-left-color:var(--warn); } .ck-group[data-lv="pass"]{ border-left-color:var(--ok); }
+.ck-group h3{ margin:0 0 6px; font-size:17px; }
+.ck-group[data-lv="fix"] h3{ color:var(--bad); } .ck-group[data-lv="check"] h3{ color:var(--warn); } .ck-group[data-lv="pass"] h3{ color:var(--ok); }
+.ck-group ul{ list-style:none; margin:0; padding:0; display:grid; gap:4px; }
+.ck-group li{ display:flex; flex-wrap:wrap; gap:4px 12px; justify-content:space-between; align-items:baseline; padding:5px 0; border-bottom:1px solid var(--rule); font-size:15px; }
+.ck-group li:last-child{ border-bottom:0; }
+.ck-g{ display:inline-block; min-width:7.5em; color:var(--muted); font-weight:600; }
+.ck-group .go{ color:var(--ink); font-weight:600; text-decoration:underline; text-underline-offset:3px; white-space:nowrap; }
+
+/* ===== ตัวอย่างเนื้อหาเล่ม ===== */
+.bookpv{ margin-top:14px; }
+.pv-note{ padding:10px 12px; border-radius:8px; background:var(--info-soft); border-left:4px solid var(--info); font-size:15px; margin-bottom:10px; }
+.pv{ background:#fff; color:#111; border:1px solid var(--rule); border-radius:8px; padding:24px clamp(16px,5vw,48px); font-size:16px; line-height:1.65; }
+.pv section{ padding:12px 0; border-bottom:1px dashed #ccc; } .pv section:last-child{ border-bottom:0; }
+.pv h3{ font-size:19px; margin:0 0 8px; text-align:center; } .pv h4{ font-size:16.5px; margin:12px 0 4px; }
+.pv-cover{ text-align:center; } .pv-cover h3{ font-size:24px; }
+.pv p{ margin:4px 0; } .pv ol, .pv ul{ margin:4px 0; padding-left:1.6em; }
+.pv table.mini{ background:#fff; color:#111; } .pv table.mini th{ background:#eee; }
+mark.fill{ background:#FFF07A; color:#111; padding:0 3px; border-radius:3px; }
+
+/* ===== แผงช่วยเหลือ ===== */
+.linkbtn{ margin-left:auto; background:none; border:0; padding:4px 2px; color:var(--brand); font-weight:600; font-size:14.5px; text-decoration:underline; text-underline-offset:3px; cursor:pointer; min-height:32px; }
+.helpwrap{ position:fixed; inset:0; z-index:40; display:flex; justify-content:flex-end; }
+.helpwrap[hidden]{ display:none; }
+.helpback{ position:absolute; inset:0; background:rgba(0,0,0,.35); }
+.helppanel{ position:relative; width:min(560px, 100vw); height:100%; overflow:auto; background:var(--surface); color:var(--ink); padding:16px 18px calc(24px + env(safe-area-inset-bottom,0px)); box-shadow:-8px 0 24px rgba(0,0,0,.2); }
+.helppanel:focus{ outline:none; }
+.help-h{ display:flex; justify-content:space-between; align-items:center; gap:10px; position:sticky; top:-16px; background:var(--surface); padding:6px 0 10px; z-index:1; }
+.help-h h2{ margin:0; font-size:21px; }
+.help-sec{ border:1px solid var(--rule); border-radius:10px; margin-bottom:8px; background:var(--surface); }
+.help-sec > summary{ cursor:pointer; padding:10px 12px; font-weight:700; font-size:16.5px; min-height:44px; display:flex; align-items:center; }
+.help-sec > div{ padding:0 14px 10px; font-size:15.5px; }
+.help-sec ol, .help-sec ul{ padding-left:1.3em; margin:6px 0; } .help-sec li{ margin:4px 0; }
+.help-dl dt{ font-weight:700; margin-top:8px; } .help-dl dd{ margin:2px 0 0; color:var(--muted); }
+body.noscroll{ overflow:hidden; }
 </style>
 </head>
 <body>
@@ -375,6 +418,7 @@ table.mini th{ background:var(--brand-soft); }
         <button class="btn ghost small" id="wsNew" type="button">＋ เริ่มตำบลใหม่</button>
         <button class="btn ghost small" id="wsBackup" type="button">⬇ สำรองเป็นไฟล์ (.json)</button>
         <button class="btn ghost small" id="wsOpen" type="button">⬆ เปิดไฟล์สำรอง (.json)</button>
+        <button class="btn ghost small" id="helpBtn" type="button" data-help="start" aria-haspopup="dialog">? ช่วยเหลือ</button>
       </div>
       <input type="file" id="wsFile" accept=".json,application/json" hidden>
       <div class="savestate" id="saveState" role="status" aria-live="polite" data-s="empty">ยังไม่มีงานให้บันทึก</div>
@@ -860,10 +904,10 @@ table.mini th{ background:var(--brand-soft); }
   </section>
   <section class="step" id="b2">
     <div class="step-head"><div class="step-no" aria-label="ข้อ ข">ข</div><div>
-      <h2>ความพร้อมของแต่ละส่วน</h2>
-      <p>ตรวจจากข้อมูลในขั้น ⓪ ถึง ③ ส่วนที่ยังไม่พร้อมยังส่งออกได้ แต่จะเป็นแถบเหลืองให้เติมใน Word</p>
+      <h2>ตรวจความพร้อมก่อนส่งออก</h2>
+      <p>แอปตรวจข้อมูลจากขั้น ⓪ ถึง ③ แบ่งเป็น 3 ระดับ กด “ไปแก้” เพื่อไปยังจุดนั้น ส่วนที่ยังขาดจะเป็นแถบเหลือง “ต้องเติม” ในไฟล์ Word</p>
     </div></div>
-    <div class="panel"><ul class="facts" id="bookFacts" style="margin-top:0"></ul></div>
+    <div class="panel"><div id="bookCheck"></div></div>
   </section>
   <section class="step" id="b3">
     <div class="step-head"><div class="step-no" aria-label="ข้อ ค">ค</div><div>
@@ -871,11 +915,20 @@ table.mini th{ background:var(--brand-soft); }
       <p>ไฟล์ Word ตามแบบฟอร์มรูปเล่มแผนพัฒนาตำบล ส่วนที่ 3 เป็นหน้าแนวนอน ตั้งฟอนต์ TH SarabunPSK ขนาด 16</p>
     </div></div>
     <div class="panel">
-      <div class="row-actions"><button class="btn" id="dlBook" type="button">ดาวน์โหลดรูปเล่ม (.docx)</button></div>
+      <div class="row-actions"><button class="btn ghost" id="previewBtn" type="button" aria-expanded="false" aria-controls="bookPreview">ดูตัวอย่างเนื้อหาเล่ม</button><button class="btn" id="dlBook" type="button">⬇ ดาวน์โหลดรูปเล่ม (.docx)</button></div>
       <p class="note" id="bookNote"></p>
+      <p class="note">เปิดไฟล์ใน Word แล้วถ้าขึ้นแถบสีเหลือง “Protected View” ให้กด <b>Enable Editing</b> ก่อนแก้ไข จากนั้นค้นหาคำว่า “ต้องเติม” เพื่อเติมให้ครบ</p>
+      <div id="bookPreview" class="bookpv" hidden></div>
     </div>
   </section>
 </main>
+</div>
+<div class="helpwrap" id="helpWrap" hidden>
+  <div class="helpback" data-help-close></div>
+  <section class="helppanel" role="dialog" aria-modal="true" aria-labelledby="helpTitle" tabindex="-1">
+    <div class="help-h"><h2 id="helpTitle">ช่วยเหลือการใช้งาน</h2><button class="btn ghost small" type="button" data-help-close>✕ ปิด</button></div>
+    <div id="helpBody"></div>
+  </section>
 </div>
 <nav class="stepbar" id="stepbar" aria-label="ไปขั้นก่อนหน้าหรือถัดไป" hidden></nav>
 <div class="toast" id="toast" role="status" hidden></div>
@@ -2228,26 +2281,14 @@ function bookData(){
 function renderBook(){
   const defs = [['year','ปี พ.ศ. ของแผน','text','เช่น 2570'],['rdate','วันที่ประชุมทบทวน','text','เช่น 15 ม.ค. 2570'],['rres','มติที่ประชุม','text','เช่น เห็นชอบ'],['ratt','จำนวนผู้เข้าร่วมประชุม','number','']];
   $('#bookForm').innerHTML = defs.map(([k,l,ty,ph]) => `<label>${l}<input data-bk="${k}" type="${ty}" placeholder="${esc(ph)}" value="${esc(bk[k] ?? '')}"></label>`).join('');
-  const D = bookData(), f = [];
-  const b = D.base;
-  f.push([b.total && b.households ? 'ok' : 'warn', `ส่วนที่ 1: ${b.total ? 'มีจำนวนประชากรและครัวเรือน' : 'ยังไม่มีจำนวนประชากร'} ส่วนอื่นของส่วนที่ 1 (แผนที่ อาณาเขต อาชีพ กลุ่ม กองทุน ฯลฯ) ต้องเติมใน Word`]);
-  const sw = D.swot || {}; const nsw = ['S','W','O','T'].reduce((s,k) => s + (sw[k]||[]).length, 0);
-  const verr = ana.validation?.errors?.length || 0;
-  f.push([nsw ? (verr ? 'warn' : 'ok') : 'warn', nsw ? `ส่วนที่ 2.1–2.2: SWOT ${nsw} ข้อ${verr ? ` ยังมีจุดผิด ${verr} จุดในขั้น ②` : ''}` : 'ส่วนที่ 2.1–2.2: ยังไม่มี SWOT จากขั้น ②']);
-  f.push([D.tisOrder ? 'ok' : 'warn', D.tisOrder ? `ส่วนที่ 2.3: ใช้ผลการจัดลำดับจาก TIS ${D.tisN} หมู่บ้าน` : 'ส่วนที่ 2.3: ยังไม่ได้นำเข้ารายงาน TIS ในขั้น ①']);
-  f.push([D.direction && D.strategies?.length ? 'ok' : 'warn', D.direction ? `ส่วนที่ 2.4–2.5: มีทิศทางและกลยุทธ์ ${D.strategies?.length || 0} ข้อ` : 'ส่วนที่ 2.4–2.5: ยังไม่มีจากขั้น ②']);
-  f.push(['warn','ตารางการวิเคราะห์ปัญหาของตำบล: แอปยังไม่สร้างให้ ต้องเติมจากเวที']);
-  const chk = checkPlan(D.items, part2Ctx());
-  f.push([D.items.length ? (chk.bad.length || chk.warn.length ? 'warn' : 'ok') : 'warn', D.items.length ? `ส่วนที่ 3: ${D.items.length} โครงการ${chk.bad.concat(chk.warn).length ? ' ' + chk.bad.concat(chk.warn).join(' ') : ''}` : 'ส่วนที่ 3: ยังไม่มีโครงการ']);
-  f.push([bk.rdate && bk.rres ? 'ok' : 'warn', bk.rdate ? 'ส่วนที่ 4: มีบันทึกการทบทวน' : 'ส่วนที่ 4: ยังไม่ได้กรอกข้อมูลการประชุมทบทวนในข้อ ก']);
-  f.push(['info', `ส่วนที่ 5: แอปใส่แหล่งข้อมูลที่ใช้ ${D.sources.length} แหล่ง และสรุปผลทบทวนแผนเดิมให้ ช่วยตอบเกณฑ์ข้อ 3.3 ของแบบประเมินอำเภอ`]);
-  f.push(['info','ภาคผนวก: รายชื่อผู้สูงอายุและคนพิการต้องแนบเองนอกระบบ แอปไม่บันทึกข้อมูลส่วนบุคคล']);
-  if (!window.docx) f.unshift(['bad','โหลดตัวสร้างไฟล์ Word ไม่สำเร็จ ตรวจการเชื่อมต่ออินเทอร์เน็ตแล้วเปิดหน้านี้ใหม่']);
-  facts($('#bookFacts'), f);
+  renderChecklist();
+  if (!$('#bookPreview').hidden) renderPreview();
 }
 $('#bookForm').addEventListener('input', e => { const k = e.target.dataset.bk; if (!k) return; bk[k] = e.target.value; bkPersist(); clearTimeout(renderBook._t); renderBook._t = setTimeout(() => { const a = document.activeElement?.dataset?.bk; renderBook(); if (a){ const el = document.querySelector(`[data-bk="${a}"]`); if (el){ el.focus(); const v = el.value; if (el.type === 'text') el.setSelectionRange(v.length, v.length); } } }, 600); });
 $('#dlBook').addEventListener('click', async () => {
-  if (!window.docx){ $('#bookNote').textContent = 'โหลดตัวสร้างไฟล์ Word ไม่สำเร็จ'; return; }
+  if (!window.docx){ $('#bookNote').textContent = 'โหลดตัวสร้างไฟล์ Word ไม่สำเร็จ ตรวจการเชื่อมต่ออินเทอร์เน็ตแล้วเปิดหน้านี้ใหม่'; return; }
+  const nFix = bookChecklist().filter(x => x.lv === 'fix').length;
+  if (nFix && !confirm(`ยังมี ${nFix} รายการที่ “ต้องแก้ไขก่อนส่งออก”\n\nดาวน์โหลดเป็นฉบับร่างไปก่อนหรือไม่? (แนะนำให้แก้ก่อน แล้วค่อยส่งออกฉบับจริง)`)){ $('#bookNote').textContent = 'ยกเลิกการดาวน์โหลด แก้รายการในข้อ ข ก่อน'; return; }
   const D = bookData();
   if (!D.tambon){ $('#bookNote').textContent = 'ยังไม่รู้ชื่อตำบล ทำขั้น ⓪ หรือนำเข้ารายงาน TIS ก่อน'; return; }
   $('#bookNote').textContent = 'กำลังสร้างไฟล์…';
@@ -2263,6 +2304,120 @@ $('#dlBook').addEventListener('click', async () => {
 });
 [['#aiBox','#checkBtn'],['#ans1Box','#check1'],['#ans2Box','#check2']].forEach(([box, btn]) => $(box).addEventListener('paste', () => setTimeout(() => $(btn).click(), 60)));
 
+
+// ===== รายการตรวจก่อนส่งออก (3 ระดับ) =====
+// fix = ต้องแก้ไขก่อนส่งออก (ข้อมูลผิดหรือขัดกัน), check = ควรตรวจสอบเพิ่มเติม (ยังขาด จะเป็นแถบเหลืองใน Word), pass = ผ่าน
+// แต่ละรายการมี key/el สำหรับปุ่ม “ไปแก้”
+function bookChecklist(){
+  const L = [], add = (lv, group, text, key, el) => L.push({ lv, group, text, key, el });
+  const D = bookData(), b = D.base || {}, m = state.ai?.meta || {};
+  const n = v => v === '' || v === null || v === undefined ? null : Number(v);
+  // 1) ข้อมูลพื้นที่
+  if (D.tambon && D.amphoe) add('pass', 'ข้อมูลพื้นที่', `ตำบล${D.tambon} อำเภอ${D.amphoe} จังหวัด${D.changwat}`, 'review', 's2');
+  else add('fix', 'ข้อมูลพื้นที่', 'ยังไม่รู้ชื่อตำบลหรืออำเภอ ทำขั้น ⓪ หรือนำเข้ารายงาน TIS ในขั้น ①', 'review', 's2');
+  if (m.tambon && cur.tis?.tambon && cur.tis.tambon !== m.tambon) add('fix', 'ข้อมูลพื้นที่', `รายงาน TIS เป็นตำบล${cur.tis.tambon} ไม่ตรงกับแผนเดิม (ตำบล${m.tambon})`, 'current', 'c1');
+  if (m.tambon && ana.comm?.tambon && ana.comm.tambon !== m.tambon) add('fix', 'ข้อมูลพื้นที่', `รายงานทุนชุมชนเป็นตำบล${ana.comm.tambon} ไม่ตรงกับแผนเดิม`, 'analysis', 'a1');
+  if (!D.year) add('check', 'ข้อมูลพื้นที่', 'ยังไม่ระบุปี พ.ศ. ของแผน (ใช้บนปก)', 'book', 'b1');
+  // 2) ข้อมูลพื้นฐาน
+  if (n(b.male) !== null && n(b.female) !== null && n(b.total) !== null && n(b.male) + n(b.female) !== n(b.total)) add('fix', 'ข้อมูลพื้นฐาน', `ประชากรชาย ${fmt(b.male)} + หญิง ${fmt(b.female)} ไม่เท่ากับรวม ${fmt(b.total)}`, 'current', 'c4');
+  if (b.total && b.households) add('pass', 'ข้อมูลพื้นฐาน', `ประชากร ${fmt(b.total)} คน ${fmt(b.households)} ครัวเรือน`, 'current', 'c4');
+  else add('check', 'ข้อมูลพื้นฐาน', 'ยังไม่มีจำนวนประชากรหรือครัวเรือน', 'current', 'c4');
+  if (!b.year) add('check', 'ข้อมูลพื้นฐาน', 'ยังไม่ระบุปีของข้อมูลพื้นฐาน', 'current', 'c4');
+  add('check', 'ข้อมูลพื้นฐาน', 'ส่วนที่ 1 หัวข้ออื่น (แผนที่ อาณาเขต อาชีพ กลุ่ม กองทุน ฯลฯ) แอปไม่ได้สร้าง ต้องเติมใน Word', 'book', 'b3');
+  // 3) SWOT
+  if (!ana.answer) add('check', 'SWOT', 'ยังไม่มีร่าง SWOT (ส่วนที่ 2.1–2.2)', 'analysis', 'a3');
+  else {
+    const e = ana.validation?.errors?.length || 0, c = swotCounts();
+    if (e) add('fix', 'SWOT', `ร่าง SWOT/TOWS มีจุดที่ผิด ${e} จุด (เช่น อ้างรหัสที่ไม่มีจริง จับคู่ผิดประเภท)`, 'analysis', 'a4');
+    if (c.all && c.ok === c.all) add('pass', 'SWOT', `SWOT ยืนยันครบ ${c.all} ข้อ`, 'analysis', 'a4');
+    else add('check', 'SWOT', `SWOT ยังไม่ได้ยืนยัน ${c.all - c.ok} จาก ${c.all} ข้อ`, 'analysis', 'a4');
+  }
+  if (D.tisOrder?.length) add('pass', 'SWOT', `ส่วนที่ 2.3 ใช้ผลการจัดลำดับจาก TIS ${D.tisN} หมู่บ้าน`, 'current', 'c2');
+  else add('check', 'SWOT', 'ยังไม่ได้นำเข้ารายงาน TIS (ส่วนที่ 2.3)', 'current', 'c1');
+  // 4) ทิศทางและยุทธศาสตร์
+  if (D.direction && D.strategies?.length) add('pass', 'ยุทธศาสตร์', `มีทิศทาง (2.4) และยุทธศาสตร์ ${D.strategies.length} ข้อ (2.5)`, 'analysis', 'a4');
+  else add('check', 'ยุทธศาสตร์', 'ยังไม่มีทิศทาง (2.4) หรือยุทธศาสตร์ (2.5)', 'analysis', 'a3');
+  // 5) โครงการ
+  const items = D.items || [], chk = checkPlan(items, part2Ctx());
+  const fl = items.map(it => chk.perItem[it.uid] || []);
+  const nBad = fl.filter(x => x.some(y => y[0] === 'bad')).length;
+  const nWarn = fl.filter(x => x.some(y => y[0] === 'warn' && !/อาจเป็นโครงการซ้ำ/.test(y[1])) && !x.some(y => y[0] === 'bad')).length;
+  if (!items.length) add('fix', 'โครงการ', 'ส่วนที่ 3 ยังไม่มีโครงการเลย', 'projects', 'p3');
+  else {
+    if (nBad) add('fix', 'โครงการ', `โครงการที่ข้อมูลผิด ${nBad} โครงการ (เช่น ไม่มีชื่อ งบไม่ถูกต้อง)`, 'projects', 'p3');
+    if (nWarn) add('check', 'โครงการ', `โครงการที่รายละเอียดยังไม่ครบ ${nWarn} โครงการ (งบ ด้าน วิธีดำเนินการ ยุทธศาสตร์)`, 'projects', 'p3');
+    chk.warn.filter(x => /ยังไม่มีโครงการรองรับ|หมู่บ้านเดียว/.test(x)).forEach(x => add('check', 'โครงการ', x, 'projects', 'p4'));
+    if (!nBad && !nWarn) add('pass', 'โครงการ', `โครงการ ${items.length} โครงการ รายละเอียดครบ`, 'projects', 'p3');
+  }
+  // 6) ข้อมูลที่อาจซ้ำ
+  const dupOld = state.ai ? Object.keys(dupMap(state.ai.part3.projects)).length : 0;
+  const dupNew = fl.filter(x => x.some(y => /อาจเป็นโครงการซ้ำ/.test(y[1]))).length;
+  if (dupOld) add('check', 'ข้อมูลซ้ำ', `แผนเดิมมีโครงการชื่อเกือบซ้ำ ${dupOld} โครงการ`, 'review', 's3');
+  if (dupNew) add('check', 'ข้อมูลซ้ำ', `แผนใหม่มีโครงการชื่อคล้ายกัน ${dupNew} โครงการ`, 'projects', 'p3');
+  if (!dupOld && !dupNew) add('pass', 'ข้อมูลซ้ำ', 'ไม่พบโครงการที่ชื่อซ้ำหรือเกือบซ้ำ', 'projects', 'p3');
+  // 7) ส่วนอื่นของเล่ม
+  const ps = state.ai?.part3?.projects || [], nost = ps.filter(p => !rv(p.id).status).length;
+  if (nost) add('check', 'ส่วนอื่นของเล่ม', `ผลทบทวนแผนเดิมยังไม่ระบุสถานะ ${nost} โครงการ (ใช้สรุปในส่วนที่ 5)`, 'review', 's3');
+  if (bk.rdate && bk.rres) add('pass', 'ส่วนอื่นของเล่ม', 'ส่วนที่ 4 มีข้อมูลการประชุมทบทวนแผน', 'book', 'b1');
+  else add('check', 'ส่วนอื่นของเล่ม', 'ส่วนที่ 4 ยังไม่ได้กรอกวันที่หรือมติการประชุมทบทวน', 'book', 'b1');
+  add('check', 'ส่วนอื่นของเล่ม', 'ตารางการวิเคราะห์ปัญหาของตำบล แอปยังไม่สร้าง ต้องเติมจากเวทีใน Word', 'book', 'b3');
+  add('check', 'ส่วนอื่นของเล่ม', 'ภาคผนวก: รายชื่อผู้สูงอายุและคนพิการต้องแนบเองนอกระบบ (แอปไม่เก็บข้อมูลส่วนบุคคล)', 'book', 'b3');
+  return L;
+}
+const CK_LV = [['fix', 'ต้องแก้ไขก่อนส่งออก', '!'], ['check', 'ควรตรวจสอบเพิ่มเติม', '◐'], ['pass', 'ผ่านการตรวจสอบ', '✓']];
+function renderChecklist(){
+  const L = bookChecklist();
+  const cnt = lv => L.filter(x => x.lv === lv).length;
+  $('#bookCheck').innerHTML = (!window.docx ? '<ul class="facts" style="margin:0 0 10px"><li class="bad">โหลดตัวสร้างไฟล์ Word ไม่สำเร็จ ตรวจการเชื่อมต่ออินเทอร์เน็ตแล้วเปิดหน้านี้ใหม่</li></ul>' : '') +
+    `<div class="ck-sum">${CK_LV.map(([lv, lbl, ic]) => `<span class="ck-pill" data-lv="${lv}"><span aria-hidden="true">${ic}</span> ${lbl} <b>${cnt(lv)}</b></span>`).join('')}</div>` +
+    CK_LV.map(([lv, lbl, ic]) => { const arr = L.filter(x => x.lv === lv); if (!arr.length) return '';
+      return `<section class="ck-group" data-lv="${lv}"><h3><span aria-hidden="true">${ic}</span> ${lbl} (${arr.length})</h3><ul>${arr.map(x =>
+        `<li><span><b class="ck-g">${esc(x.group)}</b> ${esc(x.text)}</span>${lv !== 'pass' ? `<a class="go" href="#${x.key}" data-el="${esc(x.el)}">ไปแก้ →</a>` : ''}</li>`).join('')}</ul></section>`; }).join('');
+}
+
+// ===== ตัวอย่างเนื้อหาเล่ม (HTML) — เนื้อหาเดียวกับไฟล์ Word แต่ไม่ใช่หน้าตาจริง =====
+function renderPreview(){
+  const D = bookData(), b = D.base || {}, T = esc(D.tambon || '…'), A = esc(D.amphoe || '…');
+  const FILL = s => `<mark class="fill">[ต้องเติม: ${esc(s)}]</mark>`;
+  const v = (x, s) => x === null || x === undefined || x === '' ? FILL(s) : esc(typeof x === 'number' ? fmt(x) : x);
+  const sw = D.swot || {};
+  const list = arr => arr && arr.length ? `<ol>${arr.map(x => `<li>${esc(x.text)}</li>`).join('')}</ol>` : `<p>${FILL('ยังไม่มีข้อมูล')}</p>`;
+  const items = D.items || [];
+  const money = x => x === null || x === undefined || x === '' ? FILL('งบ') : Number(x) === 0 ? 'ไม่ใช้งบประมาณ' : fmt(x);
+  const DIMS = ['เศรษฐกิจ','สังคม','ทรัพยากรธรรมชาติและสิ่งแวดล้อม','ความมั่นคง','บริหารจัดการ'];
+  const rv4 = D.review || {};
+  $('#bookPreview').innerHTML = `<div class="pv-note" role="note"><b>ตัวอย่างเนื้อหา (Preview)</b> แสดงเนื้อหาที่จะอยู่ในไฟล์ Word เพื่อตรวจก่อนดาวน์โหลด ไม่ใช่หน้าตาจริงของเอกสาร คำนำ สารบัญ และข้อความตามแบบฟอร์มไม่ได้แสดงที่นี่ ส่วนที่มีพื้นเหลืองคือส่วนที่ต้องเติมใน Word</div>
+    <article class="pv">
+      <section class="pv-cover"><h3>แผนพัฒนาตำบล</h3><p>ประจำปี พ.ศ. ${v(D.year, 'ปี พ.ศ.')}</p><p>ตำบล${T} อำเภอ${A} จังหวัด${esc(D.changwat || 'เชียงราย')}</p></section>
+      <section><h3>ส่วนที่ 1 ข้อมูลทั่วไปของตำบล</h3>
+        <p>6. จำนวนประชากรรวมทั้งสิ้น ${v(b.total, 'จำนวน')} คน แยกเป็น ชาย ${v(b.male, 'จำนวน')} คน หญิง ${v(b.female, 'จำนวน')} คน</p>
+        <p>7. จำนวนครัวเรือน ${v(b.households, 'จำนวน')} ครัวเรือน</p>
+        <p>11. รายได้เฉลี่ยของประชากร ${b.year ? '(' + esc(b.year) + ') ' : ''}${v(b.income, 'บาท/คน/ปี')} บาท/คน/ปี</p>
+        <p>หัวข้อ 1–5, 6.1–6.2, 8–10, 12–15 ${FILL('เติมใน Word')}</p></section>
+      <section><h3>ส่วนที่ 2 การวิเคราะห์ข้อมูล</h3>
+        <h4>2.1 ปัจจัยภายใน</h4><p><b>(1) จุดอ่อน</b></p>${list(sw.W)}<p><b>(2) จุดแข็ง</b></p>${list(sw.S)}
+        <h4>2.2 ปัจจัยภายนอก</h4><p><b>(1) โอกาส</b></p>${list(sw.O)}<p><b>(2) อุปสรรค</b></p>${list(sw.T)}
+        <h4>2.3 ผลการวิเคราะห์ข้อมูลชุมชน (TIS)</h4>${D.tisOrder?.length ? `<div class="scroll"><table class="mini"><thead><tr><th>ประเด็นการพัฒนา</th>${[1,2,3,4,5].map(k => `<th>อันดับ ${k}</th>`).join('')}<th>อันดับเฉลี่ย</th></tr></thead><tbody>${D.tisOrder.map(o => `<tr><td>${esc(o.dim)}</td>${o.counts.map(c => `<td>${c}</td>`).join('')}<td>${o.avg.toFixed(2)}</td></tr>`).join('')}</tbody></table></div>` : `<p>${FILL('ผลการวิเคราะห์จาก TIS')}</p>`}
+        <h4>2.4 ทิศทางการพัฒนา</h4><p>${v(D.direction, 'ทิศทาง/เป้าหมาย')}</p>
+        <h4>2.5 กลยุทธ์หรือวิธีปฏิบัติ</h4>${D.strategies?.length ? `<ol>${D.strategies.map(s => `<li><b>${esc(s.name)}</b>${s.detail ? ' — ' + esc(s.detail) : ''}</li>`).join('')}</ol>` : `<p>${FILL('กลยุทธ์')}</p>`}
+        <h4>การวิเคราะห์ปัญหาของตำบล</h4><p>${FILL('ตารางจากเวที')}</p></section>
+      <section><h3>ส่วนที่ 3 แผนงาน/โครงการ/กิจกรรม (หน้าแนวนอนในไฟล์ Word)</h3>
+        <h4>3.1 เรียงตามลำดับความสำคัญ</h4>${items.length ? `<div class="scroll"><table class="mini"><thead><tr><th>ที่</th><th>ชื่อโครงการ</th><th>งบประมาณ</th><th>เป้าหมาย</th><th>ด้าน</th><th>วิธีดำเนินการ</th></tr></thead><tbody>${items.map((it, i) => `<tr><td>${i + 1}</td><td>${esc(it.name || '')}</td><td style="text-align:right">${money(it.budget)}</td><td>${it.target ? esc(it.target) : FILL('เป้าหมาย')}</td><td>${esc(it.dim || '')}</td><td>${esc(it.method || '')}</td></tr>`).join('')}</tbody></table></div>
+          <p>งบรวม ${fmt(items.reduce((s, it) => s + (Number(it.budget) || 0), 0))} บาท</p>` : `<p>${FILL('ยังไม่มีโครงการ')}</p>`}
+        <h4>3.2 แยกตามด้าน</h4><ul>${DIMS.map(d => { const arr = items.filter(it => it.dim === d); return `<li>ด้าน${d}: ${arr.length} โครงการ${arr.length ? ' (' + arr.map(it => esc(it.name)).join(', ') + ')' : ''}</li>`; }).join('')}${items.some(it => !DIMS.includes(it.dim)) ? `<li>${FILL(items.filter(it => !DIMS.includes(it.dim)).length + ' โครงการยังไม่ระบุด้าน')}</li>` : ''}</ul></section>
+      <section><h3>ส่วนที่ 4 การทบทวนแผนพัฒนาตำบล</h3><p>วันที่ ${v(rv4.date, 'วันที่')} · มติ ${v(rv4.resolution, 'มติ')} · ผู้เข้าร่วม ${v(rv4.attendees, 'จำนวน')} คน</p></section>
+      <section><h3>ส่วนที่ 5 เรื่องอื่น ๆ</h3>${D.sources?.length ? `<p><b>แหล่งข้อมูลที่ใช้</b></p><ul>${D.sources.map(s => `<li>${esc(s)}</li>`).join('')}</ul>` : ''}${D.reviewSummary ? `<p><b>ผลการทบทวนโครงการในแผนฉบับเดิม:</b> ${esc(D.reviewSummary)}</p>` : ''}<p>${FILL('เรื่องอื่นที่ ก.บ.ต. เห็นว่าสำคัญ')}</p></section>
+      <section><h3>ภาคผนวก</h3><p>${FILL('รายชื่อผู้สูงอายุและคนพิการ (จัดทำนอกระบบ)')} ${FILL('แบบประเมินของอำเภอ และภาพกิจกรรมเวที')}</p></section>
+    </article>`;
+}
+$('#previewBtn').addEventListener('click', () => {
+  const box = $('#bookPreview'), open = box.hidden;
+  if (open) renderPreview();
+  box.hidden = !open;
+  $('#previewBtn').setAttribute('aria-expanded', String(open));
+  $('#previewBtn').textContent = open ? 'ซ่อนตัวอย่างเนื้อหาเล่ม' : 'ดูตัวอย่างเนื้อหาเล่ม';
+  if (open) box.scrollIntoView?.({ block:'start' });
+});
 // progress.js — สถานะรายขั้นที่คำนวณจากข้อมูลจริง, แถบขั้นตอน, หัวขั้น, ปุ่มย้อนกลับ/ถัดไป และหน้าภาพรวม (#home)
 // ไม่เก็บข้อมูลใหม่ อ่านจาก state/cur/ana/prj/bk อย่างเดียว
 
@@ -2359,7 +2514,7 @@ function refreshProgress(){
   const i = STEPS.findIndex(s => s.key === view);
   if (i >= 0){
     const s = STEPS[i], st = all[s.key];
-    $('#sh-' + s.key).innerHTML = `<div class="sh-top"><span class="sh-no">ขั้น ${s.no} · ขั้นตอนที่ ${i+1} จาก ${STEPS.length}</span>${badgeHTML(st.s)}</div>
+    $('#sh-' + s.key).innerHTML = `<div class="sh-top"><span class="sh-no">ขั้น ${s.no} · ขั้นตอนที่ ${i+1} จาก ${STEPS.length}</span>${badgeHTML(st.s)}<button class="linkbtn" type="button" data-help="${s.key}" aria-haspopup="dialog">? วิธีทำขั้นนี้</button></div>
       <h2>${esc(s.name)}</h2><p>${esc(s.desc)}</p>${st.issues.length ? issuesHTML(st.issues, s.key, 4) : st.s === 'done' ? '<ul class="issues"><li class="more">ข้อมูลสำคัญของขั้นนี้ครบแล้ว กลับมาแก้ไขได้ทุกเมื่อ</li></ul>' : ''}`;
   }
   // ปุ่มย้อนกลับ/ถัดไป
@@ -2454,9 +2609,103 @@ function doNavScroll(){
   if (!t) return;
   if (t === 'top'){ window.scrollTo(0, 0); return; }
   const el = document.getElementById(t);
-  if (el){ el.scrollIntoView({ block:'start' }); const h = el.querySelector('h2'); if (h){ h.setAttribute('tabindex', '-1'); h.focus({ preventScroll:true }); } }
+  if (el){ el.scrollIntoView?.({ block:'start' }); const h = el.querySelector('h2'); if (h){ h.setAttribute('tabindex', '-1'); h.focus({ preventScroll:true }); } }
 }
 window.addEventListener('hashchange', () => setTimeout(doNavScroll, 0));
+// help.js — แผงช่วยเหลือ: คู่มือเริ่มต้น วิธีใช้รายขั้น ปุ่มสำคัญ การสำรอง/เรียกคืน และปัญหาที่พบบ่อย
+// เปิดจากปุ่ม “? ช่วยเหลือ” หรือปุ่มที่มี data-help="หัวข้อ" (เช่น “วิธีทำขั้นนี้” ในหัวขั้น)
+const HELP = [
+  { id:'start', title:'เริ่มต้นใช้งาน', body:`
+    <p>แอปนี้ช่วยเตรียมข้อมูลแผนพัฒนาตำบลทีละขั้น ข้อมูลจากขั้นก่อนไหลไปขั้นถัดไปเอง ไม่ต้องพิมพ์ซ้ำ</p>
+    <ol><li>กด <b>“เริ่มขั้น ⓪”</b> ที่หน้าภาพรวม หรือเลือกขั้นจากแถบด้านบน</li>
+      <li>ทำตามข้อ ก ข ค ง ในแต่ละขั้น กล่องสีเหลืองใต้หัวขั้นบอกว่ายังขาดอะไร</li>
+      <li>กด <b>“ถัดไป →”</b> ที่แถบด้านล่างเพื่อไปขั้นต่อไป ย้อนกลับมาแก้ได้ทุกเมื่อ ข้อมูลไม่หาย</li>
+      <li>ขั้น ④ ตรวจรายการก่อนส่งออก แล้วดาวน์โหลดไฟล์ Word</li></ol>
+    <p>อยากลองก่อน: ใช้ปุ่ม <b>“ลองด้วย…ป่าแดด”</b> ในแต่ละขั้น เป็นข้อมูลจริงของตำบลป่าแดดที่ใช้ทดสอบ</p>` },
+  { id:'review', title:'ขั้น ⓪ ทบทวนแผนเดิม', body:`
+    <ol><li><b>ข้อ ก</b> แนบไฟล์ PDF เล่มแผนเดิม แอปอ่านตัวเลขงบจากไฟล์ไว้เทียบกับที่ AI อ่าน</li>
+      <li><b>ข้อ ข</b> กด “คัดลอกคำสั่งและเปิด Gemini” → ใน Gemini แนบ PDF เดียวกัน วางคำสั่ง ส่ง → คัดลอกคำตอบกลับมาวาง</li>
+      <li><b>ข้อ ค</b> ตรวจงบทีละโครงการ (แถวขอบแดง = AI อ่านไม่ตรงกับไฟล์ ให้เปิดเล่มจริงดู) และเลือกสถานะการดำเนินงานตามข้อมูลจากเวที</li>
+      <li><b>ข้อ ง</b> ดูสรุปผลทบทวน</li></ol>
+    <p>ก่อนแนบไฟล์ให้ AI ถ้าทำได้ ให้ตัดหน้าที่มีชื่อและเบอร์โทรศัพท์บุคคลออก</p>` },
+  { id:'current', title:'ขั้น ① ข้อมูลตำบลปัจจุบัน', body:`
+    <ol><li><b>ข้อ ก</b> ส่งออก Excel “รายงานผลการวิเคราะห์ TIS” จากระบบ TIS แล้วนำมาใส่ ตรวจตารางรายหมู่บ้านที่แอปแสดง</li>
+      <li><b>ข้อ ข</b> ตาราง heatmap ใช้เปิดเวทีว่าหมู่บ้านเห็นตรงกันแค่ไหน</li>
+      <li><b>ข้อ ค</b> แก้ข้อมูลพื้นฐานเป็นปีล่าสุด และระบุปีของข้อมูลทุกครั้ง</li></ol>` },
+  { id:'analysis', title:'ขั้น ② SWOT และยุทธศาสตร์', body:`
+    <ol><li><b>ข้อ ก</b> นำเข้า Excel “ผลการวิเคราะห์ข้อมูลชุมชน” จาก TIS</li>
+      <li><b>ข้อ ข</b> พิมพ์สิ่งที่เวทีประชาคมพูด บรรทัดละหนึ่งประเด็น ข้อมูลจากเวทีได้น้ำหนักสูงสุด</li>
+      <li><b>ข้อ ค</b> คัดลอกคำสั่งไปให้ Gemini (ไม่ต้องแนบไฟล์) แล้ววางคำตอบกลับมา</li>
+      <li><b>ข้อ ง</b> ตรวจร่าง SWOT ทีละข้อ แก้ข้อความ เพิ่ม ลบ หรือเรียงได้ เมื่อเวทีเห็นชอบให้กด “ยืนยันข้อนี้”</li></ol>
+    <p>สถานะ: <b>ข้อเสนอจาก AI</b> → แก้แล้วเป็น <b>รอเจ้าหน้าที่ตรวจ</b> → <b>ยืนยันแล้ว</b> ข้อที่แก้ เพิ่มเอง หรือยืนยันแล้ว จะไม่ถูกคำตอบ AI รอบใหม่เปลี่ยน</p>` },
+  { id:'projects', title:'ขั้น ③ จัดทำโครงการ', body:`
+    <ol><li><b>ข้อ ก</b> โครงการที่ “ทำแล้วและทำต่อ” หรือ “ยังไม่ได้ทำแต่ยกไป” จากขั้น ⓪ เข้ามาเอง</li>
+      <li><b>ข้อ ข</b> ให้ Gemini เสนอโครงการสำหรับยุทธศาสตร์ที่ยังขาด แล้วติ๊กเฉพาะที่เวทีเห็นชอบ</li>
+      <li><b>ข้อ ค</b> กรอกงบ เป้าหมาย ระยะเวลา ด้าน วิธีดำเนินการ ยุทธศาสตร์ และเรียงลำดับด้วย ▲▼ ตามมติเวที</li>
+      <li><b>ข้อ ง</b> ตรวจความครบถ้วนและดูตาราง 3.1</li></ol>
+    <p>งบประมาณใส่เป็นตัวเลขล้วน ไม่ต้องมีจุลภาค AI ไม่กำหนดงบให้ เวทีเป็นผู้กำหนด</p>` },
+  { id:'book', title:'ขั้น ④ ตรวจสอบและส่งออกรูปเล่ม', body:`
+    <ol><li><b>ข้อ ก</b> กรอกปีของแผนและข้อมูลการประชุมทบทวน</li>
+      <li><b>ข้อ ข</b> ดูรายการตรวจ: <b>ต้องแก้ไขก่อนส่งออก</b> (ข้อมูลผิดหรือขัดกัน) / <b>ควรตรวจสอบเพิ่มเติม</b> (ยังขาด) / <b>ผ่าน</b> กด “ไปแก้ →” เพื่อไปยังจุดนั้น</li>
+      <li><b>ข้อ ค</b> กด “ดูตัวอย่างเนื้อหาเล่ม” เพื่อตรวจก่อน แล้วดาวน์โหลดไฟล์ Word</li></ol>
+    <p>เปิดไฟล์ใน Word ถ้าขึ้นแถบ <b>Protected View</b> ให้กด <b>Enable Editing</b> แล้วค้นหาคำว่า “ต้องเติม” (Ctrl+F) เพื่อเติมให้ครบ</p>` },
+  { id:'buttons', title:'ปุ่มสำคัญ', body:`
+    <dl class="help-dl">
+      <dt>ตำบลที่ทำอยู่</dt><dd>สลับไปทำตำบลอื่นที่เคยทำในเครื่องนี้ งานของแต่ละตำบลแยกกัน ไม่ปนกัน</dd>
+      <dt>＋ เริ่มตำบลใหม่</dt><dd>เก็บงานตำบลที่เปิดอยู่ไว้ แล้วเริ่มตำบลใหม่จากขั้น ⓪</dd>
+      <dt>⬇ สำรองเป็นไฟล์ (.json)</dt><dd>ดาวน์โหลดงานทั้งหมดของตำบลนี้เป็นไฟล์ เก็บไว้กันหาย หรือส่งไปทำต่อเครื่องอื่น</dd>
+      <dt>⬆ เปิดไฟล์สำรอง (.json)</dt><dd>เปิดไฟล์ที่สำรองไว้ ถ้าตำบลนั้นมีอยู่ในเครื่องแล้ว แอปจะถามก่อนแทนที่</dd>
+      <dt>คัดลอกคำสั่งและเปิด Gemini</dt><dd>คัดลอกคำสั่งให้ AI แล้วเปิด Gemini ในแท็บใหม่ แอปไม่ส่งข้อมูลให้ AI เอง</dd>
+      <dt>ตรวจคำตอบ</dt><dd>ตรวจคำตอบที่วางจาก Gemini (วางแล้วแอปตรวจให้เองด้วย)</dd>
+      <dt>← ย้อนกลับ / ถัดไป →</dt><dd>อยู่ด้านล่างจอ ใช้เปลี่ยนขั้น</dd>
+    </dl>` },
+  { id:'backup', title:'การบันทึก สำรอง และเรียกคืนข้อมูล', body:`
+    <ul><li><b>บันทึกอัตโนมัติ:</b> ทุกครั้งที่แก้ แอปบันทึกลงเบราว์เซอร์ของเครื่องนี้ ดูสถานะได้ที่ “บันทึกในเครื่องนี้แล้ว …” ใต้แถบตำบล</li>
+      <li><b>ข้อจำกัด:</b> ข้อมูลอยู่ในเบราว์เซอร์นี้เท่านั้น ถ้าล้างประวัติเบราว์เซอร์ ใช้โหมดไม่ระบุตัวตน เปลี่ยนเบราว์เซอร์หรือเปลี่ยนเครื่อง งานจะไม่ตามไป</li>
+      <li><b>สำรอง:</b> กด “สำรองเป็นไฟล์ (.json)” หลังเวทีแต่ละครั้ง หรือก่อนปิดเครื่อง เก็บไฟล์ไว้ใน Google Drive หรือแฟลชไดรฟ์</li>
+      <li><b>เรียกคืน/ทำต่อเครื่องอื่น:</b> เปิดเว็บนี้ แล้วกด “เปิดไฟล์สำรอง (.json)”</li>
+      <li>ถ้าขึ้น <b>“บันทึกไม่สำเร็จ”</b> สีแดง ให้กดสำรองเป็นไฟล์ทันที</li></ul>` },
+  { id:'faq', title:'ปัญหาที่พบบ่อย', body:`
+    <dl class="help-dl">
+      <dt>กดคัดลอกแล้วไม่มีอะไรเกิดขึ้น</dt><dd>บางเบราว์เซอร์ไม่ให้คัดลอกอัตโนมัติ แอปจะเลือกข้อความไว้ให้ กด Ctrl+C เอง ถ้า Gemini ไม่เปิด ให้อนุญาตป๊อปอัปของเว็บนี้ หรือกดปุ่ม “เปิด Gemini”</dd>
+      <dt>วางคำตอบแล้วขึ้นว่าอ่านไม่ได้</dt><dd>ตรวจว่าคัดลอก “คำตอบ” ของ Gemini ไม่ใช่คำสั่ง และคัดลอกครบตั้งแต่ { ถึง } ถ้า Gemini ตอบยาวจนหยุด ให้พิมพ์ “ตอบต่อจากเดิม” แล้วนำมาต่อท้าย</dd>
+      <dt>งบที่ AI อ่านไม่ตรงกับไฟล์</dt><dd>เปิดเล่มจริงดูตัวเลข แล้วกดเลือกค่าที่ถูก AI มักอ่านเลขไทยผิด (เช่น ๓ กับ ๘)</dd>
+      <dt>นำเข้า Excel ไม่ได้</dt><dd>ใช้ไฟล์ที่ส่งออกจาก TIS โดยไม่แก้ไข ถ้าเป็น .xls เปิดใน Excel แล้วบันทึกเป็น .xlsx ลองใหม่</dd>
+      <dt>เปิดไฟล์ Word แล้วแก้ไม่ได้</dt><dd>กด Enable Editing ที่แถบสีเหลืองด้านบน (Protected View)</dd>
+      <dt>งานหาย</dt><dd>เปิดไฟล์สำรอง (.json) ล่าสุด ถ้าไม่เคยสำรอง ตรวจว่าเปิดด้วยเบราว์เซอร์และเครื่องเดิม และเลือกตำบลที่รายการ “ตำบลที่ทำอยู่”</dd>
+    </dl>` },
+];
+let helpReturn = null;
+function openHelp(id){
+  $('#helpBody').innerHTML = HELP.map(h => `<details class="help-sec" id="help-${h.id}"${h.id === id ? ' open' : ''}><summary>${h.title}</summary><div>${h.body}</div></details>`).join('');
+  helpReturn = document.activeElement;
+  $('#helpWrap').hidden = false;
+  document.body.classList.add('noscroll');
+  const sec = $('#help-' + id) || $('#help-start');
+  const panel = $('.helppanel');
+  panel.focus();
+  if (sec && id !== 'start') sec.scrollIntoView?.({ block:'start' });
+}
+function closeHelp(){
+  $('#helpWrap').hidden = true;
+  document.body.classList.remove('noscroll');
+  if (helpReturn && helpReturn.focus) helpReturn.focus();
+}
+document.addEventListener('click', e => {
+  const o = e.target.closest('[data-help]'); if (o){ e.preventDefault(); openHelp(o.dataset.help); return; }
+  if (e.target.closest('[data-help-close]')) closeHelp();
+});
+document.addEventListener('keydown', e => {
+  if ($('#helpWrap').hidden) return;
+  if (e.key === 'Escape'){ closeHelp(); return; }
+  if (e.key === 'Tab'){   // วนโฟกัสอยู่ในแผง
+    const f = [...$('.helppanel').querySelectorAll('button, summary, a[href], input, select, textarea')].filter(x => !x.disabled && x.offsetParent !== null);
+    if (!f.length) return;
+    const first = f[0], last = f[f.length - 1];
+    if (e.shiftKey && (document.activeElement === first || document.activeElement === $('.helppanel'))){ e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last){ e.preventDefault(); first.focus(); }
+  }
+});
 // workspace.js — ชุดข้อมูลรายตำบล: บันทึก/สลับ/เริ่มใหม่/เปิดไฟล์ .json/ย้ายข้อมูลรูปแบบเดิม
 /* ================= ชุดข้อมูลรายตำบล (workspace) =================
  * งานทุกขั้น (⓪–④) ของตำบลหนึ่งเก็บรวมใน key เดียว: tambon-ws:{อำเภอ}|{ตำบล}|{ปีแผนเดิม}

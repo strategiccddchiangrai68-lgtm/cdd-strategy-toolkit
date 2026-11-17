@@ -385,6 +385,57 @@ const file = p => { const b = fs.readFileSync(p); return { name: path.basename(p
     console.log('✓ ร่าง SWOT แก้ไขได้ พร้อมสถานะ และ AI รอบใหม่ไม่ทับข้อที่ยืนยัน');
   }
 
+  // ===== รอบ UX 4: รายการตรวจก่อนส่งออก ตัวอย่างเล่ม ส่วนช่วยเหลือ =====
+  {
+    const h = boot(); await wait(100); const hd = h.document;
+    const ev4 = (el, type = 'change') => el.dispatchEvent(new h.Event(type, { bubbles: true }));
+    const group = lv => hd.querySelector(`#bookCheck .ck-group[data-lv="${lv}"]`)?.textContent || '';
+    h.location.hash = '#book'; await wait(30);
+    assert.ok(/ยังไม่รู้ชื่อตำบลหรืออำเภอ/.test(group('fix')) && /ส่วนที่ 3 ยังไม่มีโครงการ/.test(group('fix')), 'check: ยังไม่มีข้อมูลต้องอยู่ใน “ต้องแก้ไขก่อนส่งออก”');
+    assert.ok(hd.querySelector('#bookCheck .ck-group[data-lv="fix"] a.go[href="#review"]'), 'check: ทุกรายการต้องมีปุ่มไปแก้');
+    // ทำข้อมูลให้มากขึ้น
+    h.location.hash = '#review'; await wait(30);
+    hd.querySelector('#loadSample').click(); await wait(20);
+    const s = hd.querySelectorAll('.item select[data-act=status]')[0]; s.value = 'done_continue'; ev4(s);
+    h.location.hash = '#current'; await wait(30);
+    await h.eval('readXls')(file(fx('tis_village_ranking_padaet_2569.xlsx')));
+    const male = hd.querySelector('[data-base="male"]'); male.value = '1'; ev4(male);
+    h.location.hash = '#book'; await wait(30);
+    assert.ok(/ตำบลป่าแดด อำเภอแม่สรวย/.test(group('pass')), 'check: ข้อมูลพื้นที่ครบต้องผ่าน');
+    assert.ok(/ไม่เท่ากับรวม/.test(group('fix')), 'check: ประชากรชาย+หญิงไม่เท่ากับรวม ต้องแก้ก่อนส่งออก');
+    assert.ok(/ส่วนที่ 2.3 ใช้ผลการจัดลำดับจาก TIS 22 หมู่บ้าน/.test(group('pass')), 'check: TIS นำเข้าแล้วต้องผ่าน');
+    assert.ok(/แผนเดิมมีโครงการชื่อเกือบซ้ำ/.test(group('check')), 'check: ต้องตรวจรายการที่อาจซ้ำ');
+    assert.ok(/ยังไม่ได้ยืนยัน|ยังไม่มีร่าง SWOT/.test(group('check')), 'check: SWOT ที่ยังไม่ตรวจต้องเตือน');
+    assert.ok(/ตารางการวิเคราะห์ปัญหา/.test(group('check')), 'check: ส่วนที่แอปไม่ได้สร้างต้องบอก');
+    // ส่งออกขณะยังมีรายการต้องแก้ต้องถามก่อน
+    let asked = null; const realConfirm = h.confirm; h.confirm = msg => { asked = msg; return false; };
+    hd.querySelector('#dlBook').click(); await wait(30);
+    h.confirm = realConfirm;
+    assert.ok(/ต้องแก้ไขก่อนส่งออก/.test(asked || '') && /ยกเลิกการดาวน์โหลด/.test(hd.querySelector('#bookNote').textContent), 'check: ยังมีรายการต้องแก้ ต้องถามก่อนดาวน์โหลด');
+    // แก้แล้วรายการต้องหายไป
+    h.location.hash = '#current'; await wait(30);
+    const male2 = hd.querySelector('[data-base="male"]'); male2.value = '3895'; ev4(male2);
+    h.location.hash = '#book'; await wait(30);
+    assert.ok(!/ไม่เท่ากับรวม/.test(group('fix')), 'check: แก้ข้อมูลแล้วรายการต้องหายจาก “ต้องแก้”');
+    // ตัวอย่างเนื้อหาเล่ม
+    hd.querySelector('#previewBtn').click();
+    const pv = hd.querySelector('#bookPreview');
+    assert.ok(!pv.hidden && /Preview/.test(pv.textContent) && /ตำบลป่าแดด อำเภอแม่สรวย/.test(pv.textContent), 'preview: ต้องแสดงตัวอย่างพร้อมป้ายว่าเป็นตัวอย่าง');
+    assert.ok(pv.querySelector('mark.fill') && /7,947|7947/.test(pv.textContent), 'preview: ต้องแสดงข้อมูลจริงและส่วนที่ต้องเติม');
+    assert.strictEqual(hd.querySelector('#previewBtn').getAttribute('aria-expanded'), 'true', 'preview: ปุ่มต้องบอกสถานะเปิด/ปิด');
+    // ส่วนช่วยเหลือ
+    hd.querySelector('#helpBtn').click();
+    assert.ok(!hd.querySelector('#helpWrap').hidden && hd.querySelectorAll('#helpBody .help-sec').length === 9, 'help: เปิดแผงช่วยเหลือได้ มีครบ 9 หัวข้อ');
+    assert.ok(/Enable Editing/.test(hd.querySelector('#helpBody').textContent) && /สำรองเป็นไฟล์/.test(hd.querySelector('#helpBody').textContent), 'help: ต้องมีวิธีแก้ปัญหาที่พบบ่อยและวิธีสำรองข้อมูล');
+    hd.dispatchEvent(new h.KeyboardEvent('keydown', { key:'Escape', bubbles:true }));
+    assert.ok(hd.querySelector('#helpWrap').hidden, 'help: กด Esc ต้องปิดแผง');
+    hd.querySelector('#sh-book [data-help="book"]').click();
+    assert.ok(hd.querySelector('#help-book').open && !hd.querySelector('#help-start').open, 'help: “วิธีทำขั้นนี้” ต้องเปิดหัวข้อของขั้นนั้น');
+    hd.querySelector('#helpWrap [data-help-close]').click();
+    assert.ok(hd.querySelector('#helpWrap').hidden, 'help: ปุ่มปิดต้องปิดแผง');
+    console.log('✓ รายการตรวจก่อนส่งออก 3 ระดับ ตัวอย่างเนื้อหาเล่ม ส่วนช่วยเหลือ');
+  }
+
   assert.deepStrictEqual(errs, [], 'ต้องไม่มี error ในหน้า');
   console.log('ผ่านทั้งหมด'); process.exit(0);
 })().catch(e => { console.error('✗', e.message); process.exit(1); });
