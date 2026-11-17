@@ -392,3 +392,13 @@ mark.fill{ background:#FFF07A; color:#111; padding:0 3px; border-radius:3px; }
 .help-sec ol, .help-sec ul{ padding-left:1.3em; margin:6px 0; } .help-sec li{ margin:4px 0; }
 .help-dl dt{ font-weight:700; margin-top:8px; } .help-dl dd{ margin:2px 0 0; color:var(--muted); }
 body.noscroll{ overflow:hidden; }
+
+/* เมนู “จัดการงาน” */
+.wsmenu{ position:relative; }
+.wsmenu-list{ position:absolute; right:0; top:calc(100% + 4px); z-index:30; min-width:280px; max-width:calc(100vw - 32px); padding:6px; border:1px solid var(--rule); border-radius:10px; background:var(--surface); box-shadow:0 8px 24px rgba(0,0,0,.15); display:grid; gap:2px; }
+.wsmenu-list[hidden]{ display:none; }
+.wsmenu-list [role=menuitem]{ display:grid; gap:1px; text-align:left; min-height:44px; padding:8px 10px; border:0; border-radius:8px; background:transparent; color:var(--ink); font-weight:600; font-size:15.5px; cursor:pointer; }
+.wsmenu-list [role=menuitem] small{ font-weight:400; font-size:13px; color:var(--muted); }
+.wsmenu-list [role=menuitem]:hover, .wsmenu-list [role=menuitem]:focus-visible{ background:var(--brand-soft); }
+.wsbar{ position:relative; }
+@media (max-width:640px){ .wsmenu{ position:static; } .wsmenu-list{ left:8px; right:8px; min-width:0; max-width:none; top:calc(100% + 4px); } }

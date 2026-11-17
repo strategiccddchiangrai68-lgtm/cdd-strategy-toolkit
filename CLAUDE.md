@@ -74,7 +74,7 @@
 - Routing ด้วย hash: `#home` ภาพรวม (หน้าแรก/hash อื่น), `#review` ⓪, `#current` ①, `#analysis` ②, `#projects` ③, `#book` ④ (`VIEWS`/`showView()` ใน `step1-current.js`)
 - `js/progress.js` (UX รอบ 1, พ.ย. 2569): `stepStatus(key)` คำนวณสถานะ todo/doing/done/fix + รายการที่ขาดจากข้อมูลจริง (ไม่เก็บข้อมูลใหม่) → แถบขั้น, หัวขั้น `#sh-*`, แถบย้อนกลับ/ถัดไป `#stepbar`, หน้าภาพรวม `renderHome()`; ลิงก์ `data-el` พาไปข้อย่อย (ข้อย่อยในแต่ละขั้นใช้ ก ข ค ง ไม่ใช้เลข)
 - ตัวบอกการบันทึก `#saveState` (`setSaveState` ใน workspace.js): saved/dirty/error/empty — บอก “บันทึกแล้ว” เฉพาะเมื่อ localStorage เขียนสำเร็จ; dirty จับ `input` แบบ capture; เตือน beforeunload เมื่อ dirty/error
-- สำรองไฟล์ปุ่มเดียว `backupFile()` (แถบตำบลด้านบน + ข้อ ง ของ ⓪) ดาวน์โหลดผ่าน `<a download>` บนเว็บทั่วไป (เดิมบน GitHub Pages ได้แค่กล่องข้อความ)
+- สำรองไฟล์ `backupFile()` (ผู้ใช้ขอให้เอาออกจากแถบบน → อยู่ในเมนู “⋯ จัดการงาน” `#wsMenu` คู่กับเปิดไฟล์สำรอง, ข้อ ง ของ ⓪ และขั้น ④ `#bookBackup`) ดาวน์โหลดผ่าน `<a download>` บนเว็บทั่วไป (เดิมบน GitHub Pages ได้แค่กล่องข้อความ)
 - สี: เขียวราชการ `--brand`, ข้อมูล `--info` (น้ำเงินเทา), ปุ่มสูงอย่างน้อย 44px
 - UX รอบ 2: การใช้ AI ในขั้น ⓪ ② ③ เป็น 4 ข้อ (`.aisteps`) มีตัวอย่างคำตอบ (ข้อความสมมติ) และพับ JSON ดิบเมื่อได้คำตอบ (`setRaw`); ข้อความผิดพลาด `aiErrorMsg()` และ `looksLikePrompt()` กันการวางคำสั่งกลับมา (คำสั่งมี JSON ตัวอย่างที่ parse ได้)
 - ค้นหา/กรอง/เรียง: ⓪ ใช้ `lf` (ใน step0-review.js), ③ ใช้ `pf` (ใน step3-projects.js) — อยู่ในหน้าจอเท่านั้น ไม่บันทึก; กล่องที่มี `data-nosave` ไม่ทำให้สถานะเป็น “ยังไม่บันทึก”; ระหว่างกรองใน ③ ปิดปุ่ม ▲▼

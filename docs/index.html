@@ -403,6 +403,16 @@ mark.fill{ background:#FFF07A; color:#111; padding:0 3px; border-radius:3px; }
 .help-sec ol, .help-sec ul{ padding-left:1.3em; margin:6px 0; } .help-sec li{ margin:4px 0; }
 .help-dl dt{ font-weight:700; margin-top:8px; } .help-dl dd{ margin:2px 0 0; color:var(--muted); }
 body.noscroll{ overflow:hidden; }
+
+/* เมนู “จัดการงาน” */
+.wsmenu{ position:relative; }
+.wsmenu-list{ position:absolute; right:0; top:calc(100% + 4px); z-index:30; min-width:280px; max-width:calc(100vw - 32px); padding:6px; border:1px solid var(--rule); border-radius:10px; background:var(--surface); box-shadow:0 8px 24px rgba(0,0,0,.15); display:grid; gap:2px; }
+.wsmenu-list[hidden]{ display:none; }
+.wsmenu-list [role=menuitem]{ display:grid; gap:1px; text-align:left; min-height:44px; padding:8px 10px; border:0; border-radius:8px; background:transparent; color:var(--ink); font-weight:600; font-size:15.5px; cursor:pointer; }
+.wsmenu-list [role=menuitem] small{ font-weight:400; font-size:13px; color:var(--muted); }
+.wsmenu-list [role=menuitem]:hover, .wsmenu-list [role=menuitem]:focus-visible{ background:var(--brand-soft); }
+.wsbar{ position:relative; }
+@media (max-width:640px){ .wsmenu{ position:static; } .wsmenu-list{ left:8px; right:8px; min-width:0; max-width:none; top:calc(100% + 4px); } }
 </style>
 </head>
 <body>
@@ -416,8 +426,13 @@ body.noscroll{ overflow:hidden; }
       <select id="wsSel"></select>
       <div class="ws-actions">
         <button class="btn ghost small" id="wsNew" type="button">＋ เริ่มตำบลใหม่</button>
-        <button class="btn ghost small" id="wsBackup" type="button">⬇ สำรองเป็นไฟล์ (.json)</button>
-        <button class="btn ghost small" id="wsOpen" type="button">⬆ เปิดไฟล์สำรอง (.json)</button>
+        <div class="wsmenu">
+          <button class="btn ghost small" id="wsMenuBtn" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="wsMenu">⋯ จัดการงาน</button>
+          <div class="wsmenu-list" id="wsMenu" role="menu" aria-label="จัดการงาน" hidden>
+            <button type="button" role="menuitem" id="wsBackup">⬇ สำรองเป็นไฟล์ (.json)<small>เก็บงานของตำบลนี้ไว้กันหาย หรือนำไปทำต่อเครื่องอื่น</small></button>
+            <button type="button" role="menuitem" id="wsOpen">⬆ เปิดไฟล์สำรอง (.json)<small>นำงานที่สำรองไว้กลับมาทำต่อ</small></button>
+          </div>
+        </div>
         <button class="btn ghost small" id="helpBtn" type="button" data-help="start" aria-haspopup="dialog">? ช่วยเหลือ</button>
       </div>
       <input type="file" id="wsFile" accept=".json,application/json" hidden>
@@ -915,7 +930,7 @@ body.noscroll{ overflow:hidden; }
       <p>ไฟล์ Word ตามแบบฟอร์มรูปเล่มแผนพัฒนาตำบล ส่วนที่ 3 เป็นหน้าแนวนอน ตั้งฟอนต์ TH SarabunPSK ขนาด 16</p>
     </div></div>
     <div class="panel">
-      <div class="row-actions"><button class="btn ghost" id="previewBtn" type="button" aria-expanded="false" aria-controls="bookPreview">ดูตัวอย่างเนื้อหาเล่ม</button><button class="btn" id="dlBook" type="button">⬇ ดาวน์โหลดรูปเล่ม (.docx)</button></div>
+      <div class="row-actions"><button class="btn ghost" id="bookBackup" type="button">⬇ สำรองเป็นไฟล์ (.json)</button><button class="btn ghost" id="previewBtn" type="button" aria-expanded="false" aria-controls="bookPreview">ดูตัวอย่างเนื้อหาเล่ม</button><button class="btn" id="dlBook" type="button">⬇ ดาวน์โหลดรูปเล่ม (.docx)</button></div>
       <p class="note" id="bookNote"></p>
       <p class="note">เปิดไฟล์ใน Word แล้วถ้าขึ้นแถบสีเหลือง “Protected View” ให้กด <b>Enable Editing</b> ก่อนแก้ไข จากนั้นค้นหาคำว่า “ต้องเติม” เพื่อเติมให้ครบ</p>
       <div id="bookPreview" class="bookpv" hidden></div>
@@ -1329,7 +1344,7 @@ function exportData(){
     workspace: wsSnapshot()
   };
 }
-// สำรองงานทั้งหมดของตำบลที่เปิดอยู่เป็นไฟล์ .json (ปุ่มที่แถบตำบลด้านบนและในข้อ ง)
+// สำรองงานทั้งหมดของตำบลที่เปิดอยู่เป็นไฟล์ .json (เมนู “จัดการงาน” ด้านบน, ข้อ ง ของขั้น ⓪ และขั้น ④)
 async function backupFile(){
   if (!state.ai){ toast('ยังสำรองไม่ได้ ต้องนำโครงการจากแผนเดิมเข้ามาในขั้น ⓪ ก่อน'); location.hash = '#review'; return; }
   const ps = state.ai.part3.projects;
@@ -2539,7 +2554,7 @@ function renderHome(all){
   all = all || allStatus();
   const box = $('#home'); if (!box) return;
   const hasWork = wsSnapHasData(wsSnapshot());
-  const localNote = `<div class="local-note"><b>งานเก็บในเบราว์เซอร์นี้เท่านั้น</b> ถ้าล้างประวัติเบราว์เซอร์ เปลี่ยนเครื่อง หรือใช้โหมดไม่ระบุตัวตน งานจะไม่ตามไป กด “สำรองเป็นไฟล์ (.json)” ที่แถบด้านบนเป็นระยะ แล้วใช้ “เปิดไฟล์สำรอง” เพื่อทำต่อ</div>`;
+  const localNote = `<div class="local-note"><b>งานเก็บในเบราว์เซอร์นี้เท่านั้น</b> ถ้าล้างประวัติเบราว์เซอร์ เปลี่ยนเครื่อง หรือใช้โหมดไม่ระบุตัวตน งานจะไม่ตามไป กด “⋯ จัดการงาน” → “สำรองเป็นไฟล์ (.json)” ที่แถบด้านบนเป็นระยะ แล้วใช้ “เปิดไฟล์สำรอง” ในเมนูเดียวกันเพื่อทำต่อ</div>`;
   if (!hasWork){
     box.innerHTML = `<section class="home-card welcome">
       <h2 style="margin:0">เริ่มต้นจัดทำแผนพัฒนาตำบล</h2>
@@ -2653,8 +2668,8 @@ const HELP = [
     <dl class="help-dl">
       <dt>ตำบลที่ทำอยู่</dt><dd>สลับไปทำตำบลอื่นที่เคยทำในเครื่องนี้ งานของแต่ละตำบลแยกกัน ไม่ปนกัน</dd>
       <dt>＋ เริ่มตำบลใหม่</dt><dd>เก็บงานตำบลที่เปิดอยู่ไว้ แล้วเริ่มตำบลใหม่จากขั้น ⓪</dd>
-      <dt>⬇ สำรองเป็นไฟล์ (.json)</dt><dd>ดาวน์โหลดงานทั้งหมดของตำบลนี้เป็นไฟล์ เก็บไว้กันหาย หรือส่งไปทำต่อเครื่องอื่น</dd>
-      <dt>⬆ เปิดไฟล์สำรอง (.json)</dt><dd>เปิดไฟล์ที่สำรองไว้ ถ้าตำบลนั้นมีอยู่ในเครื่องแล้ว แอปจะถามก่อนแทนที่</dd>
+      <dt>⋯ จัดการงาน → ⬇ สำรองเป็นไฟล์ (.json)</dt><dd>ดาวน์โหลดงานทั้งหมดของตำบลนี้เป็นไฟล์ เก็บไว้กันหาย หรือส่งไปทำต่อเครื่องอื่น</dd>
+      <dt>⋯ จัดการงาน → ⬆ เปิดไฟล์สำรอง (.json)</dt><dd>เปิดไฟล์ที่สำรองไว้ ถ้าตำบลนั้นมีอยู่ในเครื่องแล้ว แอปจะถามก่อนแทนที่</dd>
       <dt>คัดลอกคำสั่งและเปิด Gemini</dt><dd>คัดลอกคำสั่งให้ AI แล้วเปิด Gemini ในแท็บใหม่ แอปไม่ส่งข้อมูลให้ AI เอง</dd>
       <dt>ตรวจคำตอบ</dt><dd>ตรวจคำตอบที่วางจาก Gemini (วางแล้วแอปตรวจให้เองด้วย)</dd>
       <dt>← ย้อนกลับ / ถัดไป →</dt><dd>อยู่ด้านล่างจอ ใช้เปลี่ยนขั้น</dd>
@@ -2662,8 +2677,8 @@ const HELP = [
   { id:'backup', title:'การบันทึก สำรอง และเรียกคืนข้อมูล', body:`
     <ul><li><b>บันทึกอัตโนมัติ:</b> ทุกครั้งที่แก้ แอปบันทึกลงเบราว์เซอร์ของเครื่องนี้ ดูสถานะได้ที่ “บันทึกในเครื่องนี้แล้ว …” ใต้แถบตำบล</li>
       <li><b>ข้อจำกัด:</b> ข้อมูลอยู่ในเบราว์เซอร์นี้เท่านั้น ถ้าล้างประวัติเบราว์เซอร์ ใช้โหมดไม่ระบุตัวตน เปลี่ยนเบราว์เซอร์หรือเปลี่ยนเครื่อง งานจะไม่ตามไป</li>
-      <li><b>สำรอง:</b> กด “สำรองเป็นไฟล์ (.json)” หลังเวทีแต่ละครั้ง หรือก่อนปิดเครื่อง เก็บไฟล์ไว้ใน Google Drive หรือแฟลชไดรฟ์</li>
-      <li><b>เรียกคืน/ทำต่อเครื่องอื่น:</b> เปิดเว็บนี้ แล้วกด “เปิดไฟล์สำรอง (.json)”</li>
+      <li><b>สำรอง:</b> กด “⋯ จัดการงาน” → “สำรองเป็นไฟล์ (.json)” (หรือปุ่มเดียวกันในขั้น ⓪ และ ④) หลังเวทีแต่ละครั้ง หรือก่อนปิดเครื่อง เก็บไฟล์ไว้ใน Google Drive หรือแฟลชไดรฟ์</li>
+      <li><b>เรียกคืน/ทำต่อเครื่องอื่น:</b> เปิดเว็บนี้ แล้วกด “⋯ จัดการงาน” → “เปิดไฟล์สำรอง (.json)”</li>
       <li>ถ้าขึ้น <b>“บันทึกไม่สำเร็จ”</b> สีแดง ให้กดสำรองเป็นไฟล์ทันที</li></ul>` },
   { id:'faq', title:'ปัญหาที่พบบ่อย', body:`
     <dl class="help-dl">
@@ -2745,7 +2760,7 @@ function setSaveState(s, at){
   el.dataset.s = s;
   el.textContent = s === 'saved' ? `บันทึกในเครื่องนี้แล้ว ${fmtTime(at)} (บันทึกอัตโนมัติทุกครั้งที่แก้)`
     : s === 'dirty' ? 'มีการแก้ไขที่ยังไม่บันทึก (ช่องคำตอบ AI จะบันทึกเมื่อกด “ตรวจคำตอบ”)'
-    : s === 'error' ? 'บันทึกไม่สำเร็จ: เบราว์เซอร์นี้เก็บข้อมูลไม่ได้หรือพื้นที่เต็ม กด “สำรองเป็นไฟล์” ก่อนปิดหน้า'
+    : s === 'error' ? 'บันทึกไม่สำเร็จ: เบราว์เซอร์นี้เก็บข้อมูลไม่ได้หรือพื้นที่เต็ม กด “⋯ จัดการงาน” → “สำรองเป็นไฟล์” ก่อนปิดหน้า'
     : 'ยังไม่มีงานให้บันทึก';
 }
 function wsSave(){
@@ -2754,7 +2769,7 @@ function wsSave(){
   if (wsId === WS_DRAFT && !wsSnapHasData(snap) && !lsGet(WS + WS_DRAFT)){ setSaveState('empty'); refreshProgress(); return; }   // ยังไม่มีอะไรให้เก็บ
   if (!lsSet(WS + wsId, snap)){
     setSaveState('error');
-    if (!wsWarnedFull){ wsWarnedFull = true; toast('บันทึกงานลงเครื่องไม่สำเร็จ กด “สำรองเป็นไฟล์ (.json)” เพื่อเก็บงานไว้ก่อน'); }
+    if (!wsWarnedFull){ wsWarnedFull = true; toast('บันทึกงานลงเครื่องไม่สำเร็จ กด “⋯ จัดการงาน” → “สำรองเป็นไฟล์ (.json)” เพื่อเก็บงานไว้ก่อน'); }
     refreshProgress();
     return;
   }
@@ -3016,6 +3031,21 @@ $('#wsNew').addEventListener('click', wsNew);
 $('#wsOpen').addEventListener('click', () => $('#wsFile').click());
 $('#wsFile').addEventListener('change', async e => { const f = e.target.files[0]; e.target.value = ''; if (f) await wsOpenFile(f); });
 $('#wsBackup').addEventListener('click', backupFile);
+$('#bookBackup').addEventListener('click', backupFile);
+// เมนู “จัดการงาน” (สำรอง/เปิดไฟล์ .json): เปิด-ปิดด้วยคลิก, Esc, คลิกนอกเมนู, ลูกศรขึ้นลงเลือกรายการ
+function setWsMenu(open, focusFirst){
+  $('#wsMenu').hidden = !open; $('#wsMenuBtn').setAttribute('aria-expanded', String(open));
+  if (open && focusFirst) $('#wsMenu [role=menuitem]').focus();
+}
+$('#wsMenuBtn').addEventListener('click', () => setWsMenu($('#wsMenu').hidden, true));
+$('#wsMenu').addEventListener('click', e => { if (e.target.closest('[role=menuitem]')) setWsMenu(false); });
+document.addEventListener('click', e => { if (!$('#wsMenu').hidden && !e.target.closest('.wsmenu')) setWsMenu(false); });
+$('#wsMenu').addEventListener('keydown', e => {
+  const items = [...$('#wsMenu').querySelectorAll('[role=menuitem]')], i = items.indexOf(document.activeElement);
+  if (e.key === 'Escape'){ e.preventDefault(); setWsMenu(false); $('#wsMenuBtn').focus(); }
+  if (e.key === 'ArrowDown'){ e.preventDefault(); items[(i + 1) % items.length].focus(); }
+  if (e.key === 'ArrowUp'){ e.preventDefault(); items[(i - 1 + items.length) % items.length].focus(); }
+});
 // มีการพิมพ์ที่ยังไม่ถูกบันทึก: ฟังแบบ capture จึงทำงานก่อนตัวบันทึกของช่องนั้น ถ้าช่องนั้นบันทึกทันที สถานะจะกลับเป็น “บันทึกแล้ว”
 document.addEventListener('input', e => {
   const el = e.target;

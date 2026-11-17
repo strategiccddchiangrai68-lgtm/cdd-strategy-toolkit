@@ -436,6 +436,21 @@ const file = p => { const b = fs.readFileSync(p); return { name: path.basename(p
     console.log('✓ รายการตรวจก่อนส่งออก 3 ระดับ ตัวอย่างเนื้อหาเล่ม ส่วนช่วยเหลือ');
   }
 
+  // ===== ปุ่มสำรอง/เปิดไฟล์ .json อยู่ในเมนู “จัดการงาน” =====
+  {
+    const h = boot(); await wait(100); const hd = h.document;
+    const menu = hd.querySelector('#wsMenu'), btn = hd.querySelector('#wsMenuBtn');
+    assert.ok(menu.hidden && menu.contains(hd.querySelector('#wsBackup')) && menu.contains(hd.querySelector('#wsOpen')), 'menu: สำรอง/เปิดไฟล์ต้องอยู่ในเมนูที่ซ่อนไว้');
+    btn.click();
+    assert.ok(!menu.hidden && btn.getAttribute('aria-expanded') === 'true', 'menu: กดแล้วเมนูต้องเปิด');
+    menu.dispatchEvent(new h.KeyboardEvent('keydown', { key:'Escape', bubbles:true }));
+    assert.ok(menu.hidden && btn.getAttribute('aria-expanded') === 'false', 'menu: Esc ต้องปิดเมนู');
+    btn.click(); hd.querySelector('#home').click();
+    assert.ok(menu.hidden, 'menu: คลิกนอกเมนูต้องปิด');
+    assert.ok(hd.querySelector('#saveBtn') && hd.querySelector('#bookBackup'), 'menu: ปุ่มสำรองในขั้น ⓪ และ ④ ยังอยู่');
+    console.log('✓ ปุ่มสำรอง/เปิดไฟล์ .json อยู่ในเมนู “จัดการงาน”');
+  }
+
   assert.deepStrictEqual(errs, [], 'ต้องไม่มี error ในหน้า');
   console.log('ผ่านทั้งหมด'); process.exit(0);
 })().catch(e => { console.error('✗', e.message); process.exit(1); });

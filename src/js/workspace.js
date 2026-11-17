@@ -37,7 +37,7 @@ function setSaveState(s, at){
   el.dataset.s = s;
   el.textContent = s === 'saved' ? `บันทึกในเครื่องนี้แล้ว ${fmtTime(at)} (บันทึกอัตโนมัติทุกครั้งที่แก้)`
     : s === 'dirty' ? 'มีการแก้ไขที่ยังไม่บันทึก (ช่องคำตอบ AI จะบันทึกเมื่อกด “ตรวจคำตอบ”)'
-    : s === 'error' ? 'บันทึกไม่สำเร็จ: เบราว์เซอร์นี้เก็บข้อมูลไม่ได้หรือพื้นที่เต็ม กด “สำรองเป็นไฟล์” ก่อนปิดหน้า'
+    : s === 'error' ? 'บันทึกไม่สำเร็จ: เบราว์เซอร์นี้เก็บข้อมูลไม่ได้หรือพื้นที่เต็ม กด “⋯ จัดการงาน” → “สำรองเป็นไฟล์” ก่อนปิดหน้า'
     : 'ยังไม่มีงานให้บันทึก';
 }
 function wsSave(){
@@ -46,7 +46,7 @@ function wsSave(){
   if (wsId === WS_DRAFT && !wsSnapHasData(snap) && !lsGet(WS + WS_DRAFT)){ setSaveState('empty'); refreshProgress(); return; }   // ยังไม่มีอะไรให้เก็บ
   if (!lsSet(WS + wsId, snap)){
     setSaveState('error');
-    if (!wsWarnedFull){ wsWarnedFull = true; toast('บันทึกงานลงเครื่องไม่สำเร็จ กด “สำรองเป็นไฟล์ (.json)” เพื่อเก็บงานไว้ก่อน'); }
+    if (!wsWarnedFull){ wsWarnedFull = true; toast('บันทึกงานลงเครื่องไม่สำเร็จ กด “⋯ จัดการงาน” → “สำรองเป็นไฟล์ (.json)” เพื่อเก็บงานไว้ก่อน'); }
     refreshProgress();
     return;
   }

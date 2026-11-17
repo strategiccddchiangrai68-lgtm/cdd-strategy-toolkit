@@ -21,8 +21,13 @@
       <select id="wsSel"></select>
       <div class="ws-actions">
         <button class="btn ghost small" id="wsNew" type="button">＋ เริ่มตำบลใหม่</button>
-        <button class="btn ghost small" id="wsBackup" type="button">⬇ สำรองเป็นไฟล์ (.json)</button>
-        <button class="btn ghost small" id="wsOpen" type="button">⬆ เปิดไฟล์สำรอง (.json)</button>
+        <div class="wsmenu">
+          <button class="btn ghost small" id="wsMenuBtn" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="wsMenu">⋯ จัดการงาน</button>
+          <div class="wsmenu-list" id="wsMenu" role="menu" aria-label="จัดการงาน" hidden>
+            <button type="button" role="menuitem" id="wsBackup">⬇ สำรองเป็นไฟล์ (.json)<small>เก็บงานของตำบลนี้ไว้กันหาย หรือนำไปทำต่อเครื่องอื่น</small></button>
+            <button type="button" role="menuitem" id="wsOpen">⬆ เปิดไฟล์สำรอง (.json)<small>นำงานที่สำรองไว้กลับมาทำต่อ</small></button>
+          </div>
+        </div>
         <button class="btn ghost small" id="helpBtn" type="button" data-help="start" aria-haspopup="dialog">? ช่วยเหลือ</button>
       </div>
       <input type="file" id="wsFile" accept=".json,application/json" hidden>
@@ -520,7 +525,7 @@
       <p>ไฟล์ Word ตามแบบฟอร์มรูปเล่มแผนพัฒนาตำบล ส่วนที่ 3 เป็นหน้าแนวนอน ตั้งฟอนต์ TH SarabunPSK ขนาด 16</p>
     </div></div>
     <div class="panel">
-      <div class="row-actions"><button class="btn ghost" id="previewBtn" type="button" aria-expanded="false" aria-controls="bookPreview">ดูตัวอย่างเนื้อหาเล่ม</button><button class="btn" id="dlBook" type="button">⬇ ดาวน์โหลดรูปเล่ม (.docx)</button></div>
+      <div class="row-actions"><button class="btn ghost" id="bookBackup" type="button">⬇ สำรองเป็นไฟล์ (.json)</button><button class="btn ghost" id="previewBtn" type="button" aria-expanded="false" aria-controls="bookPreview">ดูตัวอย่างเนื้อหาเล่ม</button><button class="btn" id="dlBook" type="button">⬇ ดาวน์โหลดรูปเล่ม (.docx)</button></div>
       <p class="note" id="bookNote"></p>
       <p class="note">เปิดไฟล์ใน Word แล้วถ้าขึ้นแถบสีเหลือง “Protected View” ให้กด <b>Enable Editing</b> ก่อนแก้ไข จากนั้นค้นหาคำว่า “ต้องเติม” เพื่อเติมให้ครบ</p>
       <div id="bookPreview" class="bookpv" hidden></div>

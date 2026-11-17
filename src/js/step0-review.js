@@ -272,7 +272,7 @@ function exportData(){
     workspace: wsSnapshot()
   };
 }
-// สำรองงานทั้งหมดของตำบลที่เปิดอยู่เป็นไฟล์ .json (ปุ่มที่แถบตำบลด้านบนและในข้อ ง)
+// สำรองงานทั้งหมดของตำบลที่เปิดอยู่เป็นไฟล์ .json (เมนู “จัดการงาน” ด้านบน, ข้อ ง ของขั้น ⓪ และขั้น ④)
 async function backupFile(){
   if (!state.ai){ toast('ยังสำรองไม่ได้ ต้องนำโครงการจากแผนเดิมเข้ามาในขั้น ⓪ ก่อน'); location.hash = '#review'; return; }
   const ps = state.ai.part3.projects;

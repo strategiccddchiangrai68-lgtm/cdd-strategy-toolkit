@@ -119,7 +119,7 @@ function renderHome(all){
   all = all || allStatus();
   const box = $('#home'); if (!box) return;
   const hasWork = wsSnapHasData(wsSnapshot());
-  const localNote = `<div class="local-note"><b>งานเก็บในเบราว์เซอร์นี้เท่านั้น</b> ถ้าล้างประวัติเบราว์เซอร์ เปลี่ยนเครื่อง หรือใช้โหมดไม่ระบุตัวตน งานจะไม่ตามไป กด “สำรองเป็นไฟล์ (.json)” ที่แถบด้านบนเป็นระยะ แล้วใช้ “เปิดไฟล์สำรอง” เพื่อทำต่อ</div>`;
+  const localNote = `<div class="local-note"><b>งานเก็บในเบราว์เซอร์นี้เท่านั้น</b> ถ้าล้างประวัติเบราว์เซอร์ เปลี่ยนเครื่อง หรือใช้โหมดไม่ระบุตัวตน งานจะไม่ตามไป กด “⋯ จัดการงาน” → “สำรองเป็นไฟล์ (.json)” ที่แถบด้านบนเป็นระยะ แล้วใช้ “เปิดไฟล์สำรอง” ในเมนูเดียวกันเพื่อทำต่อ</div>`;
   if (!hasWork){
     box.innerHTML = `<section class="home-card welcome">
       <h2 style="margin:0">เริ่มต้นจัดทำแผนพัฒนาตำบล</h2>
