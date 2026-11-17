@@ -199,6 +199,57 @@ const file = p => { const b = fs.readFileSync(p); return { name: path.basename(p
   assert.ok(/ไม่ตรงกับตำบลป่าแดด/.test(w5.document.querySelector('#wsFacts').textContent), 'migrate: ต้องเตือนเมื่อข้อมูลขั้น ② เป็นคนละตำบล');
   console.log('✓ ย้ายข้อมูลจากรูปแบบ :last ไม่หาย');
 
+  // ===== รอบ UX 1: หน้าภาพรวม สถานะรายขั้น ปุ่มถัดไป ตัวบอกการบันทึก สำรองไฟล์ =====
+  {
+    const h = boot(null, ''); await wait(100); const hd = h.document;
+    assert.ok(!hd.querySelector('#v-home').hidden, 'ux: เปิดเว็บโดยไม่มี hash ต้องเจอหน้าภาพรวม');
+    assert.ok(/เริ่มต้นจัดทำแผนพัฒนาตำบล/.test(hd.querySelector('#home').textContent), 'ux: ยังไม่มีงานต้องแสดงคู่มือเริ่มต้น');
+    assert.ok(hd.querySelector('#stepbar').hidden, 'ux: หน้าภาพรวมไม่มีแถบย้อนกลับ/ถัดไป');
+    assert.strictEqual(hd.querySelector('#saveState').dataset.s, 'empty', 'ux: ยังไม่มีงานต้องบอกว่ายังไม่มีอะไรให้บันทึก');
+    h.location.hash = '#review'; await wait(30);
+    assert.ok(/ยังไม่เริ่ม/.test(hd.querySelector('#sh-review').textContent), 'ux: ขั้น ⓪ ก่อนนำเข้าต้องเป็น “ยังไม่เริ่ม”');
+    hd.querySelector('#loadSample').click(); await wait(30);
+    assert.strictEqual(hd.querySelector('#saveState').dataset.s, 'saved', 'ux: หลังบันทึกสำเร็จต้องบอกว่าบันทึกแล้ว');
+    assert.ok(/บันทึกในเครื่องนี้แล้ว/.test(hd.querySelector('#saveState').textContent), 'ux: ต้องแสดงเวลาบันทึกล่าสุด');
+    assert.ok(/กำลังดำเนินการ/.test(hd.querySelector('#tabReview').textContent) && /ยังไม่ระบุสถานะการดำเนินงาน 33 โครงการ/.test(hd.querySelector('#sh-review').textContent), 'ux: สถานะขั้น ⓪ ต้องคำนวณจากข้อมูลจริง');
+    const next = [...hd.querySelectorAll('#stepbar a')].pop();
+    assert.strictEqual(next.getAttribute('href'), '#current', 'ux: ปุ่มถัดไปของขั้น ⓪ ต้องไปขั้น ①');
+    // พิมพ์ในช่องที่ยังไม่บันทึก → แจ้งว่ามีการแก้ไขที่ยังไม่บันทึก
+    const ab = hd.querySelector('#aiBox'); ab.value += ' '; ab.dispatchEvent(new h.Event('input', { bubbles:true }));
+    assert.strictEqual(hd.querySelector('#saveState').dataset.s, 'dirty', 'ux: พิมพ์แล้วยังไม่บันทึกต้องแจ้ง');
+    // ช่องที่บันทึกทันที (ข้อมูลเวที) ต้องกลับเป็นบันทึกแล้ว
+    h.location.hash = '#analysis'; await wait(30);
+    const vb = hd.querySelector('#venueBox'); vb.value = 'ทดสอบเวที'; vb.dispatchEvent(new h.Event('input', { bubbles:true }));
+    assert.strictEqual(hd.querySelector('#saveState').dataset.s, 'saved', 'ux: ช่องที่บันทึกทันทีต้องขึ้นว่าบันทึกแล้ว');
+    // บันทึกลงเครื่องไม่ได้ → ห้ามบอกว่าบันทึกแล้ว
+    const realSet = h.Storage.prototype.setItem;
+    h.Storage.prototype.setItem = function(){ throw new Error('QuotaExceededError'); };
+    vb.value = 'ทดสอบเวที 2'; vb.dispatchEvent(new h.Event('input', { bubbles:true }));
+    assert.strictEqual(hd.querySelector('#saveState').dataset.s, 'error', 'ux: บันทึกไม่สำเร็จต้องแจ้งข้อผิดพลาด ไม่ใช่บอกว่าบันทึกแล้ว');
+    h.Storage.prototype.setItem = realSet;
+    vb.dispatchEvent(new h.Event('input', { bubbles:true }));
+    assert.strictEqual(hd.querySelector('#saveState').dataset.s, 'saved', 'ux: บันทึกได้อีกครั้งต้องกลับเป็นบันทึกแล้ว');
+    // หน้าภาพรวมเมื่อมีงานแล้ว
+    h.location.hash = '#home'; await wait(30);
+    const home = hd.querySelector('#home').textContent;
+    assert.ok(/ตำบลป่าแดด อำเภอแม่สรวย/.test(home) && /ทำต่อ: ⓪ ทบทวนแผนเดิม/.test(home), 'ux: ภาพรวมต้องบอกตำบลและขั้นที่ควรทำต่อ');
+    const pv = +hd.querySelector('.progress .bar').getAttribute('aria-valuenow');
+    assert.ok(pv > 0 && pv < 100, 'ux: ความคืบหน้าต้องมาจากสถานะจริง (ระหว่าง 0–100)');
+    assert.strictEqual(hd.querySelectorAll('.step-card').length, 5, 'ux: ภาพรวมต้องมีการ์ด 5 ขั้น');
+    // ลิงก์ “ไปที่จุดนี้” ต้องพาไปขั้นที่ถูก
+    const go = hd.querySelector('#home .issues a.go'); assert.ok(go && go.getAttribute('href').startsWith('#'), 'ux: รายการที่ยังไม่ครบต้องมีลิงก์ไปแก้');
+    // สำรองเป็นไฟล์ต้องดาวน์โหลดจริงบนเว็บทั่วไป (ไม่มี window.claude)
+    let dlName = null; h.URL.createObjectURL = () => 'blob:test'; h.URL.revokeObjectURL = () => {};
+    const realClick = h.HTMLAnchorElement.prototype.click;
+    h.HTMLAnchorElement.prototype.click = function(){ if (this.download) dlName = this.download; };
+    await h.eval('backupFile')();
+    h.HTMLAnchorElement.prototype.click = realClick;
+    assert.ok(dlName && /^แผนตำบล_ป่าแดด_2569_สำรอง_\d{4}-\d\d-\d\d\.json$/.test(dlName), 'ux: ปุ่มสำรองต้องดาวน์โหลดไฟล์ .json: ' + dlName);
+    assert.ok(hd.querySelector('#exportBox').hidden, 'ux: ดาวน์โหลดได้แล้วต้องไม่แสดงกล่องข้อความแทน');
+    assert.ok(!hd.querySelector('#saveBtn2') && !hd.querySelector('#saveBtn5'), 'ux: ปุ่ม .json ซ้ำในแต่ละขั้นต้องถูกรวมเป็นปุ่มเดียว');
+    console.log('✓ หน้าภาพรวม สถานะรายขั้น ปุ่มถัดไป ตัวบอกการบันทึก สำรองไฟล์');
+  }
+
   assert.deepStrictEqual(errs, [], 'ต้องไม่มี error ในหน้า');
   console.log('ผ่านทั้งหมด'); process.exit(0);
 })().catch(e => { console.error('✗', e.message); process.exit(1); });

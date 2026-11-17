@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>CDD Strategy Toolkit</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%277%27 fill=%27%231B6B45%27/%3E%3Cpath d=%27M9 17l5 5 9-11%27 stroke=%27white%27 stroke-width=%273.5%27 fill=%27none%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -14,24 +15,34 @@
   <header class="top">
     <div class="brand">CDD Strategy Toolkit</div>
     <h1>เตรียมข้อมูลแผนพัฒนาตำบล</h1>
-    <p>ทบทวนโครงการในเล่มแผนเดิม แล้วรวบรวมข้อมูลตำบลปัจจุบันจาก TIS ให้พร้อมก่อนเข้าเวที ข้อมูลทั้งหมดอยู่ในเครื่องนี้ ไม่ถูกส่งไปที่ใด</p>
+    <p>จัดทำแผนพัฒนาตำบลทีละขั้น ตั้งแต่ทบทวนแผนเดิมจนส่งออกรูปเล่ม ข้อมูลทั้งหมดอยู่ในเครื่องนี้ ไม่ถูกส่งไปที่ใด</p>
     <div class="wsbar">
       <label for="wsSel">ตำบลที่ทำอยู่</label>
       <select id="wsSel"></select>
-      <button class="btn ghost small" id="wsNew" type="button">เริ่มตำบลใหม่</button>
-      <button class="btn ghost small" id="wsOpen" type="button">เปิดไฟล์ .json ที่บันทึกไว้</button>
+      <div class="ws-actions">
+        <button class="btn ghost small" id="wsNew" type="button">＋ เริ่มตำบลใหม่</button>
+        <button class="btn ghost small" id="wsBackup" type="button">⬇ สำรองเป็นไฟล์ (.json)</button>
+        <button class="btn ghost small" id="wsOpen" type="button">⬆ เปิดไฟล์สำรอง (.json)</button>
+      </div>
       <input type="file" id="wsFile" accept=".json,application/json" hidden>
+      <div class="savestate" id="saveState" role="status" aria-live="polite" data-s="empty">ยังไม่มีงานให้บันทึก</div>
     </div>
     <ul class="facts" id="wsFacts"></ul>
-    <nav class="tabs" aria-label="ขั้นตอน">
+    <nav class="tabs" aria-label="ขั้นตอนการจัดทำแผน">
+      <a href="#home" id="tabHome">ภาพรวม</a>
       <a href="#review" id="tabReview">⓪ ทบทวนแผนเดิม</a>
-      <a href="#current" id="tabCurrent">① ข้อมูลตำบลปัจจุบัน</a>
+      <a href="#current" id="tabCurrent">① ข้อมูลตำบล</a>
       <a href="#analysis" id="tabAnalysis">② SWOT และยุทธศาสตร์</a>
       <a href="#projects" id="tabProjects">③ โครงการ</a>
-      <a href="#book" id="tabBook">④ ส่งออกรูปเล่ม</a>
+      <a href="#book" id="tabBook">④ ตรวจและส่งออก</a>
     </nav>
   </header>
+<main id="v-home" hidden>
+  <div id="home"></div>
+</main>
+
 <main id="v-review">
+  <div class="stephead" id="sh-review"></div>
 
   <div class="tally" id="tally" aria-live="polite">
     <div><b id="tProj">0</b> <span>โครงการ</span></div>
@@ -41,7 +52,7 @@
   </div>
 
   <section class="step" id="s1">
-    <div class="step-head"><div class="step-no">1</div><div>
+    <div class="step-head"><div class="step-no" aria-label="ข้อ ก">ก</div><div>
       <h2>แนบไฟล์ PDF แผนเดิม</h2>
       <p>แอปอ่านตัวเลขงบประมาณจากข้อความที่ฝังในไฟล์ ใช้เป็นตัวตรวจคำตอบของ AI ไฟล์ไม่ออกจากเครื่องนี้</p>
     </div></div>
@@ -56,7 +67,7 @@
   </section>
 
   <section class="step" id="s2">
-    <div class="step-head"><div class="step-no">2</div><div>
+    <div class="step-head"><div class="step-no" aria-label="ข้อ ข">ข</div><div>
       <h2>ให้ Gemini สกัดโครงการ แล้ววางคำตอบกลับ</h2>
       <p>คัดลอกคำสั่ง เปิด Gemini แนบไฟล์ PDF เดิม วางคำสั่ง แล้วคัดลอกคำตอบทั้งหมดมาวางในช่องด้านล่าง</p>
     </div></div>
@@ -68,7 +79,7 @@
       </div>
       <details class="prompt"><summary>ดูคำสั่งทั้งหมด</summary><textarea id="promptBox" readonly></textarea></details>
       <div class="privacy">เล่มแผนเดิมบางเล่มมีชื่อและเบอร์โทรศัพท์ของผู้นำหรือประธานกลุ่ม การแนบไฟล์ให้ AI คือการส่งข้อมูลเหล่านี้ออกไปด้วย ถ้าทำได้ ให้ใช้ไฟล์ที่ตัดหน้าเหล่านั้นออก</div>
-      <p class="note" id="sampleNote" hidden>กำลังใช้คำตอบจริงของ Gemini จากการทดสอบกับแผนตำบลป่าแดด (ตัดส่วน SWOT ออก) แนบไฟล์แผนป่าแดดในขั้นที่ 1 เพื่อดูการเทียบงบ</p>
+      <p class="note" id="sampleNote" hidden>กำลังใช้คำตอบจริงของ Gemini จากการทดสอบกับแผนตำบลป่าแดด (ตัดส่วน SWOT ออก) แนบไฟล์แผนป่าแดดในข้อ ก เพื่อดูการเทียบงบ</p>
       <label for="aiBox" style="display:block;margin:14px 0 6px;font-weight:600">คำตอบจาก AI</label>
       <textarea id="aiBox" placeholder="วางคำตอบ JSON ทั้งหมดจาก Gemini ที่นี่"></textarea>
       <div class="row-actions" style="margin-top:10px"><button class="btn" id="checkBtn" type="button">ตรวจคำตอบ</button></div>
@@ -77,7 +88,7 @@
   </section>
 
   <section class="step" id="s3">
-    <div class="step-head"><div class="step-no">3</div><div>
+    <div class="step-head"><div class="step-no" aria-label="ข้อ ค">ค</div><div>
       <h2>ตรวจงบและระบุสถานะทีละโครงการ</h2>
       <p>แถวขอบแดงคืองบที่ AI อ่านไม่ตรงกับไฟล์ ให้เปิดเล่มจริงดูแล้วเลือกค่าที่ถูก สถานะโครงการต้องได้จากเวทีหรือผู้รู้ในพื้นที่ แอปเดาให้ไม่ได้</p>
     </div></div>
@@ -87,20 +98,20 @@
         <button class="chip" data-f="check" aria-pressed="false" type="button">งบต้องตรวจ</button>
         <button class="chip" data-f="nostatus" aria-pressed="false" type="button">ยังไม่ระบุสถานะ</button>
       </div>
-      <div id="list"><div class="empty">วางคำตอบจาก AI ในขั้นที่ 2 แล้วรายการโครงการจะขึ้นที่นี่</div></div>
+      <div id="list"><div class="empty">วางคำตอบจาก AI ในข้อ ข แล้วรายการโครงการจะขึ้นที่นี่</div></div>
     </div>
   </section>
 
   <section class="step" id="s4">
-    <div class="step-head"><div class="step-no">4</div><div>
+    <div class="step-head"><div class="step-no" aria-label="ข้อ ง">ง</div><div>
       <h2>สรุปผลทบทวน</h2>
-      <p>ใช้เปิดเวทีทบทวน และบันทึกเป็นไฟล์เพื่อนำเข้าขั้นจัดทำแผนใหม่</p>
+      <p>ใช้เปิดเวทีทบทวน งานบันทึกในเครื่องอัตโนมัติ กดสำรองเป็นไฟล์เพื่อเก็บไว้หรือทำต่อเครื่องอื่น</p>
     </div></div>
     <div class="summary" id="summary"></div>
     <div class="panel" style="margin-top:12px">
       <div class="row-actions">
-        <button class="btn" id="saveBtn" type="button">บันทึกผลทบทวน (.json)</button>
-        <button class="btn ghost" id="resetBtn" type="button">ล้างข้อมูลในเครื่องนี้</button>
+        <button class="btn" id="saveBtn" type="button">⬇ สำรองเป็นไฟล์ (.json)</button>
+        <button class="btn danger" id="resetBtn" type="button">ล้างสถานะและงบที่ตรวจในขั้นนี้</button>
       </div>
       <p class="note" id="saveNote"></p>
       <textarea id="exportBox" readonly hidden></textarea>
@@ -109,8 +120,9 @@
 </main>
 
 <main id="v-current" hidden>
+  <div class="stephead" id="sh-current"></div>
   <section class="step" id="c1">
-    <div class="step-head"><div class="step-no">1</div><div>
+    <div class="step-head"><div class="step-no" aria-label="ข้อ ก">ก</div><div>
       <h2>นำเข้ารายงานผลการวิเคราะห์ TIS</h2>
       <p>ในระบบ TIS เปิดรายงานผลการวิเคราะห์ของตำบล กดส่งออกเป็น Excel แล้วนำไฟล์มาใส่ที่นี่ แอปจะสรุปว่าแต่ละหมู่บ้านจัดลำดับปัญหาอย่างไร</p>
     </div></div>
@@ -126,7 +138,7 @@
   </section>
 
   <section class="step" id="c2">
-    <div class="step-head"><div class="step-no">2</div><div>
+    <div class="step-head"><div class="step-no" aria-label="ข้อ ข">ข</div><div>
       <h2>หมู่บ้านเห็นตรงกันแค่ไหน</h2>
       <p>ตัวเลขในตารางคือจำนวนหมู่บ้านที่จัดแต่ละด้านไว้ในอันดับนั้น สีเข้มคือหมู่บ้านส่วนใหญ่เห็นตรงกัน ใช้เปิดเวทีได้ทันที</p>
     </div></div>
@@ -134,7 +146,7 @@
   </section>
 
   <section class="step" id="c4">
-    <div class="step-head"><div class="step-no">3</div><div>
+    <div class="step-head"><div class="step-no" aria-label="ข้อ ค">ค</div><div>
       <h2>ข้อมูลพื้นฐานของตำบล</h2>
       <p>ตัวเลขตั้งต้นดึงจากแผนเดิม (ขั้น ⓪) ให้แก้เป็นข้อมูลปีล่าสุด และระบุปีของข้อมูลทุกครั้ง</p>
     </div></div>
@@ -142,15 +154,14 @@
       <div class="base" id="baseForm"></div>
       <ul class="facts" id="baseFacts"></ul>
       <div id="oldProblems" style="margin-top:14px"></div>
-      <div class="row-actions" style="margin-top:14px"><button class="btn" id="saveBtn2" type="button">บันทึกข้อมูลทั้งหมด (.json)</button></div>
-      <p class="note" id="saveNote2"></p>
     </div>
   </section>
 </main>
 
 <main id="v-analysis" hidden>
+  <div class="stephead" id="sh-analysis"></div>
   <section class="step" id="a1">
-    <div class="step-head"><div class="step-no">1</div><div>
+    <div class="step-head"><div class="step-no" aria-label="ข้อ ก">ก</div><div>
       <h2>นำเข้ารายงานผลการวิเคราะห์ข้อมูลชุมชนจาก TIS</h2>
       <p>รายงานที่มีคอลัมน์ทุนชุมชนและ SWOT ทุนชุมชนใช้เป็นหลักฐานได้ ส่วน SWOT ของ TIS ใช้เป็นข้อมูลประกอบที่ต้องตรวจเท่านั้น</p>
     </div></div>
@@ -167,7 +178,7 @@
   </section>
 
   <section class="step" id="a2">
-    <div class="step-head"><div class="step-no">2</div><div>
+    <div class="step-head"><div class="step-no" aria-label="ข้อ ข">ข</div><div>
       <h2>รวมหลักฐานและเสียงจากเวที</h2>
       <p>แอปรวมหลักฐานจากขั้น ⓪ ① และรายงาน TIS ให้เป็นรหัสอ้างอิง ใส่สิ่งที่เวทีประชาคมพูดเพิ่มได้ บรรทัดละหนึ่งประเด็น ข้อมูลจากเวทีได้น้ำหนักสูงสุด</p>
     </div></div>
@@ -180,7 +191,7 @@
   </section>
 
   <section class="step" id="a3">
-    <div class="step-head"><div class="step-no">3</div><div>
+    <div class="step-head"><div class="step-no" aria-label="ข้อ ค">ค</div><div>
       <h2>ให้ Gemini ร่าง SWOT, TOWS และยุทธศาสตร์</h2>
       <p>คัดลอกคำสั่ง วางใน Gemini (ไม่ต้องแนบไฟล์) แล้วคัดลอกคำตอบทั้งหมดกลับมาวาง</p>
     </div></div>
@@ -196,18 +207,18 @@
   </section>
 
   <section class="step" id="a4">
-    <div class="step-head"><div class="step-no">4</div><div>
+    <div class="step-head"><div class="step-no" aria-label="ข้อ ง">ง</div><div>
       <h2>ร่างส่วนที่ 2 สำหรับเวทีพิจารณา</h2>
       <p>ชี้ที่รหัสเพื่อดูหลักฐาน รหัสเส้นประคือ SWOT จาก TIS รหัสสีแดงคือรหัสที่ไม่มีอยู่จริง ข้อที่ขอบเหลืองหรือแดงต้องให้เวทียืนยันก่อนใช้</p>
     </div></div>
-    <div class="ledger" id="result1"><div class="empty">ตรวจคำตอบในขั้นที่ 3 แล้วร่างจะขึ้นที่นี่</div></div>
-    <div class="panel" style="margin-top:12px"><div class="row-actions"><button class="btn" id="saveBtn3" type="button">บันทึกข้อมูลทั้งหมด (.json)</button></div><p class="note" id="saveNote3"></p></div>
+    <div class="ledger" id="result1"><div class="empty">ตรวจคำตอบในข้อ ค แล้วร่างจะขึ้นที่นี่</div></div>
   </section>
 </main>
 
 <main id="v-projects" hidden>
+  <div class="stephead" id="sh-projects"></div>
   <section class="step" id="p1">
-    <div class="step-head"><div class="step-no">1</div><div>
+    <div class="step-head"><div class="step-no" aria-label="ข้อ ก">ก</div><div>
       <h2>โครงการจากแผนเดิมที่เข้าแผนใหม่</h2>
       <p>มาจากขั้น ⓪ โดยอัตโนมัติ คือโครงการที่ทำแล้วและทำต่อ กับโครงการที่ยังไม่ได้ทำแต่เวทีตัดสินใจยกไป</p>
     </div></div>
@@ -215,7 +226,7 @@
   </section>
 
   <section class="step" id="p2">
-    <div class="step-head"><div class="step-no">2</div><div>
+    <div class="step-head"><div class="step-no" aria-label="ข้อ ข">ข</div><div>
       <h2>ให้ Gemini เสนอโครงการใหม่ให้เวทีเลือก</h2>
       <p>คำสั่งสร้างจากร่างส่วนที่ 2 ในขั้น ② AI จะเสนอเฉพาะยุทธศาสตร์ที่ยังขาดโครงการ และไม่กำหนดงบประมาณให้ เวทีเป็นผู้กำหนดเอง</p>
     </div></div>
@@ -231,7 +242,7 @@
   </section>
 
   <section class="step" id="p3">
-    <div class="step-head"><div class="step-no">3</div><div>
+    <div class="step-head"><div class="step-no" aria-label="ข้อ ค">ค</div><div>
       <h2>รายการโครงการของแผนใหม่</h2>
       <p>กรอกงบประมาณ เป้าหมาย ระยะเวลา ด้าน วิธีดำเนินการ และยุทธศาสตร์ที่รองรับ</p>
     </div></div>
@@ -254,48 +265,48 @@
   </section>
 
   <section class="step" id="p4">
-    <div class="step-head"><div class="step-no">4</div><div>
+    <div class="step-head"><div class="step-no" aria-label="ข้อ ง">ง</div><div>
       <h2>ตรวจความครบถ้วนและลำดับความสำคัญ (3.1)</h2>
-      <p>ลำดับในข้อ 3.1 เป็นไปตามลำดับรายการในข้อ 3 ใช้ปุ่ม ▲ ▼ ที่บัตรโครงการจัดลำดับตามมติเวที</p>
+      <p>ลำดับในข้อ 3.1 ของรูปเล่มเป็นไปตามลำดับรายการในข้อ ค ใช้ปุ่ม ▲ ▼ ที่บัตรโครงการจัดลำดับตามมติเวที</p>
     </div></div>
     <div class="panel">
       <ul class="facts" id="planFacts" style="margin-top:0"></ul>
       <div class="summary" id="dimSum" style="margin:14px 0 0"></div>
       <div class="scroll" style="margin-top:14px"><table class="p31" id="p31"></table></div>
       <datalist id="crList"></datalist>
-      <div class="row-actions" style="margin-top:14px"><button class="btn" id="saveBtn4" type="button">บันทึกข้อมูลทั้งหมด (.json)</button></div>
-      <p class="note" id="saveNote4"></p>
     </div>
   </section>
 </main>
 
 <main id="v-book" hidden>
+  <div class="stephead" id="sh-book"></div>
   <section class="step" id="b1">
-    <div class="step-head"><div class="step-no">1</div><div>
+    <div class="step-head"><div class="step-no" aria-label="ข้อ ก">ก</div><div>
       <h2>ข้อมูลประจำเล่ม</h2>
       <p>ใช้บนปกและในส่วนที่ 4 การทบทวนแผน ช่องที่เว้นว่างจะขึ้นเป็นแถบเหลือง “ต้องเติม” ในไฟล์ Word</p>
     </div></div>
     <div class="panel"><div class="base" id="bookForm"></div></div>
   </section>
   <section class="step" id="b2">
-    <div class="step-head"><div class="step-no">2</div><div>
+    <div class="step-head"><div class="step-no" aria-label="ข้อ ข">ข</div><div>
       <h2>ความพร้อมของแต่ละส่วน</h2>
       <p>ตรวจจากข้อมูลในขั้น ⓪ ถึง ③ ส่วนที่ยังไม่พร้อมยังส่งออกได้ แต่จะเป็นแถบเหลืองให้เติมใน Word</p>
     </div></div>
     <div class="panel"><ul class="facts" id="bookFacts" style="margin-top:0"></ul></div>
   </section>
   <section class="step" id="b3">
-    <div class="step-head"><div class="step-no">3</div><div>
+    <div class="step-head"><div class="step-no" aria-label="ข้อ ค">ค</div><div>
       <h2>ดาวน์โหลดรูปเล่มแผนพัฒนาตำบล</h2>
       <p>ไฟล์ Word ตามแบบฟอร์มรูปเล่มแผนพัฒนาตำบล ส่วนที่ 3 เป็นหน้าแนวนอน ตั้งฟอนต์ TH SarabunPSK ขนาด 16</p>
     </div></div>
     <div class="panel">
-      <div class="row-actions"><button class="btn" id="dlBook" type="button">ดาวน์โหลดรูปเล่ม (.docx)</button><button class="btn ghost" id="saveBtn5" type="button">บันทึกข้อมูลทั้งหมด (.json)</button></div>
+      <div class="row-actions"><button class="btn" id="dlBook" type="button">ดาวน์โหลดรูปเล่ม (.docx)</button></div>
       <p class="note" id="bookNote"></p>
     </div>
   </section>
 </main>
 </div>
+<nav class="stepbar" id="stepbar" aria-label="ไปขั้นก่อนหน้าหรือถัดไป" hidden></nav>
 <div class="toast" id="toast" role="status" hidden></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
@@ -316,6 +327,7 @@
 <script src="js/step3-projects.js"></script>
 <script src="js/step4-docx.js"></script>
 <script src="js/step4-book.js"></script>
+<script src="js/progress.js"></script>
 <script src="js/workspace.js"></script>
 <script src="js/main.js"></script>
 </body>

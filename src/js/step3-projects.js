@@ -122,7 +122,6 @@ $('#pjList').addEventListener('click', e => {
   if (it.source === 'ai') it.accepted = false; else prj.extra = prj.extra.filter(x => x.uid !== uid);
   prjPersist(); renderProjects();
 });
-$('#saveBtn4').addEventListener('click', () => $('#saveBtn').click());
 $('#pjList').addEventListener('click', e => {
   const b = e.target.closest('button[data-act=up],button[data-act=down]'); if (!b) return;
   const uids = orderedItems(planItems()).map(x => x.uid), uid = b.closest('.pj').dataset.uid, i = uids.indexOf(uid);

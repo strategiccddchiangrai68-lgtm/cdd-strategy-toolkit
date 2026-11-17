@@ -29,20 +29,35 @@ function wsSnapHasData(s){
   const filled = o => Object.values(o || {}).some(v => v !== null && v !== undefined && v !== '');
   return !!(s.review?.ai || s.pdf || s.cur?.tis || filled(s.cur?.base) || s.ana?.comm || s.ana?.venue || s.ana?.answerText || s.prj?.extra?.length || s.prj?.ans2Text || filled(s.bk));
 }
+// ---- ตัวบอกสถานะการบันทึก (บอก “บันทึกแล้ว” ก็ต่อเมื่อเขียนลงเครื่องสำเร็จจริงเท่านั้น) ----
+let saveState = 'empty';
+function setSaveState(s, at){
+  saveState = s;
+  const el = $('#saveState'); if (!el) return;
+  el.dataset.s = s;
+  el.textContent = s === 'saved' ? `บันทึกในเครื่องนี้แล้ว ${fmtTime(at)} (บันทึกอัตโนมัติทุกครั้งที่แก้)`
+    : s === 'dirty' ? 'มีการแก้ไขที่ยังไม่บันทึก (ช่องคำตอบ AI จะบันทึกเมื่อกด “ตรวจคำตอบ”)'
+    : s === 'error' ? 'บันทึกไม่สำเร็จ: เบราว์เซอร์นี้เก็บข้อมูลไม่ได้หรือพื้นที่เต็ม กด “สำรองเป็นไฟล์” ก่อนปิดหน้า'
+    : 'ยังไม่มีงานให้บันทึก';
+}
 function wsSave(){
   if (wsQuiet) return;
   const snap = wsSnapshot();
-  if (wsId === WS_DRAFT && !wsSnapHasData(snap) && !lsGet(WS + WS_DRAFT)) return;   // ยังไม่มีอะไรให้เก็บ
+  if (wsId === WS_DRAFT && !wsSnapHasData(snap) && !lsGet(WS + WS_DRAFT)){ setSaveState('empty'); refreshProgress(); return; }   // ยังไม่มีอะไรให้เก็บ
   if (!lsSet(WS + wsId, snap)){
-    if (!wsWarnedFull){ wsWarnedFull = true; toast('พื้นที่เก็บข้อมูลในเครื่องเต็ม งานล่าสุดยังไม่ถูกบันทึก กดปุ่มบันทึก (.json) เพื่อเก็บงานเป็นไฟล์ไว้ก่อน'); }
+    setSaveState('error');
+    if (!wsWarnedFull){ wsWarnedFull = true; toast('บันทึกงานลงเครื่องไม่สำเร็จ กด “สำรองเป็นไฟล์ (.json)” เพื่อเก็บงานไว้ก่อน'); }
+    refreshProgress();
     return;
   }
   wsWarnedFull = false;
   const m = state.ai?.meta || {};
   const idx = wsIndex().filter(x => x.id !== wsId);
   idx.push({ id: wsId, tambon: m.tambon || cur.tis?.tambon || ana.comm?.tambon || null, amphoe: m.amphoe || cur.tis?.amphoe || null, plan_year: m.plan_year || null, updated_at: snap.updated_at });
-  lsSet(WS_INDEX, idx); lsSet(WS_ACTIVE, wsId);
+  const okIdx = lsSet(WS_INDEX, idx) && lsSet(WS_ACTIVE, wsId);
+  setSaveState(okIdx ? 'saved' : 'error', snap.updated_at);
   wsRenderBar();
+  refreshProgress();
 }
 function wsReset(){
   Object.assign(state, { pdfName:null, pdf:null, ai:null, usingSample:false, review:{}, filter:'all' });
@@ -73,7 +88,7 @@ function wsRefreshUI(){
     $('#s2').classList.toggle('done', !!state.ai);
     document.querySelectorAll('.chip').forEach(c => c.setAttribute('aria-pressed', String(c.dataset.f === 'all')));
     $('#exportBox').hidden = true; $('#exportBox').value = '';
-    ['#saveNote','#saveNote2','#saveNote3','#saveNote4','#bookNote'].forEach(s => { const el = $(s); if (el) el.textContent = ''; });
+    ['#saveNote','#bookNote'].forEach(s => { const el = $(s); if (el) el.textContent = ''; });
     if (state.ai) runChecks(); else { facts($('#aiFacts'), []); render(); }
     // ①
     $('#drop2Title').textContent = cur.tisFile || UI0.drop2;
@@ -97,9 +112,12 @@ function wsLoad(id){
   wsId = id;
   wsApply(lsGet(WS + id));
   wsRefreshUI();
-  lsSet(WS_ACTIVE, id);
+  const okActive = lsSet(WS_ACTIVE, id);
+  const e = wsIndex().find(x => x.id === id);
+  setSaveState(!okActive && wsSnapHasData(wsSnapshot()) || !storageOk() ? 'error' : e?.updated_at ? 'saved' : 'empty', e?.updated_at);
   wsFacts(wsNotice ? [['warn', esc(wsNotice)]] : []);
 }
+function storageOk(){ try{ localStorage.setItem(WS + '_t', '1'); localStorage.removeItem(WS + '_t'); return true; }catch(e){ return false; } }
 function wsName(x){
   if (!x || x.id === WS_DRAFT) return 'งานที่ยังไม่ระบุตำบล';
   return `ตำบล${x.tambon || '?'}${x.amphoe ? ' อำเภอ' + x.amphoe : ''} แผนปี ${x.plan_year || '?'}`;

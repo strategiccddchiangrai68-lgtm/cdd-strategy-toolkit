@@ -43,7 +43,7 @@ function renderAnalysis(){
   const ev = currentEvidence();
   const cnt = g => ev.filter(e => e.group.startsWith(g)).length;
   const ef = [];
-  ef.push([cnt('ทุน') ? 'ok':'warn', `ทุนชุมชน ${cnt('ทุน')} รายการ${cnt('ทุน')?'':' (ยังไม่ได้นำเข้ารายงานในข้อ 1)'}`]);
+  ef.push([cnt('ทุน') ? 'ok':'warn', `ทุนชุมชน ${cnt('ทุน')} รายการ${cnt('ทุน')?'':' (ยังไม่ได้นำเข้ารายงานในข้อ ก)'}`]);
   ef.push([cnt('SWOT แผนเดิม') ? 'ok':'warn', `SWOT แผนเดิม ${cnt('SWOT แผนเดิม')} ข้อ${cnt('SWOT แผนเดิม')?'':' (ยังไม่มีข้อมูลจากขั้น ⓪)'}`]);
   ef.push([cnt('การจัดลำดับ') ? 'ok':'warn', `การจัดลำดับของหมู่บ้าน ${cnt('การจัดลำดับ') ? 'มีแล้ว' : 'ยังไม่มี (นำเข้าในขั้น ①)'}`]);
   ef.push(['info', `ผลทบทวนโครงการ ${cnt('ผลทบทวน')} โครงการ, ข้อมูลจากเวที ${cnt('ข้อมูลจากเวที')} ประเด็น, แผนจังหวัด ${cnt('แผนพัฒนาจังหวัด')} กิจกรรมหลัก`]);
@@ -68,7 +68,7 @@ $('#check1').addEventListener('click', () => {
 });
 function renderResult1(ev){
   const box = $('#result1');
-  if (!ana.answer){ box.innerHTML = '<div class="empty">ตรวจคำตอบในขั้นที่ 3 แล้วร่างจะขึ้นที่นี่</div>'; return; }
+  if (!ana.answer){ box.innerHTML = '<div class="empty">ตรวจคำตอบในข้อ ค แล้วร่างจะขึ้นที่นี่</div>'; return; }
   const v = validateAnswer1(ana.answer, ev); ana.validation = { errors:v.errors, warns:v.warns };
   const f = [];
   v.errors.forEach(x => f.push(['bad', esc(x)])); v.warns.forEach(x => f.push(['warn', esc(x)])); v.infos.forEach(x => f.push(['info', esc(x)]));
@@ -93,7 +93,6 @@ function renderResult1(ev){
     <h3 class="sub" style="margin-top:20px">2.5 ยุทธศาสตร์หรือวิธีปฏิบัติ</h3><ul class="strat">${strat || '<li class="meta">ยังไม่มี</li>'}</ul>`;
   $('#a4').classList.add('done');
 }
-$('#saveBtn3').addEventListener('click', () => $('#saveBtn').click());
 $('#fixP1').addEventListener('click', async () => {
   const txt = ana.fixText || '';
   try{ await navigator.clipboard.writeText(txt); toast('คัดลอกแล้ว วางในแชต Gemini เดิม แล้วนำคำตอบใหม่มาวางแทนของเก่า'); }

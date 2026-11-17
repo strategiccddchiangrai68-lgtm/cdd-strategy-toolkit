@@ -52,18 +52,19 @@ const CUR0 = () => ({ tis:null, tisStats:null, base:{}, tisFile:null, tisIsSampl
 const cur = CUR0();
 function curPersist(){ wsSave(); }
 
+// หน้าในแอป: #home ภาพรวม (หน้าแรก) และขั้น ⓪–④ — hash อื่นหรือไม่มี hash จะไปหน้าภาพรวม
+const VIEWS = ['home', 'review', 'current', 'analysis', 'projects', 'book'];
 function showView(){
-  const h = location.hash === '#current' ? 'current' : location.hash === '#analysis' ? 'analysis' : location.hash === '#projects' ? 'projects' : location.hash === '#book' ? 'book' : 'review';
-  $('#v-review').hidden = h !== 'review'; $('#v-current').hidden = h !== 'current';
-  $('#tabReview').setAttribute('aria-current', h==='review' ? 'page' : 'false');
-  $('#tabCurrent').setAttribute('aria-current', h==='current' ? 'page' : 'false');
-  $('#v-book').hidden = h !== 'book'; $('#tabBook').setAttribute('aria-current', h==='book' ? 'page' : 'false');
+  const k = location.hash.slice(1), h = VIEWS.includes(k) ? k : 'home';
+  VIEWS.forEach(v => {
+    $('#v-' + v).hidden = v !== h;
+    const tab = $('#tab' + v[0].toUpperCase() + v.slice(1)); if (tab) tab.setAttribute('aria-current', v === h ? 'page' : 'false');
+  });
   if (h === 'book') renderBook();
-  $('#v-projects').hidden = h !== 'projects'; $('#tabProjects').setAttribute('aria-current', h==='projects' ? 'page' : 'false');
   if (h === 'projects') renderProjects();
-  $('#v-analysis').hidden = h !== 'analysis'; $('#tabAnalysis').setAttribute('aria-current', h==='analysis' ? 'page' : 'false');
   if (h === 'current') renderCurrent();
   if (h === 'analysis') renderAnalysis();
+  refreshProgress();
 }
 window.addEventListener('hashchange', showView);
 
@@ -139,5 +140,4 @@ $('#baseForm').addEventListener('change', e => {
   cur.base[el.dataset.base] = el.value === '' ? null : (el.dataset.base === 'year' ? el.value : Number(el.value));
   curPersist(); renderCurrent();
 });
-$('#saveBtn2').addEventListener('click', () => $('#saveBtn').click());
 

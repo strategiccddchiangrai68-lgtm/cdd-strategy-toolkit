@@ -4,28 +4,34 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>CDD Strategy Toolkit</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%277%27 fill=%27%231B6B45%27/%3E%3Cpath d=%27M9 17l5 5 9-11%27 stroke=%27white%27 stroke-width=%273.5%27 fill=%27none%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 /* app.css — สไตล์ทั้งหมดของแอป (สีรองรับโหมดมืด) */
+/* สี: เขียวราชการเป็นสีหลัก (--brand), เขียว = สำเร็จ, ส้ม = เตือน, แดง = ผิดพลาด, น้ำเงินเทา = ข้อมูล
+   ทุกคู่สีข้อความ/พื้นหลังผ่านเกณฑ์ความคมชัด WCAG AA (≥ 4.5:1) */
 :root{
-  --bg:#EEF2EF; --surface:#FFFFFF; --sunk:#F6F8F6; --ink:#1B2A31; --muted:#56656C; --rule:#CFD8D2;
-  --ok:#17704A; --ok-soft:#E3F2EA; --bad:#B42318; --bad-soft:#FBE7E5; --warn:#94590A; --warn-soft:#FBF0DD;
-  --accent:#24476B; --accent-soft:#E4ECF4; --focus:#2F6FB3;
+  --bg:#F2F5F3; --surface:#FFFFFF; --sunk:#F6F8F7; --ink:#17251E; --muted:#4D5E55; --rule:#D2DCD6;
+  --brand:#1B6B45; --brand-ink:#FFFFFF; --brand-soft:#E3F1E9;
+  --ok:#157A3E; --ok-soft:#E4F4EA; --bad:#B42318; --bad-soft:#FBE7E5; --warn:#8A5300; --warn-soft:#FDF1DC;
+  --accent:#1B6B45; --accent-soft:#E3F1E9; --info:#2B5C8A; --info-soft:#E6EEF6; --focus:#1F6FD1;
   color-scheme: light;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
-    --bg:#121A1D; --surface:#19242A; --sunk:#141E22; --ink:#E4ECEA; --muted:#9AABAE; --rule:#2E3E44;
-    --ok:#5CC596; --ok-soft:#163327; --bad:#F2877C; --bad-soft:#3A1D1A; --warn:#E4B062; --warn-soft:#33281A;
-    --accent:#9CC0E6; --accent-soft:#1D2D3C; --focus:#7FB2EA; color-scheme: dark;
+    --bg:#0F1713; --surface:#16211B; --sunk:#121C17; --ink:#E3ECE6; --muted:#A3B5AA; --rule:#2C3D33;
+    --brand:#7FD1A3; --brand-ink:#0B1D13; --brand-soft:#173325;
+    --ok:#6CCB8F; --ok-soft:#163020; --bad:#F2877C; --bad-soft:#3A1D1A; --warn:#E8B25E; --warn-soft:#33281A;
+    --accent:#7FD1A3; --accent-soft:#173325; --info:#9CC0E6; --info-soft:#1D2D3C; --focus:#8EC5FF; color-scheme: dark;
   }
 }
 :root[data-theme="dark"]{
-  --bg:#121A1D; --surface:#19242A; --sunk:#141E22; --ink:#E4ECEA; --muted:#9AABAE; --rule:#2E3E44;
-  --ok:#5CC596; --ok-soft:#163327; --bad:#F2877C; --bad-soft:#3A1D1A; --warn:#E4B062; --warn-soft:#33281A;
-  --accent:#9CC0E6; --accent-soft:#1D2D3C; --focus:#7FB2EA; color-scheme: dark;
+  --bg:#0F1713; --surface:#16211B; --sunk:#121C17; --ink:#E3ECE6; --muted:#A3B5AA; --rule:#2C3D33;
+  --brand:#7FD1A3; --brand-ink:#0B1D13; --brand-soft:#173325;
+  --ok:#6CCB8F; --ok-soft:#163020; --bad:#F2877C; --bad-soft:#3A1D1A; --warn:#E8B25E; --warn-soft:#33281A;
+  --accent:#7FD1A3; --accent-soft:#173325; --info:#9CC0E6; --info-soft:#1D2D3C; --focus:#8EC5FF; color-scheme: dark;
 }
 :root{ box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px); }
 html{ scroll-padding-top:calc(env(safe-area-inset-top,0px) + 64px); }
@@ -38,16 +44,23 @@ body{
 body::before{ content:""; position:fixed; inset:0 0 auto; height:env(safe-area-inset-top,0px); z-index:10; background:var(--surface); }
 button,input,select,textarea{ font:inherit; color:inherit; }
 :focus-visible{ outline:3px solid var(--focus); outline-offset:2px; border-radius:6px; }
-.wrap{ max-width:1080px; margin:0 auto; padding:0 20px 80px; }
+.wrap{ max-width:1080px; margin:0 auto; padding:0 20px 120px; }
 
-header.top{ padding:36px 0 18px; }
-header.top h1{ font-size:clamp(28px,4.4vw,40px); line-height:1.2; margin:0 0 8px; font-weight:700; letter-spacing:-0.01em; }
-header.top p{ margin:0; color:var(--muted); max-width:66ch; }
-header.top .brand{ font-size:14px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--accent); margin-bottom:4px; }
-.wsbar{ display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-top:14px; padding:10px 12px; border:1px solid var(--rule); border-radius:10px; background:var(--sunk); }
+header.top{ padding:22px 0 10px; }
+header.top h1{ font-size:clamp(24px,3.6vw,32px); line-height:1.25; margin:0 0 4px; font-weight:700; letter-spacing:-0.01em; }
+header.top p{ margin:0; color:var(--muted); max-width:66ch; font-size:15.5px; }
+header.top .brand{ font-size:14px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--brand); margin-bottom:2px; }
+.wsbar{ display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-top:12px; padding:10px 12px; border:1px solid var(--rule); border-radius:10px; background:var(--surface); }
 .wsbar label{ font-weight:600; font-size:15.5px; }
-.wsbar select{ flex:1 1 260px; min-width:0; max-width:100%; padding:6px 8px; border:1px solid var(--rule); border-radius:8px; background:var(--surface); }
+.wsbar select{ flex:1 1 260px; min-width:0; max-width:100%; min-height:40px; padding:6px 8px; border:1px solid var(--rule); border-radius:8px; background:var(--surface); }
+.wsbar .ws-actions{ display:flex; flex-wrap:wrap; gap:8px; }
 #wsFacts:empty{ display:none; }
+/* ตัวบอกสถานะการบันทึก */
+.savestate{ display:flex; align-items:center; gap:6px; flex-basis:100%; font-size:14.5px; color:var(--muted); }
+.savestate::before{ content:""; width:10px; height:10px; border-radius:50%; background:var(--rule); flex:none; }
+.savestate[data-s="saved"]::before{ background:var(--ok); }
+.savestate[data-s="dirty"]{ color:var(--warn); } .savestate[data-s="dirty"]::before{ background:var(--warn); }
+.savestate[data-s="error"]{ color:var(--bad); font-weight:600; } .savestate[data-s="error"]::before{ background:var(--bad); }
 
 .tally{
   position:sticky; top:env(safe-area-inset-top,0px); z-index:5; background:var(--surface);
@@ -71,17 +84,22 @@ section.step{ margin-top:34px; }
 @media (max-width:640px){ .panel{ margin-left:0; padding:14px; } }
 
 .btn{
-  display:inline-flex; align-items:center; gap:8px; border:1px solid var(--ink); background:var(--ink); color:var(--surface);
-  padding:9px 16px; border-radius:8px; cursor:pointer; font-weight:600; font-size:16px;
+  display:inline-flex; align-items:center; justify-content:center; gap:8px; border:1px solid var(--brand); background:var(--brand); color:var(--brand-ink);
+  min-height:44px; padding:9px 16px; border-radius:8px; cursor:pointer; font-weight:600; font-size:16px; text-decoration:none;
 }
-.btn.ghost{ background:transparent; color:var(--ink); border-color:var(--rule); }
-.btn.small{ padding:5px 10px; font-size:14.5px; font-weight:500; }
+.btn:hover{ filter:brightness(1.08); }
+.btn.ghost{ background:var(--surface); color:var(--ink); border-color:var(--rule); }
+.btn.ghost:hover{ border-color:var(--brand); filter:none; }
+.btn.small{ min-height:36px; padding:5px 10px; font-size:14.5px; font-weight:500; }
+.btn.danger{ background:var(--surface); color:var(--bad); border-color:var(--bad); }
 .btn:disabled{ opacity:.45; cursor:not-allowed; }
 .row-actions{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
 
 .drop{
-  border:2px dashed var(--rule); border-radius:10px; padding:22px; text-align:center; background:var(--sunk); cursor:pointer;
+  display:block; position:relative; border:2px dashed var(--rule); border-radius:10px; padding:22px; text-align:center; background:var(--sunk); cursor:pointer;
 }
+.drop:hover{ border-color:var(--brand); }
+.drop:focus-within{ outline:3px solid var(--focus); outline-offset:2px; }
 .drop.over{ border-color:var(--accent); background:var(--accent-soft); }
 .drop input{ position:absolute; width:1px; height:1px; opacity:0; }
 .drop strong{ display:block; font-size:18px; }
@@ -92,7 +110,7 @@ section.step{ margin-top:34px; }
 .facts li.ok{ border-color:var(--ok); background:var(--ok-soft); }
 .facts li.bad{ border-color:var(--bad); background:var(--bad-soft); }
 .facts li.warn{ border-color:var(--warn); background:var(--warn-soft); }
-.facts li.info{ border-color:var(--accent); background:var(--accent-soft); }
+.facts li.info{ border-color:var(--info); background:var(--info-soft); }
 
 textarea{
   width:100%; min-height:150px; border:1px solid var(--rule); border-radius:8px; padding:10px 12px;
@@ -108,7 +126,7 @@ details.prompt textarea{ margin-top:8px; min-height:220px; }
 @media (max-width:640px){ .ledger{ margin-left:0; } }
 .filters{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px; }
 .chip{ border:1px solid var(--rule); background:var(--surface); border-radius:999px; padding:4px 12px; cursor:pointer; font-size:14.5px; }
-.chip[aria-pressed="true"]{ background:var(--ink); color:var(--surface); border-color:var(--ink); }
+.chip[aria-pressed="true"]{ background:var(--brand); color:var(--brand-ink); border-color:var(--brand); }
 .item{
   display:grid; grid-template-columns:44px minmax(0,1fr) 230px 220px; gap:14px; align-items:start;
   background:var(--surface); border:1px solid var(--rule); border-radius:10px; padding:14px; margin-bottom:8px;
@@ -150,9 +168,23 @@ details.prompt textarea{ margin-top:8px; min-height:220px; }
 .summary span{ color:var(--muted); font-size:14.5px; }
 .empty{ color:var(--muted); padding:18px; border:1px dashed var(--rule); border-radius:10px; text-align:center; }
 
-nav.tabs{ display:flex; gap:4px; border-bottom:2px solid var(--rule); margin-top:8px; }
-nav.tabs a{ padding:10px 16px; text-decoration:none; color:var(--muted); font-weight:600; border-bottom:3px solid transparent; margin-bottom:-2px; }
-nav.tabs a[aria-current="page"]{ color:var(--ink); border-color:var(--ink); }
+/* แถบขั้นตอน: ปุ่มแบบเม็ดยา แสดงสถานะเป็นข้อความ (ไม่ใช้สีหรือไอคอนอย่างเดียว) */
+nav.tabs{ display:flex; flex-wrap:wrap; gap:6px; margin-top:12px; }
+nav.tabs a{ display:flex; align-items:center; gap:6px; min-height:44px; padding:6px 12px; text-decoration:none; color:var(--ink); font-weight:600; font-size:15.5px;
+  border:1px solid var(--rule); border-radius:999px; background:var(--surface); }
+nav.tabs a:hover{ border-color:var(--brand); }
+nav.tabs a[aria-current="page"]{ background:var(--brand); color:var(--brand-ink); border-color:var(--brand); }
+nav.tabs .ts{ font-size:12.5px; font-weight:600; padding:0 7px; border-radius:999px; background:var(--sunk); color:var(--muted); border:1px solid var(--rule); }
+nav.tabs .ts[data-s="done"]{ background:var(--ok-soft); color:var(--ok); border-color:var(--ok); }
+nav.tabs .ts[data-s="fix"]{ background:var(--bad-soft); color:var(--bad); border-color:var(--bad); }
+nav.tabs .ts[data-s="doing"]{ background:var(--warn-soft); color:var(--warn); border-color:var(--warn); }
+nav.tabs a[aria-current="page"] .ts{ background:var(--surface); }
+nav.tabs .ts{ white-space:nowrap; }
+@media (max-width:640px){
+  header.top p{ display:none; }
+  nav.tabs{ display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); }
+  nav.tabs a{ flex-direction:column; align-items:flex-start; justify-content:center; gap:2px; border-radius:10px; padding:6px 8px; font-size:14px; line-height:1.3; }
+}
 .heat{ width:100%; border-collapse:collapse; font-variant-numeric:tabular-nums; min-width:560px; }
 .heat th,.heat td{ padding:8px 10px; border-bottom:1px solid var(--rule); text-align:center; }
 .heat th:first-child,.heat td:first-child{ text-align:left; }
@@ -185,7 +217,7 @@ h3.sub{ font-size:17px; margin:0 0 8px; }
 .ev{ display:inline-block; font-size:12.5px; padding:0 7px; margin:4px 4px 0 0; border-radius:999px; border:1px solid var(--rule); background:var(--sunk); cursor:help; font-variant-numeric:tabular-nums; }
 .ev.x{ border-style:dashed; color:var(--warn); } .ev.ext{ border-color:var(--accent); color:var(--accent); } .ev.missing{ background:var(--bad-soft); color:var(--bad); border-color:var(--bad); }
 .flagline{ font-size:13.5px; margin-top:4px; } .flagline.warn{ color:var(--warn); } .flagline.bad{ color:var(--bad); }
-.dir{ font-size:20px; font-weight:600; line-height:1.45; padding:12px 14px; border-left:4px solid var(--ink); background:var(--sunk); border-radius:0 8px 8px 0; }
+.dir{ font-size:20px; font-weight:600; line-height:1.45; padding:12px 14px; border-left:4px solid var(--brand); background:var(--sunk); border-radius:0 8px 8px 0; }
 .strat{ display:grid; gap:8px; margin:0; padding:0; list-style:none; }
 .strat li{ padding:10px 12px; border:1px solid var(--rule); border-radius:8px; background:var(--surface); }
 .strat b{ display:block; }
@@ -199,8 +231,6 @@ details.evlist td:first-child{ font-weight:600; white-space:nowrap; font-variant
 .capsum b{ display:block; font-size:20px; font-variant-numeric:tabular-nums; }
 .capsum span{ color:var(--muted); font-size:14px; }
 
-nav.tabs{ overflow-x:auto; }
-nav.tabs a{ white-space:nowrap; }
 .pj{ background:var(--surface); border:1px solid var(--rule); border-radius:10px; padding:12px 14px; margin-bottom:8px; }
 .pj.bad{ box-shadow:inset 4px 0 0 var(--bad); } .pj.warn{ box-shadow:inset 4px 0 0 var(--warn); }
 .pj-top{ display:flex; gap:10px; align-items:center; }
@@ -220,12 +250,64 @@ nav.tabs a{ white-space:nowrap; }
 .p31 th,.p31 td{ padding:6px 8px; border-bottom:1px solid var(--rule); text-align:left; vertical-align:top; }
 .p31 th{ font-size:14px; color:var(--muted); font-weight:600; }
 .p31 td.num{ text-align:right; }
-.toast{ position:fixed; left:50%; bottom:calc(20px + env(safe-area-inset-bottom,0px)); transform:translateX(-50%); background:var(--ink); color:var(--surface); padding:10px 16px; border-radius:8px; font-size:15px; z-index:20; }
+.toast{ position:fixed; left:50%; bottom:calc(84px + env(safe-area-inset-bottom,0px)); max-width:calc(100vw - 32px); transform:translateX(-50%); background:var(--ink); color:var(--surface); padding:10px 16px; border-radius:8px; font-size:15px; z-index:20; }
 .toast[hidden]{ display:none; }
 @media (prefers-reduced-motion:no-preference){
   .item.flash{ animation:flash 1.2s ease-out; }
   @keyframes flash{ from{ background:var(--ok-soft); } to{ background:var(--surface); } }
 }
+
+/* ===== หัวขั้น: ชื่อ คำอธิบาย สถานะ และสิ่งที่ยังขาด ===== */
+.stephead{ margin-top:18px; padding:16px 18px; border:1px solid var(--rule); border-left:6px solid var(--brand); border-radius:10px; background:var(--surface); }
+.stephead .sh-top{ display:flex; flex-wrap:wrap; gap:8px 12px; align-items:center; }
+.stephead .sh-no{ font-size:14px; font-weight:700; color:var(--brand); }
+.stephead h2{ margin:0; font-size:22px; line-height:1.3; }
+.stephead p{ margin:4px 0 0; color:var(--muted); font-size:15.5px; max-width:75ch; }
+.badge{ display:inline-flex; align-items:center; gap:4px; font-size:13.5px; font-weight:600; padding:1px 10px; border-radius:999px; border:1px solid var(--rule); background:var(--sunk); color:var(--muted); white-space:nowrap; }
+.badge[data-s="done"]{ background:var(--ok-soft); color:var(--ok); border-color:var(--ok); }
+.badge[data-s="doing"]{ background:var(--warn-soft); color:var(--warn); border-color:var(--warn); }
+.badge[data-s="fix"]{ background:var(--bad-soft); color:var(--bad); border-color:var(--bad); }
+.issues{ list-style:none; margin:12px 0 0; padding:0; display:grid; gap:6px; }
+.issues li{ display:flex; flex-wrap:wrap; gap:6px 10px; align-items:center; justify-content:space-between; padding:6px 10px; border-radius:8px; border-left:4px solid var(--warn); background:var(--warn-soft); font-size:15px; }
+.issues li.bad{ border-color:var(--bad); background:var(--bad-soft); }
+.issues li .go{ color:var(--ink); font-weight:600; font-size:14.5px; text-decoration:underline; text-underline-offset:3px; white-space:nowrap; }
+.issues li.more{ border-color:var(--rule); background:var(--sunk); color:var(--muted); }
+
+/* ===== แถบย้อนกลับ/ถัดไป ติดด้านล่างจอ ===== */
+.stepbar{ position:fixed; left:0; right:0; bottom:0; z-index:15; background:var(--surface); border-top:1px solid var(--rule);
+  padding:10px max(16px, calc((100vw - 1080px)/2 + 20px)) calc(10px + env(safe-area-inset-bottom,0px)); display:flex; gap:10px; align-items:center; }
+.stepbar[hidden]{ display:none; }
+.stepbar .sb-mid{ flex:1; min-width:0; text-align:center; font-size:14.5px; color:var(--muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.stepbar .btn{ white-space:nowrap; }
+@media (max-width:640px){ .stepbar .sb-mid{ display:none; } .stepbar .btn{ flex:1; } }
+
+/* ===== หน้าภาพรวม ===== */
+.home-card{ margin-top:18px; padding:18px; border:1px solid var(--rule); border-radius:12px; background:var(--surface); }
+.home-head{ display:flex; flex-wrap:wrap; gap:12px 20px; align-items:flex-start; justify-content:space-between; }
+.home-head h2{ margin:0; font-size:24px; line-height:1.3; }
+.home-head .meta{ font-size:15px; }
+.progress{ margin-top:14px; }
+.progress .bar{ height:14px; border-radius:999px; background:var(--sunk); border:1px solid var(--rule); overflow:hidden; }
+.progress .bar > span{ display:block; height:100%; background:var(--brand); border-radius:999px; }
+.progress .lbl{ display:flex; justify-content:space-between; gap:10px; margin-top:6px; font-size:15px; color:var(--muted); }
+.progress .lbl b{ color:var(--ink); }
+.stats{ display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; margin-top:14px; }
+.stats div{ padding:10px 12px; border:1px solid var(--rule); border-radius:10px; background:var(--sunk); }
+.stats b{ display:block; font-size:22px; font-variant-numeric:tabular-nums; }
+.stats span{ font-size:14px; color:var(--muted); }
+.steps-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:12px; margin-top:14px; }
+.step-card{ display:flex; flex-direction:column; gap:6px; padding:14px; border:1px solid var(--rule); border-radius:12px; background:var(--surface); }
+.step-card[data-s="done"]{ border-color:var(--ok); }
+.step-card[data-s="fix"]{ border-color:var(--bad); }
+.step-card .sc-top{ display:flex; justify-content:space-between; gap:8px; align-items:center; }
+.step-card h3{ margin:0; font-size:18px; }
+.step-card p{ margin:0; color:var(--muted); font-size:14.5px; }
+.step-card ul{ margin:2px 0 0; padding-left:1.2em; font-size:14.5px; }
+.step-card .btn{ margin-top:auto; align-self:flex-start; }
+.local-note{ margin-top:14px; padding:10px 12px; border-radius:8px; background:var(--info-soft); border-left:4px solid var(--info); font-size:15px; }
+.welcome ul.plain{ list-style:none; margin:10px 0 0; padding:0; }
+.welcome ul.plain li{ margin:6px 0; }
+.sr-only{ position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
 </style>
 </head>
 <body>
@@ -233,24 +315,34 @@ nav.tabs a{ white-space:nowrap; }
   <header class="top">
     <div class="brand">CDD Strategy Toolkit</div>
     <h1>เตรียมข้อมูลแผนพัฒนาตำบล</h1>
-    <p>ทบทวนโครงการในเล่มแผนเดิม แล้วรวบรวมข้อมูลตำบลปัจจุบันจาก TIS ให้พร้อมก่อนเข้าเวที ข้อมูลทั้งหมดอยู่ในเครื่องนี้ ไม่ถูกส่งไปที่ใด</p>
+    <p>จัดทำแผนพัฒนาตำบลทีละขั้น ตั้งแต่ทบทวนแผนเดิมจนส่งออกรูปเล่ม ข้อมูลทั้งหมดอยู่ในเครื่องนี้ ไม่ถูกส่งไปที่ใด</p>
     <div class="wsbar">
       <label for="wsSel">ตำบลที่ทำอยู่</label>
       <select id="wsSel"></select>
-      <button class="btn ghost small" id="wsNew" type="button">เริ่มตำบลใหม่</button>
-      <button class="btn ghost small" id="wsOpen" type="button">เปิดไฟล์ .json ที่บันทึกไว้</button>
+      <div class="ws-actions">
+        <button class="btn ghost small" id="wsNew" type="button">＋ เริ่มตำบลใหม่</button>
+        <button class="btn ghost small" id="wsBackup" type="button">⬇ สำรองเป็นไฟล์ (.json)</button>
+        <button class="btn ghost small" id="wsOpen" type="button">⬆ เปิดไฟล์สำรอง (.json)</button>
+      </div>
       <input type="file" id="wsFile" accept=".json,application/json" hidden>
+      <div class="savestate" id="saveState" role="status" aria-live="polite" data-s="empty">ยังไม่มีงานให้บันทึก</div>
     </div>
     <ul class="facts" id="wsFacts"></ul>
-    <nav class="tabs" aria-label="ขั้นตอน">
+    <nav class="tabs" aria-label="ขั้นตอนการจัดทำแผน">
+      <a href="#home" id="tabHome">ภาพรวม</a>
       <a href="#review" id="tabReview">⓪ ทบทวนแผนเดิม</a>
-      <a href="#current" id="tabCurrent">① ข้อมูลตำบลปัจจุบัน</a>
+      <a href="#current" id="tabCurrent">① ข้อมูลตำบล</a>
       <a href="#analysis" id="tabAnalysis">② SWOT และยุทธศาสตร์</a>
       <a href="#projects" id="tabProjects">③ โครงการ</a>
-      <a href="#book" id="tabBook">④ ส่งออกรูปเล่ม</a>
+      <a href="#book" id="tabBook">④ ตรวจและส่งออก</a>
     </nav>
   </header>
+<main id="v-home" hidden>
+  <div id="home"></div>
+</main>
+
 <main id="v-review">
+  <div class="stephead" id="sh-review"></div>
 
   <div class="tally" id="tally" aria-live="polite">
     <div><b id="tProj">0</b> <span>โครงการ</span></div>
@@ -260,7 +352,7 @@ nav.tabs a{ white-space:nowrap; }
   </div>
 
   <section class="step" id="s1">
-    <div class="step-head"><div class="step-no">1</div><div>
+    <div class="step-head"><div class="step-no" aria-label="ข้อ ก">ก</div><div>
       <h2>แนบไฟล์ PDF แผนเดิม</h2>
       <p>แอปอ่านตัวเลขงบประมาณจากข้อความที่ฝังในไฟล์ ใช้เป็นตัวตรวจคำตอบของ AI ไฟล์ไม่ออกจากเครื่องนี้</p>
     </div></div>
@@ -275,7 +367,7 @@ nav.tabs a{ white-space:nowrap; }
   </section>
 
   <section class="step" id="s2">
-    <div class="step-head"><div class="step-no">2</div><div>
+    <div class="step-head"><div class="step-no" aria-label="ข้อ ข">ข</div><div>
       <h2>ให้ Gemini สกัดโครงการ แล้ววางคำตอบกลับ</h2>
       <p>คัดลอกคำสั่ง เปิด Gemini แนบไฟล์ PDF เดิม วางคำสั่ง แล้วคัดลอกคำตอบทั้งหมดมาวางในช่องด้านล่าง</p>
     </div></div>
@@ -287,7 +379,7 @@ nav.tabs a{ white-space:nowrap; }
       </div>
       <details class="prompt"><summary>ดูคำสั่งทั้งหมด</summary><textarea id="promptBox" readonly></textarea></details>
       <div class="privacy">เล่มแผนเดิมบางเล่มมีชื่อและเบอร์โทรศัพท์ของผู้นำหรือประธานกลุ่ม การแนบไฟล์ให้ AI คือการส่งข้อมูลเหล่านี้ออกไปด้วย ถ้าทำได้ ให้ใช้ไฟล์ที่ตัดหน้าเหล่านั้นออก</div>
-      <p class="note" id="sampleNote" hidden>กำลังใช้คำตอบจริงของ Gemini จากการทดสอบกับแผนตำบลป่าแดด (ตัดส่วน SWOT ออก) แนบไฟล์แผนป่าแดดในขั้นที่ 1 เพื่อดูการเทียบงบ</p>
+      <p class="note" id="sampleNote" hidden>กำลังใช้คำตอบจริงของ Gemini จากการทดสอบกับแผนตำบลป่าแดด (ตัดส่วน SWOT ออก) แนบไฟล์แผนป่าแดดในข้อ ก เพื่อดูการเทียบงบ</p>
       <label for="aiBox" style="display:block;margin:14px 0 6px;font-weight:600">คำตอบจาก AI</label>
       <textarea id="aiBox" placeholder="วางคำตอบ JSON ทั้งหมดจาก Gemini ที่นี่"></textarea>
       <div class="row-actions" style="margin-top:10px"><button class="btn" id="checkBtn" type="button">ตรวจคำตอบ</button></div>
@@ -296,7 +388,7 @@ nav.tabs a{ white-space:nowrap; }
   </section>
 
   <section class="step" id="s3">
-    <div class="step-head"><div class="step-no">3</div><div>
+    <div class="step-head"><div class="step-no" aria-label="ข้อ ค">ค</div><div>
       <h2>ตรวจงบและระบุสถานะทีละโครงการ</h2>
       <p>แถวขอบแดงคืองบที่ AI อ่านไม่ตรงกับไฟล์ ให้เปิดเล่มจริงดูแล้วเลือกค่าที่ถูก สถานะโครงการต้องได้จากเวทีหรือผู้รู้ในพื้นที่ แอปเดาให้ไม่ได้</p>
     </div></div>
@@ -306,20 +398,20 @@ nav.tabs a{ white-space:nowrap; }
         <button class="chip" data-f="check" aria-pressed="false" type="button">งบต้องตรวจ</button>
         <button class="chip" data-f="nostatus" aria-pressed="false" type="button">ยังไม่ระบุสถานะ</button>
       </div>
-      <div id="list"><div class="empty">วางคำตอบจาก AI ในขั้นที่ 2 แล้วรายการโครงการจะขึ้นที่นี่</div></div>
+      <div id="list"><div class="empty">วางคำตอบจาก AI ในข้อ ข แล้วรายการโครงการจะขึ้นที่นี่</div></div>
     </div>
   </section>
 
   <section class="step" id="s4">
-    <div class="step-head"><div class="step-no">4</div><div>
+    <div class="step-head"><div class="step-no" aria-label="ข้อ ง">ง</div><div>
       <h2>สรุปผลทบทวน</h2>
-      <p>ใช้เปิดเวทีทบทวน และบันทึกเป็นไฟล์เพื่อนำเข้าขั้นจัดทำแผนใหม่</p>
+      <p>ใช้เปิดเวทีทบทวน งานบันทึกในเครื่องอัตโนมัติ กดสำรองเป็นไฟล์เพื่อเก็บไว้หรือทำต่อเครื่องอื่น</p>
     </div></div>
     <div class="summary" id="summary"></div>
     <div class="panel" style="margin-top:12px">
       <div class="row-actions">
-        <button class="btn" id="saveBtn" type="button">บันทึกผลทบทวน (.json)</button>
-        <button class="btn ghost" id="resetBtn" type="button">ล้างข้อมูลในเครื่องนี้</button>
+        <button class="btn" id="saveBtn" type="button">⬇ สำรองเป็นไฟล์ (.json)</button>
+        <button class="btn danger" id="resetBtn" type="button">ล้างสถานะและงบที่ตรวจในขั้นนี้</button>
       </div>
       <p class="note" id="saveNote"></p>
       <textarea id="exportBox" readonly hidden></textarea>
@@ -328,8 +420,9 @@ nav.tabs a{ white-space:nowrap; }
 </main>
 
 <main id="v-current" hidden>
+  <div class="stephead" id="sh-current"></div>
   <section class="step" id="c1">
-    <div class="step-head"><div class="step-no">1</div><div>
+    <div class="step-head"><div class="step-no" aria-label="ข้อ ก">ก</div><div>
       <h2>นำเข้ารายงานผลการวิเคราะห์ TIS</h2>
       <p>ในระบบ TIS เปิดรายงานผลการวิเคราะห์ของตำบล กดส่งออกเป็น Excel แล้วนำไฟล์มาใส่ที่นี่ แอปจะสรุปว่าแต่ละหมู่บ้านจัดลำดับปัญหาอย่างไร</p>
     </div></div>
@@ -345,7 +438,7 @@ nav.tabs a{ white-space:nowrap; }
   </section>
 
   <section class="step" id="c2">
-    <div class="step-head"><div class="step-no">2</div><div>
+    <div class="step-head"><div class="step-no" aria-label="ข้อ ข">ข</div><div>
       <h2>หมู่บ้านเห็นตรงกันแค่ไหน</h2>
       <p>ตัวเลขในตารางคือจำนวนหมู่บ้านที่จัดแต่ละด้านไว้ในอันดับนั้น สีเข้มคือหมู่บ้านส่วนใหญ่เห็นตรงกัน ใช้เปิดเวทีได้ทันที</p>
     </div></div>
@@ -353,7 +446,7 @@ nav.tabs a{ white-space:nowrap; }
   </section>
 
   <section class="step" id="c4">
-    <div class="step-head"><div class="step-no">3</div><div>
+    <div class="step-head"><div class="step-no" aria-label="ข้อ ค">ค</div><div>
       <h2>ข้อมูลพื้นฐานของตำบล</h2>
       <p>ตัวเลขตั้งต้นดึงจากแผนเดิม (ขั้น ⓪) ให้แก้เป็นข้อมูลปีล่าสุด และระบุปีของข้อมูลทุกครั้ง</p>
     </div></div>
@@ -361,15 +454,14 @@ nav.tabs a{ white-space:nowrap; }
       <div class="base" id="baseForm"></div>
       <ul class="facts" id="baseFacts"></ul>
       <div id="oldProblems" style="margin-top:14px"></div>
-      <div class="row-actions" style="margin-top:14px"><button class="btn" id="saveBtn2" type="button">บันทึกข้อมูลทั้งหมด (.json)</button></div>
-      <p class="note" id="saveNote2"></p>
     </div>
   </section>
 </main>
 
 <main id="v-analysis" hidden>
+  <div class="stephead" id="sh-analysis"></div>
   <section class="step" id="a1">
-    <div class="step-head"><div class="step-no">1</div><div>
+    <div class="step-head"><div class="step-no" aria-label="ข้อ ก">ก</div><div>
       <h2>นำเข้ารายงานผลการวิเคราะห์ข้อมูลชุมชนจาก TIS</h2>
       <p>รายงานที่มีคอลัมน์ทุนชุมชนและ SWOT ทุนชุมชนใช้เป็นหลักฐานได้ ส่วน SWOT ของ TIS ใช้เป็นข้อมูลประกอบที่ต้องตรวจเท่านั้น</p>
     </div></div>
@@ -386,7 +478,7 @@ nav.tabs a{ white-space:nowrap; }
   </section>
 
   <section class="step" id="a2">
-    <div class="step-head"><div class="step-no">2</div><div>
+    <div class="step-head"><div class="step-no" aria-label="ข้อ ข">ข</div><div>
       <h2>รวมหลักฐานและเสียงจากเวที</h2>
       <p>แอปรวมหลักฐานจากขั้น ⓪ ① และรายงาน TIS ให้เป็นรหัสอ้างอิง ใส่สิ่งที่เวทีประชาคมพูดเพิ่มได้ บรรทัดละหนึ่งประเด็น ข้อมูลจากเวทีได้น้ำหนักสูงสุด</p>
     </div></div>
@@ -399,7 +491,7 @@ nav.tabs a{ white-space:nowrap; }
   </section>
 
   <section class="step" id="a3">
-    <div class="step-head"><div class="step-no">3</div><div>
+    <div class="step-head"><div class="step-no" aria-label="ข้อ ค">ค</div><div>
       <h2>ให้ Gemini ร่าง SWOT, TOWS และยุทธศาสตร์</h2>
       <p>คัดลอกคำสั่ง วางใน Gemini (ไม่ต้องแนบไฟล์) แล้วคัดลอกคำตอบทั้งหมดกลับมาวาง</p>
     </div></div>
@@ -415,18 +507,18 @@ nav.tabs a{ white-space:nowrap; }
   </section>
 
   <section class="step" id="a4">
-    <div class="step-head"><div class="step-no">4</div><div>
+    <div class="step-head"><div class="step-no" aria-label="ข้อ ง">ง</div><div>
       <h2>ร่างส่วนที่ 2 สำหรับเวทีพิจารณา</h2>
       <p>ชี้ที่รหัสเพื่อดูหลักฐาน รหัสเส้นประคือ SWOT จาก TIS รหัสสีแดงคือรหัสที่ไม่มีอยู่จริง ข้อที่ขอบเหลืองหรือแดงต้องให้เวทียืนยันก่อนใช้</p>
     </div></div>
-    <div class="ledger" id="result1"><div class="empty">ตรวจคำตอบในขั้นที่ 3 แล้วร่างจะขึ้นที่นี่</div></div>
-    <div class="panel" style="margin-top:12px"><div class="row-actions"><button class="btn" id="saveBtn3" type="button">บันทึกข้อมูลทั้งหมด (.json)</button></div><p class="note" id="saveNote3"></p></div>
+    <div class="ledger" id="result1"><div class="empty">ตรวจคำตอบในข้อ ค แล้วร่างจะขึ้นที่นี่</div></div>
   </section>
 </main>
 
 <main id="v-projects" hidden>
+  <div class="stephead" id="sh-projects"></div>
   <section class="step" id="p1">
-    <div class="step-head"><div class="step-no">1</div><div>
+    <div class="step-head"><div class="step-no" aria-label="ข้อ ก">ก</div><div>
       <h2>โครงการจากแผนเดิมที่เข้าแผนใหม่</h2>
       <p>มาจากขั้น ⓪ โดยอัตโนมัติ คือโครงการที่ทำแล้วและทำต่อ กับโครงการที่ยังไม่ได้ทำแต่เวทีตัดสินใจยกไป</p>
     </div></div>
@@ -434,7 +526,7 @@ nav.tabs a{ white-space:nowrap; }
   </section>
 
   <section class="step" id="p2">
-    <div class="step-head"><div class="step-no">2</div><div>
+    <div class="step-head"><div class="step-no" aria-label="ข้อ ข">ข</div><div>
       <h2>ให้ Gemini เสนอโครงการใหม่ให้เวทีเลือก</h2>
       <p>คำสั่งสร้างจากร่างส่วนที่ 2 ในขั้น ② AI จะเสนอเฉพาะยุทธศาสตร์ที่ยังขาดโครงการ และไม่กำหนดงบประมาณให้ เวทีเป็นผู้กำหนดเอง</p>
     </div></div>
@@ -450,7 +542,7 @@ nav.tabs a{ white-space:nowrap; }
   </section>
 
   <section class="step" id="p3">
-    <div class="step-head"><div class="step-no">3</div><div>
+    <div class="step-head"><div class="step-no" aria-label="ข้อ ค">ค</div><div>
       <h2>รายการโครงการของแผนใหม่</h2>
       <p>กรอกงบประมาณ เป้าหมาย ระยะเวลา ด้าน วิธีดำเนินการ และยุทธศาสตร์ที่รองรับ</p>
     </div></div>
@@ -473,48 +565,48 @@ nav.tabs a{ white-space:nowrap; }
   </section>
 
   <section class="step" id="p4">
-    <div class="step-head"><div class="step-no">4</div><div>
+    <div class="step-head"><div class="step-no" aria-label="ข้อ ง">ง</div><div>
       <h2>ตรวจความครบถ้วนและลำดับความสำคัญ (3.1)</h2>
-      <p>ลำดับในข้อ 3.1 เป็นไปตามลำดับรายการในข้อ 3 ใช้ปุ่ม ▲ ▼ ที่บัตรโครงการจัดลำดับตามมติเวที</p>
+      <p>ลำดับในข้อ 3.1 ของรูปเล่มเป็นไปตามลำดับรายการในข้อ ค ใช้ปุ่ม ▲ ▼ ที่บัตรโครงการจัดลำดับตามมติเวที</p>
     </div></div>
     <div class="panel">
       <ul class="facts" id="planFacts" style="margin-top:0"></ul>
       <div class="summary" id="dimSum" style="margin:14px 0 0"></div>
       <div class="scroll" style="margin-top:14px"><table class="p31" id="p31"></table></div>
       <datalist id="crList"></datalist>
-      <div class="row-actions" style="margin-top:14px"><button class="btn" id="saveBtn4" type="button">บันทึกข้อมูลทั้งหมด (.json)</button></div>
-      <p class="note" id="saveNote4"></p>
     </div>
   </section>
 </main>
 
 <main id="v-book" hidden>
+  <div class="stephead" id="sh-book"></div>
   <section class="step" id="b1">
-    <div class="step-head"><div class="step-no">1</div><div>
+    <div class="step-head"><div class="step-no" aria-label="ข้อ ก">ก</div><div>
       <h2>ข้อมูลประจำเล่ม</h2>
       <p>ใช้บนปกและในส่วนที่ 4 การทบทวนแผน ช่องที่เว้นว่างจะขึ้นเป็นแถบเหลือง “ต้องเติม” ในไฟล์ Word</p>
     </div></div>
     <div class="panel"><div class="base" id="bookForm"></div></div>
   </section>
   <section class="step" id="b2">
-    <div class="step-head"><div class="step-no">2</div><div>
+    <div class="step-head"><div class="step-no" aria-label="ข้อ ข">ข</div><div>
       <h2>ความพร้อมของแต่ละส่วน</h2>
       <p>ตรวจจากข้อมูลในขั้น ⓪ ถึง ③ ส่วนที่ยังไม่พร้อมยังส่งออกได้ แต่จะเป็นแถบเหลืองให้เติมใน Word</p>
     </div></div>
     <div class="panel"><ul class="facts" id="bookFacts" style="margin-top:0"></ul></div>
   </section>
   <section class="step" id="b3">
-    <div class="step-head"><div class="step-no">3</div><div>
+    <div class="step-head"><div class="step-no" aria-label="ข้อ ค">ค</div><div>
       <h2>ดาวน์โหลดรูปเล่มแผนพัฒนาตำบล</h2>
       <p>ไฟล์ Word ตามแบบฟอร์มรูปเล่มแผนพัฒนาตำบล ส่วนที่ 3 เป็นหน้าแนวนอน ตั้งฟอนต์ TH SarabunPSK ขนาด 16</p>
     </div></div>
     <div class="panel">
-      <div class="row-actions"><button class="btn" id="dlBook" type="button">ดาวน์โหลดรูปเล่ม (.docx)</button><button class="btn ghost" id="saveBtn5" type="button">บันทึกข้อมูลทั้งหมด (.json)</button></div>
+      <div class="row-actions"><button class="btn" id="dlBook" type="button">ดาวน์โหลดรูปเล่ม (.docx)</button></div>
       <p class="note" id="bookNote"></p>
     </div>
   </section>
 </main>
 </div>
+<nav class="stepbar" id="stepbar" aria-label="ไปขั้นก่อนหน้าหรือถัดไป" hidden></nav>
 <div class="toast" id="toast" role="status" hidden></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
@@ -708,10 +800,10 @@ function runChecks(){
     const pdfRows = Object.keys(state.pdf.rows).length;
     if (pdfRows !== projects.length) out.push(['bad', `จำนวนโครงการไม่ตรงกัน ไฟล์มี ${pdfRows} แถว แต่ AI ส่งมา ${projects.length} โครงการ`]);
     const mis = projects.filter(p => budgetCheck(p).kind==='mismatch').length;
-    out.push([mis? 'bad':'ok', mis ? `งบประมาณที่ AI อ่านไม่ตรงกับไฟล์ ${mis} โครงการ ต้องตรวจกับเล่มจริงในขั้นที่ 3` : 'งบประมาณทุกโครงการตรงกับตัวเลขในไฟล์']);
+    out.push([mis? 'bad':'ok', mis ? `งบประมาณที่ AI อ่านไม่ตรงกับไฟล์ ${mis} โครงการ ต้องตรวจกับเล่มจริงในข้อ ค` : 'งบประมาณทุกโครงการตรงกับตัวเลขในไฟล์']);
     const pr = ai.part2?.problems?.length || 0;
     if (state.pdf.problemRows.length && pr !== state.pdf.problemRows.length) out.push(['warn', `ตารางวิเคราะห์ปัญหาในไฟล์มี ${state.pdf.problemRows.length} แถว แต่ AI ส่งมา ${pr} แถว`]);
-  } else if (!state.pdf) out.push(['warn','ยังไม่ได้แนบ PDF ในขั้นที่ 1 จึงยังเทียบงบกับต้นฉบับไม่ได้']);
+  } else if (!state.pdf) out.push(['warn','ยังไม่ได้แนบ PDF ในข้อ ก จึงยังเทียบงบกับต้นฉบับไม่ได้']);
   else out.push(['warn','ไฟล์ไม่มีข้อความให้เทียบ ต้องยืนยันงบทุกบรรทัดด้วยตา']);
   const pop = ai.part1?.population;
   if (pop && pop.total && pop.male + pop.female !== pop.total) out.push(['warn', `ประชากรชายรวมหญิง (${fmt(pop.male+pop.female)}) ไม่เท่ากับยอดรวม (${fmt(pop.total)})`]);
@@ -767,7 +859,7 @@ function statusHTML(p){
 }
 function render(){
   const ai = state.ai, list = $('#list');
-  if (!ai){ list.innerHTML = '<div class="empty">วางคำตอบจาก AI ในขั้นที่ 2 แล้วรายการโครงการจะขึ้นที่นี่</div>'; tally(); summary(); return; }
+  if (!ai){ list.innerHTML = '<div class="empty">วางคำตอบจาก AI ในข้อ ข แล้วรายการโครงการจะขึ้นที่นี่</div>'; tally(); summary(); return; }
   const ps = ai.part3.projects.filter(p => state.filter==='all' || (state.filter==='check' && needsCheck(p)) || (state.filter==='nostatus' && !rv(p.id).status));
   if (!ps.length){ list.innerHTML = '<div class="empty">ไม่มีรายการในตัวกรองนี้</div>'; }
   else list.innerHTML = ps.map(p => {
@@ -852,25 +944,34 @@ function exportData(){
     workspace: wsSnapshot()
   };
 }
-$('#saveBtn').addEventListener('click', async () => {
-  if (!state.ai){ toast('ทำขั้น ⓪ ทบทวนแผนเดิมก่อน แล้วค่อยบันทึก'); return; }
+// สำรองงานทั้งหมดของตำบลที่เปิดอยู่เป็นไฟล์ .json (ปุ่มที่แถบตำบลด้านบนและในข้อ ง)
+async function backupFile(){
+  if (!state.ai){ toast('ยังสำรองไม่ได้ ต้องนำโครงการจากแผนเดิมเข้ามาในขั้น ⓪ ก่อน'); location.hash = '#review'; return; }
   const ps = state.ai.part3.projects;
   const pend = ps.filter(needsCheck).length, nost = ps.filter(p=>!rv(p.id).status).length;
-  $('#bookNote').textContent = $('#saveNote4').textContent = $('#saveNote3').textContent = $('#saveNote2').textContent = $('#saveNote').textContent = (pend||nost) ? `ยังเหลืองบที่ต้องตรวจ ${pend} รายการ และยังไม่ระบุสถานะ ${nost} รายการ ไฟล์ที่บันทึกจะติดสถานะ “ยังไม่ครบ” ไว้` : 'ตรวจครบทุกรายการแล้ว';
+  $('#saveNote').textContent = (pend||nost) ? `ยังเหลืองบที่ต้องตรวจ ${pend} รายการ และยังไม่ระบุสถานะ ${nost} รายการ ไฟล์ที่สำรองจะติดสถานะ “ยังไม่ครบ” ไว้` : 'ตรวจครบทุกรายการแล้ว';
   const data = JSON.stringify(exportData(), null, 1);
-  const name = `ทบทวนแผน_${state.ai.meta?.tambon||'ตำบล'}_${state.ai.meta?.plan_year||''}.json`;
+  const d = new Date(), pad = n => String(n).padStart(2, '0');
+  const name = `แผนตำบล_${state.ai.meta?.tambon||'ตำบล'}_${state.ai.meta?.plan_year||''}_สำรอง_${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}.json`;
   let dl = null; try{ dl = await window.claude?.use?.('downloads'); }catch(e){}
   if (dl){
-    try{ await dl.save({ filename:name, data }); toast('บันทึกไฟล์แล้ว'); return; }
+    try{ await dl.save({ filename:name, data }); toast('บันทึกไฟล์สำรองแล้ว: ' + name); return; }
     catch(e){ if (e?.code==='declined') { toast('ยกเลิกการบันทึก'); return; } }
   }
+  // เว็บทั่วไป (เช่น GitHub Pages): ดาวน์โหลดผ่านลิงก์
+  try{
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([data], { type:'application/json' })); a.download = name;
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    toast('เริ่มดาวน์โหลดไฟล์สำรองแล้ว: ' + name + ' ดูในโฟลเดอร์ดาวน์โหลด (Downloads)'); return;
+  }catch(e){}
   const box=$('#exportBox'); box.hidden=false; box.value=data; box.focus(); box.select();
-  toast('บันทึกไฟล์จากหน้านี้ไม่ได้ คัดลอกข้อความในกล่องไปเก็บแทน');
-});
+  toast('ดาวน์โหลดไฟล์จากหน้านี้ไม่ได้ คัดลอกข้อความในกล่องไปเก็บในไฟล์ .json แทน');
+}
+$('#saveBtn').addEventListener('click', backupFile);
 $('#resetBtn').addEventListener('click', () => {
   if (!state.ai) return;
-  if (!confirm('ล้างผลตรวจและสถานะของตำบลนี้ในเครื่องนี้ทั้งหมด?')) return;
-  state.review = {}; render(); toast('ล้างข้อมูลแล้ว');
+  if (!confirm('ล้างสถานะโครงการและงบที่ยืนยันไว้ในขั้น ⓪ ของตำบลนี้?\n\nข้อมูลขั้นอื่นไม่ถูกลบ ย้อนกลับไม่ได้ ถ้าเคยสำรองไฟล์ไว้ เปิดไฟล์นั้นเพื่อกู้คืนได้')) return;
+  state.review = {}; render(); toast('ล้างสถานะและงบที่ตรวจในขั้น ⓪ แล้ว');
 });
 // step1-current.js — ① ข้อมูลตำบลปัจจุบัน: อ่าน TIS รายหมู่บ้าน, heatmap, ข้อมูลพื้นฐาน
 // ---- TIS core ----
@@ -926,18 +1027,19 @@ const CUR0 = () => ({ tis:null, tisStats:null, base:{}, tisFile:null, tisIsSampl
 const cur = CUR0();
 function curPersist(){ wsSave(); }
 
+// หน้าในแอป: #home ภาพรวม (หน้าแรก) และขั้น ⓪–④ — hash อื่นหรือไม่มี hash จะไปหน้าภาพรวม
+const VIEWS = ['home', 'review', 'current', 'analysis', 'projects', 'book'];
 function showView(){
-  const h = location.hash === '#current' ? 'current' : location.hash === '#analysis' ? 'analysis' : location.hash === '#projects' ? 'projects' : location.hash === '#book' ? 'book' : 'review';
-  $('#v-review').hidden = h !== 'review'; $('#v-current').hidden = h !== 'current';
-  $('#tabReview').setAttribute('aria-current', h==='review' ? 'page' : 'false');
-  $('#tabCurrent').setAttribute('aria-current', h==='current' ? 'page' : 'false');
-  $('#v-book').hidden = h !== 'book'; $('#tabBook').setAttribute('aria-current', h==='book' ? 'page' : 'false');
+  const k = location.hash.slice(1), h = VIEWS.includes(k) ? k : 'home';
+  VIEWS.forEach(v => {
+    $('#v-' + v).hidden = v !== h;
+    const tab = $('#tab' + v[0].toUpperCase() + v.slice(1)); if (tab) tab.setAttribute('aria-current', v === h ? 'page' : 'false');
+  });
   if (h === 'book') renderBook();
-  $('#v-projects').hidden = h !== 'projects'; $('#tabProjects').setAttribute('aria-current', h==='projects' ? 'page' : 'false');
   if (h === 'projects') renderProjects();
-  $('#v-analysis').hidden = h !== 'analysis'; $('#tabAnalysis').setAttribute('aria-current', h==='analysis' ? 'page' : 'false');
   if (h === 'current') renderCurrent();
   if (h === 'analysis') renderAnalysis();
+  refreshProgress();
 }
 window.addEventListener('hashchange', showView);
 
@@ -1013,7 +1115,6 @@ $('#baseForm').addEventListener('change', e => {
   cur.base[el.dataset.base] = el.value === '' ? null : (el.dataset.base === 'year' ? el.value : Number(el.value));
   curPersist(); renderCurrent();
 });
-$('#saveBtn2').addEventListener('click', () => $('#saveBtn').click());
 
 // step2-core.js — ② ตรรกะล้วน: อ่านรายงานทุนชุมชน, ตรวจ SWOT ของ TIS, รหัสหลักฐาน, Prompt #1 และการตรวจคำตอบ
 // ---- step 2 core ----
@@ -1203,7 +1304,7 @@ function renderAnalysis(){
   const ev = currentEvidence();
   const cnt = g => ev.filter(e => e.group.startsWith(g)).length;
   const ef = [];
-  ef.push([cnt('ทุน') ? 'ok':'warn', `ทุนชุมชน ${cnt('ทุน')} รายการ${cnt('ทุน')?'':' (ยังไม่ได้นำเข้ารายงานในข้อ 1)'}`]);
+  ef.push([cnt('ทุน') ? 'ok':'warn', `ทุนชุมชน ${cnt('ทุน')} รายการ${cnt('ทุน')?'':' (ยังไม่ได้นำเข้ารายงานในข้อ ก)'}`]);
   ef.push([cnt('SWOT แผนเดิม') ? 'ok':'warn', `SWOT แผนเดิม ${cnt('SWOT แผนเดิม')} ข้อ${cnt('SWOT แผนเดิม')?'':' (ยังไม่มีข้อมูลจากขั้น ⓪)'}`]);
   ef.push([cnt('การจัดลำดับ') ? 'ok':'warn', `การจัดลำดับของหมู่บ้าน ${cnt('การจัดลำดับ') ? 'มีแล้ว' : 'ยังไม่มี (นำเข้าในขั้น ①)'}`]);
   ef.push(['info', `ผลทบทวนโครงการ ${cnt('ผลทบทวน')} โครงการ, ข้อมูลจากเวที ${cnt('ข้อมูลจากเวที')} ประเด็น, แผนจังหวัด ${cnt('แผนพัฒนาจังหวัด')} กิจกรรมหลัก`]);
@@ -1228,7 +1329,7 @@ $('#check1').addEventListener('click', () => {
 });
 function renderResult1(ev){
   const box = $('#result1');
-  if (!ana.answer){ box.innerHTML = '<div class="empty">ตรวจคำตอบในขั้นที่ 3 แล้วร่างจะขึ้นที่นี่</div>'; return; }
+  if (!ana.answer){ box.innerHTML = '<div class="empty">ตรวจคำตอบในข้อ ค แล้วร่างจะขึ้นที่นี่</div>'; return; }
   const v = validateAnswer1(ana.answer, ev); ana.validation = { errors:v.errors, warns:v.warns };
   const f = [];
   v.errors.forEach(x => f.push(['bad', esc(x)])); v.warns.forEach(x => f.push(['warn', esc(x)])); v.infos.forEach(x => f.push(['info', esc(x)]));
@@ -1253,7 +1354,6 @@ function renderResult1(ev){
     <h3 class="sub" style="margin-top:20px">2.5 ยุทธศาสตร์หรือวิธีปฏิบัติ</h3><ul class="strat">${strat || '<li class="meta">ยังไม่มี</li>'}</ul>`;
   $('#a4').classList.add('done');
 }
-$('#saveBtn3').addEventListener('click', () => $('#saveBtn').click());
 $('#fixP1').addEventListener('click', async () => {
   const txt = ana.fixText || '';
   try{ await navigator.clipboard.writeText(txt); toast('คัดลอกแล้ว วางในแชต Gemini เดิม แล้วนำคำตอบใหม่มาวางแทนของเก่า'); }
@@ -1480,7 +1580,6 @@ $('#pjList').addEventListener('click', e => {
   if (it.source === 'ai') it.accepted = false; else prj.extra = prj.extra.filter(x => x.uid !== uid);
   prjPersist(); renderProjects();
 });
-$('#saveBtn4').addEventListener('click', () => $('#saveBtn').click());
 $('#pjList').addEventListener('click', e => {
   const b = e.target.closest('button[data-act=up],button[data-act=down]'); if (!b) return;
   const uids = orderedItems(planItems()).map(x => x.uid), uid = b.closest('.pj').dataset.uid, i = uids.indexOf(uid);
@@ -1658,7 +1757,7 @@ function renderBook(){
   f.push(['warn','ตารางการวิเคราะห์ปัญหาของตำบล: แอปยังไม่สร้างให้ ต้องเติมจากเวที']);
   const chk = checkPlan(D.items, part2Ctx());
   f.push([D.items.length ? (chk.bad.length || chk.warn.length ? 'warn' : 'ok') : 'warn', D.items.length ? `ส่วนที่ 3: ${D.items.length} โครงการ${chk.bad.concat(chk.warn).length ? ' ' + chk.bad.concat(chk.warn).join(' ') : ''}` : 'ส่วนที่ 3: ยังไม่มีโครงการ']);
-  f.push([bk.rdate && bk.rres ? 'ok' : 'warn', bk.rdate ? 'ส่วนที่ 4: มีบันทึกการทบทวน' : 'ส่วนที่ 4: ยังไม่ได้กรอกข้อมูลการประชุมทบทวนในข้อ 1']);
+  f.push([bk.rdate && bk.rres ? 'ok' : 'warn', bk.rdate ? 'ส่วนที่ 4: มีบันทึกการทบทวน' : 'ส่วนที่ 4: ยังไม่ได้กรอกข้อมูลการประชุมทบทวนในข้อ ก']);
   f.push(['info', `ส่วนที่ 5: แอปใส่แหล่งข้อมูลที่ใช้ ${D.sources.length} แหล่ง และสรุปผลทบทวนแผนเดิมให้ ช่วยตอบเกณฑ์ข้อ 3.3 ของแบบประเมินอำเภอ`]);
   f.push(['info','ภาคผนวก: รายชื่อผู้สูงอายุและคนพิการต้องแนบเองนอกระบบ แอปไม่บันทึกข้อมูลส่วนบุคคล']);
   if (!window.docx) f.unshift(['bad','โหลดตัวสร้างไฟล์ Word ไม่สำเร็จ ตรวจการเชื่อมต่ออินเทอร์เน็ตแล้วเปิดหน้านี้ใหม่']);
@@ -1680,9 +1779,200 @@ $('#dlBook').addEventListener('click', async () => {
   try{ const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove(); $('#bookNote').textContent = 'ถ้าไฟล์ไม่ถูกดาวน์โหลด ให้เปิดหน้านี้จากลิงก์ของ artifact โดยตรง'; }
   catch(e){ $('#bookNote').textContent = 'บันทึกไฟล์จากหน้านี้ไม่ได้'; }
 });
-$('#saveBtn5').addEventListener('click', () => $('#saveBtn').click());
 [['#aiBox','#checkBtn'],['#ans1Box','#check1'],['#ans2Box','#check2']].forEach(([box, btn]) => $(box).addEventListener('paste', () => setTimeout(() => $(btn).click(), 60)));
 
+// progress.js — สถานะรายขั้นที่คำนวณจากข้อมูลจริง, แถบขั้นตอน, หัวขั้น, ปุ่มย้อนกลับ/ถัดไป และหน้าภาพรวม (#home)
+// ไม่เก็บข้อมูลใหม่ อ่านจาก state/cur/ana/prj/bk อย่างเดียว
+
+const STEPS = [
+  { key:'review',   no:'⓪', short:'ทบทวนแผนเดิม', name:'ทบทวนแผนเดิม',             tab:'#tabReview',   desc:'นำโครงการจากเล่มแผนเดิมเข้ามา ตรวจงบกับเล่มจริง และระบุว่าแต่ละโครงการทำแล้วหรือยัง' },
+  { key:'current',  no:'①', short:'ข้อมูลตำบล', name:'ข้อมูลตำบลปัจจุบัน',        tab:'#tabCurrent',  desc:'นำเข้าการจัดลำดับปัญหาของหมู่บ้านจาก TIS และปรับข้อมูลพื้นฐานของตำบลให้เป็นปีล่าสุด' },
+  { key:'analysis', no:'②', short:'SWOT และยุทธศาสตร์', name:'วิเคราะห์ SWOT และยุทธศาสตร์', tab:'#tabAnalysis', desc:'รวมหลักฐานและเสียงจากเวทีประชาคม ให้ Gemini ร่าง SWOT และยุทธศาสตร์ แล้วตรวจก่อนนำเข้าเวที' },
+  { key:'projects', no:'③', short:'โครงการ', name:'จัดทำโครงการ',              tab:'#tabProjects', desc:'รวมโครงการที่ยกมาจากแผนเดิมกับโครงการใหม่ กรอกรายละเอียด และจัดลำดับตามมติเวที' },
+  { key:'book',     no:'④', short:'ตรวจและส่งออก', name:'ตรวจสอบและส่งออกรูปเล่ม',    tab:'#tabBook',     desc:'กรอกข้อมูลประจำเล่ม ตรวจความพร้อมของแต่ละส่วน แล้วดาวน์โหลดไฟล์ Word' },
+];
+const ST_TXT = { todo:'ยังไม่เริ่ม', doing:'กำลังดำเนินการ', done:'เสร็จสมบูรณ์', fix:'ต้องแก้ไข' };
+const ST_ICON = { todo:'○', doing:'◐', done:'✓', fix:'!' };
+
+// แต่ละขั้นคืน { s: todo|doing|done|fix, issues:[{lv:'bad'|'warn', text, el}] } el = id ของข้อย่อยที่ต้องไปแก้
+function stepStatus(key){
+  const I = [], bad = (text, el) => I.push({ lv:'bad', text, el }), warn = (text, el) => I.push({ lv:'warn', text, el });
+  const fin = started => ({ s: !started ? 'todo' : I.some(x => x.lv === 'bad') ? 'fix' : I.length ? 'doing' : 'done', issues: I });
+  const filled = o => Object.values(o || {}).some(v => v !== null && v !== undefined && v !== '');
+  if (key === 'review'){
+    if (!state.ai){ warn('ยังไม่ได้นำโครงการจากเล่มแผนเดิมเข้ามา', 's2'); return fin(false); }
+    const ps = state.ai.part3.projects;
+    const mis = ps.filter(p => budgetCheck(p).kind === 'mismatch' && !rv(p.id).budgetConfirmed).length;
+    const pend = ps.filter(needsCheck).length - mis;
+    const nost = ps.filter(p => !rv(p.id).status).length;
+    const nodec = ps.filter(p => rv(p.id).status === 'not_done' && !rv(p.id).decision).length;
+    if (mis) bad(`งบที่ AI อ่านไม่ตรงกับไฟล์ PDF ${mis} โครงการ`, 's3');
+    if (pend > 0) warn(`ยังไม่ได้ยืนยันงบกับเล่มจริง ${pend} โครงการ`, 's3');
+    if (nost) warn(`ยังไม่ระบุสถานะการดำเนินงาน ${nost} โครงการ`, 's3');
+    if (nodec) warn(`โครงการที่ยังไม่ได้ทำ ${nodec} โครงการ ยังไม่เลือกว่าจะยกไปแผนใหม่หรือตัดออก`, 's3');
+    return fin(true);
+  }
+  if (key === 'current'){
+    const started = !!cur.tis || filled(cur.base);
+    const t = cur.tis, m = state.ai?.meta, b = baseNow();
+    if (!t) warn('ยังไม่ได้นำเข้ารายงานผลการวิเคราะห์ TIS', 'c1');
+    else if (m?.tambon && t.tambon && m.tambon !== t.tambon) bad(`รายงาน TIS เป็นตำบล${t.tambon} ไม่ตรงกับแผนเดิม (ตำบล${m.tambon})`, 'c1');
+    const n = v => v === '' || v === null || v === undefined ? null : Number(v);
+    if (n(b.male) !== null && n(b.female) !== null && n(b.total) !== null && n(b.male) + n(b.female) !== n(b.total)) bad('ประชากรชายรวมหญิงไม่เท่ากับประชากรรวม', 'c4');
+    if (!b.total) warn('ยังไม่มีจำนวนประชากร', 'c4');
+    if (!b.year) warn('ยังไม่ระบุปีของข้อมูลพื้นฐาน', 'c4');
+    return fin(started);
+  }
+  if (key === 'analysis'){
+    const started = !!(ana.comm || ana.answer || ana.venue || ana.answerText);
+    const c = ana.comm;
+    if (!c) warn('ยังไม่ได้นำเข้ารายงานทุนชุมชนจาก TIS', 'a1');
+    else if (state.ai?.meta?.tambon && c.tambon && state.ai.meta.tambon !== c.tambon) bad(`รายงานทุนชุมชนเป็นตำบล${c.tambon} ไม่ตรงกับแผนเดิม`, 'a1');
+    if (!String(ana.venue || '').trim()) warn('ยังไม่ได้ใส่ข้อมูลจากเวทีประชาคม', 'a2');
+    if (!ana.answer) warn('ยังไม่มีร่าง SWOT และยุทธศาสตร์ที่ตรวจแล้ว', 'a3');
+    else {
+      const e = ana.validation?.errors?.length || 0, w = ana.validation?.warns?.length || 0;
+      if (e) bad(`ร่าง SWOT และยุทธศาสตร์มีจุดที่ผิด ${e} จุด`, 'a4');
+      if (w) warn(`ร่าง SWOT และยุทธศาสตร์มีจุดที่ควรตรวจ ${w} จุด`, 'a4');
+    }
+    return fin(started);
+  }
+  if (key === 'projects'){
+    const items = orderedItems(planItems());
+    const started = items.length > 0 || prj.extra.length > 0 || !!prj.ans2Text;
+    const chk = checkPlan(items, part2Ctx());
+    chk.bad.forEach(x => bad(x, 'p3'));
+    chk.warn.forEach(x => warn(x, /ยุทธศาสตร์ .* ยังไม่มีโครงการ|หมู่บ้านเดียว/.test(x) ? 'p4' : 'p3'));
+    return fin(started);
+  }
+  if (key === 'book'){
+    const started = filled(bk);
+    if (!bk.year) warn('ยังไม่ระบุปี พ.ศ. ของแผน', 'b1');
+    if (!bk.rdate) warn('ยังไม่ระบุวันที่ประชุมทบทวนแผน', 'b1');
+    if (!bk.rres) warn('ยังไม่ระบุมติที่ประชุม', 'b1');
+    return fin(started);
+  }
+}
+function allStatus(){ const o = {}; STEPS.forEach(s => o[s.key] = stepStatus(s.key)); return o; }
+function progressPct(all){ const sc = { todo:0, doing:.5, fix:.5, done:1 }; return Math.round(STEPS.reduce((a, s) => a + sc[all[s.key].s], 0) / STEPS.length * 100); }
+function nextStepKey(all){ const s = STEPS.find(x => all[x.key].s === 'fix') || STEPS.find(x => all[x.key].s !== 'done'); return s ? s.key : 'book'; }
+
+const badgeHTML = s => `<span class="badge" data-s="${s}"><span aria-hidden="true">${ST_ICON[s]}</span> ${ST_TXT[s]}</span>`;
+function issuesHTML(issues, key, max){
+  const list = issues.slice().sort((a, b) => (a.lv === 'bad' ? 0 : 1) - (b.lv === 'bad' ? 0 : 1));
+  const shown = max ? list.slice(0, max) : list;
+  return `<ul class="issues">${shown.map(x => `<li class="${x.lv}"><span><span class="sr-only">${x.lv === 'bad' ? 'ต้องแก้: ' : 'ยังไม่ครบ: '}</span>${esc(x.text)}</span><a class="go" href="#${key}" data-el="${esc(x.el)}">ไปที่จุดนี้ →</a></li>`).join('')}${max && list.length > max ? `<li class="more">และอีก ${list.length - max} รายการ</li>` : ''}</ul>`;
+}
+
+// ---- อัปเดตทุกส่วนที่แสดงสถานะ (เรียกหลังบันทึกและเมื่อเปลี่ยนหน้า) ----
+function currentView(){ const k = location.hash.slice(1); return VIEWS.includes(k) ? k : 'home'; }
+function refreshProgress(){
+  const all = allStatus(), view = currentView();
+  // แถบขั้นตอน
+  STEPS.forEach(s => { const a = $(s.tab); if (a) a.innerHTML = `${s.no} ${esc(s.short)} <span class="ts" data-s="${all[s.key].s}">${ST_TXT[all[s.key].s]}</span>`; });
+  const th = $('#tabHome'); if (th) th.innerHTML = `ภาพรวม <span class="ts" data-s="${progressPct(all) === 100 ? 'done' : 'todo'}">${progressPct(all)}%</span>`;
+  // หัวขั้นของหน้าที่เปิดอยู่
+  const i = STEPS.findIndex(s => s.key === view);
+  if (i >= 0){
+    const s = STEPS[i], st = all[s.key];
+    $('#sh-' + s.key).innerHTML = `<div class="sh-top"><span class="sh-no">ขั้น ${s.no} · ขั้นตอนที่ ${i+1} จาก ${STEPS.length}</span>${badgeHTML(st.s)}</div>
+      <h2>${esc(s.name)}</h2><p>${esc(s.desc)}</p>${st.issues.length ? issuesHTML(st.issues, s.key, 4) : st.s === 'done' ? '<ul class="issues"><li class="more">ข้อมูลสำคัญของขั้นนี้ครบแล้ว กลับมาแก้ไขได้ทุกเมื่อ</li></ul>' : ''}`;
+  }
+  // ปุ่มย้อนกลับ/ถัดไป
+  const bar = $('#stepbar');
+  if (bar){
+    if (i < 0){ bar.hidden = true; }
+    else {
+      const prev = i === 0 ? { key:'home', label:'ภาพรวม' } : { key:STEPS[i-1].key, label:`${STEPS[i-1].no} ${STEPS[i-1].name}` };
+      const next = i === STEPS.length - 1 ? { key:'home', label:'ภาพรวม' } : { key:STEPS[i+1].key, label:`${STEPS[i+1].no} ${STEPS[i+1].name}` };
+      const st = all[STEPS[i].key];
+      bar.hidden = false;
+      bar.innerHTML = `<a class="btn ghost" href="#${prev.key}" data-nav="1" aria-label="ย้อนกลับไป ${esc(prev.label)}">← ย้อนกลับ</a>
+        <div class="sb-mid">${STEPS[i].no} ${esc(STEPS[i].name)} · ${ST_TXT[st.s]}${st.issues.length ? ` · ยังมี ${st.issues.length} รายการที่ต้องดู` : ''}</div>
+        <a class="btn" href="#${next.key}" data-nav="1" aria-label="ไปต่อที่ ${esc(next.label)}">${i === STEPS.length - 1 ? 'กลับภาพรวม' : 'ถัดไป'} →</a>`;
+    }
+  }
+  if (view === 'home') renderHome(all);
+}
+
+// ---- หน้าภาพรวม ----
+function renderHome(all){
+  all = all || allStatus();
+  const box = $('#home'); if (!box) return;
+  const hasWork = wsSnapHasData(wsSnapshot());
+  const localNote = `<div class="local-note"><b>งานเก็บในเบราว์เซอร์นี้เท่านั้น</b> ถ้าล้างประวัติเบราว์เซอร์ เปลี่ยนเครื่อง หรือใช้โหมดไม่ระบุตัวตน งานจะไม่ตามไป กด “สำรองเป็นไฟล์ (.json)” ที่แถบด้านบนเป็นระยะ แล้วใช้ “เปิดไฟล์สำรอง” เพื่อทำต่อ</div>`;
+  if (!hasWork){
+    box.innerHTML = `<section class="home-card welcome">
+      <h2 style="margin:0">เริ่มต้นจัดทำแผนพัฒนาตำบล</h2>
+      <p class="note" style="margin-top:4px">ทำทีละขั้น ข้อมูลจากขั้นก่อนไหลไปขั้นถัดไปเอง ไม่ต้องพิมพ์ซ้ำ ย้อนกลับไปแก้ได้ทุกเมื่อ</p>
+      <ul class="plain">${STEPS.map(s => `<li><b>${s.no} ${esc(s.name)}</b> — ${esc(s.desc)}</li>`).join('')}</ul>
+      <div class="row-actions" style="margin-top:14px">
+        <a class="btn" href="#review" data-nav="1">เริ่มขั้น ⓪ ทบทวนแผนเดิม →</a>
+        <button class="btn ghost" type="button" data-home="open">⬆ เปิดไฟล์สำรอง (.json)</button>
+        <button class="btn ghost" type="button" data-home="sample">ลองดูด้วยข้อมูลตัวอย่างป่าแดด</button>
+      </div>${localNote}</section>`;
+    return;
+  }
+  const m = state.ai?.meta || {};
+  const tb = m.tambon || cur.tis?.tambon || ana.comm?.tambon, amp = m.amphoe || cur.tis?.amphoe || ana.comm?.amphoe;
+  const pct = progressPct(all), nDone = STEPS.filter(s => all[s.key].s === 'done').length;
+  const nk = nextStepKey(all), ns = STEPS.find(s => s.key === nk);
+  const items = orderedItems(planItems());
+  const sumB = items.reduce((a, it) => a + (Number(it.budget) || 0), 0), noB = items.filter(it => it.budget === null || it.budget === undefined || it.budget === '').length;
+  const old = state.ai?.part3?.projects || [];
+  const issues = STEPS.flatMap(s => all[s.key].issues.map(x => ({ ...x, key:s.key, no:s.no })));
+  const nBad = issues.filter(x => x.lv === 'bad').length;
+  issues.sort((a, b) => (a.lv === 'bad' ? 0 : 1) - (b.lv === 'bad' ? 0 : 1));
+  box.innerHTML = `<section class="home-card">
+      <div class="home-head">
+        <div><h2>${tb ? `ตำบล${esc(tb)}` : 'ยังไม่ระบุตำบล'}${amp ? ` อำเภอ${esc(amp)}` : ''} จังหวัด${esc(m.changwat || 'เชียงราย')}</h2>
+          <div class="meta">แผนพัฒนาตำบลปี ${bk.year ? esc(bk.year) : '<span title="กรอกในขั้น ④">ยังไม่ระบุ (กรอกในขั้น ④)</span>'}${m.plan_year ? ` · ทบทวนจากแผนเดิมปี ${esc(m.plan_year)}` : ''}</div></div>
+        <a class="btn" href="#${nk}" data-nav="1">${nDone === STEPS.length ? 'ตรวจและส่งออกรูปเล่ม' : `ทำต่อ: ${ns.no} ${esc(ns.name)}`} →</a>
+      </div>
+      <div class="progress">
+        <div class="bar" role="progressbar" aria-label="ความคืบหน้าการจัดทำแผน" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pct}"><span style="width:${pct}%"></span></div>
+        <div class="lbl"><span>เสร็จสมบูรณ์ <b>${nDone}</b> จาก ${STEPS.length} ขั้น</span><b>${pct}%</b></div>
+      </div>
+      <div class="stats">
+        <div><b>${old.length}</b><span>โครงการในแผนเดิม (ระบุสถานะแล้ว ${old.filter(p => rv(p.id).status).length})</span></div>
+        <div><b>${items.length}</b><span>โครงการในแผนใหม่</span></div>
+        <div><b>${fmt(sumB)}</b><span>งบรวมแผนใหม่ (บาท)${noB ? ` · ยังไม่กำหนดงบ ${noB} โครงการ` : ''}</span></div>
+        <div><b style="color:${nBad ? 'var(--bad)' : 'inherit'}">${issues.length}</b><span>รายการที่ยังไม่ครบ${nBad ? ` (ต้องแก้ ${nBad})` : ''}</span></div>
+      </div>
+    </section>
+    <div class="steps-grid">${STEPS.map(s => { const st = all[s.key]; return `<section class="step-card" data-s="${st.s}">
+      <div class="sc-top"><h3>${s.no} ${esc(s.name)}</h3>${badgeHTML(st.s)}</div>
+      <p>${esc(s.desc)}</p>
+      ${st.issues.length ? `<ul>${st.issues.slice(0, 2).map(x => `<li>${esc(x.text)}</li>`).join('')}${st.issues.length > 2 ? `<li>และอีก ${st.issues.length - 2} รายการ</li>` : ''}</ul>` : ''}
+      <a class="btn ${s.key === nk ? '' : 'ghost'} small" href="#${s.key}" data-nav="1">${st.s === 'todo' ? 'เริ่มขั้นนี้' : 'เปิดขั้นนี้'} →</a></section>`; }).join('')}</div>
+    <section class="home-card">
+      <h2 style="margin:0;font-size:20px">รายการที่ยังไม่ครบ</h2>
+      ${issues.length ? `<ul class="issues">${issues.slice(0, 10).map(x => `<li class="${x.lv}"><span><b>${x.no}</b> ${esc(x.text)}</span><a class="go" href="#${x.key}" data-el="${esc(x.el)}">ไปที่จุดนี้ →</a></li>`).join('')}${issues.length > 10 ? `<li class="more">และอีก ${issues.length - 10} รายการ ดูในแต่ละขั้น</li>` : ''}</ul>` : '<p class="note">ข้อมูลสำคัญครบทุกขั้นแล้ว ไปที่ขั้น ④ เพื่อดาวน์โหลดรูปเล่ม</p>'}
+      ${localNote}
+    </section>`;
+}
+
+// ---- การนำทาง: ลิงก์ “ไปที่จุดนี้” เลื่อนไปข้อย่อยนั้น, ปุ่มเปลี่ยนขั้นเลื่อนขึ้นบนสุด ----
+let navScrollTo = null;
+document.addEventListener('click', e => {
+  const a = e.target.closest('a[data-el], a[data-nav]');
+  if (a){
+    navScrollTo = a.dataset.el || 'top';
+    if (a.getAttribute('href') === location.hash){ e.preventDefault(); doNavScroll(); }
+    return;
+  }
+  const h = e.target.closest('[data-home]');
+  if (h?.dataset.home === 'open') $('#wsFile').click();
+  if (h?.dataset.home === 'sample'){ location.hash = '#review'; $('#loadSample').click(); toast('โหลดคำตอบตัวอย่างจริงของป่าแดดแล้ว (ข้อมูลทดสอบ) ลองระบุสถานะโครงการ แล้วกด “ถัดไป”'); }
+});
+function doNavScroll(){
+  const t = navScrollTo; navScrollTo = null;
+  if (!t) return;
+  if (t === 'top'){ window.scrollTo(0, 0); return; }
+  const el = document.getElementById(t);
+  if (el){ el.scrollIntoView({ block:'start' }); const h = el.querySelector('h2'); if (h){ h.setAttribute('tabindex', '-1'); h.focus({ preventScroll:true }); } }
+}
+window.addEventListener('hashchange', () => setTimeout(doNavScroll, 0));
 // workspace.js — ชุดข้อมูลรายตำบล: บันทึก/สลับ/เริ่มใหม่/เปิดไฟล์ .json/ย้ายข้อมูลรูปแบบเดิม
 /* ================= ชุดข้อมูลรายตำบล (workspace) =================
  * งานทุกขั้น (⓪–④) ของตำบลหนึ่งเก็บรวมใน key เดียว: tambon-ws:{อำเภอ}|{ตำบล}|{ปีแผนเดิม}
@@ -1714,20 +2004,35 @@ function wsSnapHasData(s){
   const filled = o => Object.values(o || {}).some(v => v !== null && v !== undefined && v !== '');
   return !!(s.review?.ai || s.pdf || s.cur?.tis || filled(s.cur?.base) || s.ana?.comm || s.ana?.venue || s.ana?.answerText || s.prj?.extra?.length || s.prj?.ans2Text || filled(s.bk));
 }
+// ---- ตัวบอกสถานะการบันทึก (บอก “บันทึกแล้ว” ก็ต่อเมื่อเขียนลงเครื่องสำเร็จจริงเท่านั้น) ----
+let saveState = 'empty';
+function setSaveState(s, at){
+  saveState = s;
+  const el = $('#saveState'); if (!el) return;
+  el.dataset.s = s;
+  el.textContent = s === 'saved' ? `บันทึกในเครื่องนี้แล้ว ${fmtTime(at)} (บันทึกอัตโนมัติทุกครั้งที่แก้)`
+    : s === 'dirty' ? 'มีการแก้ไขที่ยังไม่บันทึก (ช่องคำตอบ AI จะบันทึกเมื่อกด “ตรวจคำตอบ”)'
+    : s === 'error' ? 'บันทึกไม่สำเร็จ: เบราว์เซอร์นี้เก็บข้อมูลไม่ได้หรือพื้นที่เต็ม กด “สำรองเป็นไฟล์” ก่อนปิดหน้า'
+    : 'ยังไม่มีงานให้บันทึก';
+}
 function wsSave(){
   if (wsQuiet) return;
   const snap = wsSnapshot();
-  if (wsId === WS_DRAFT && !wsSnapHasData(snap) && !lsGet(WS + WS_DRAFT)) return;   // ยังไม่มีอะไรให้เก็บ
+  if (wsId === WS_DRAFT && !wsSnapHasData(snap) && !lsGet(WS + WS_DRAFT)){ setSaveState('empty'); refreshProgress(); return; }   // ยังไม่มีอะไรให้เก็บ
   if (!lsSet(WS + wsId, snap)){
-    if (!wsWarnedFull){ wsWarnedFull = true; toast('พื้นที่เก็บข้อมูลในเครื่องเต็ม งานล่าสุดยังไม่ถูกบันทึก กดปุ่มบันทึก (.json) เพื่อเก็บงานเป็นไฟล์ไว้ก่อน'); }
+    setSaveState('error');
+    if (!wsWarnedFull){ wsWarnedFull = true; toast('บันทึกงานลงเครื่องไม่สำเร็จ กด “สำรองเป็นไฟล์ (.json)” เพื่อเก็บงานไว้ก่อน'); }
+    refreshProgress();
     return;
   }
   wsWarnedFull = false;
   const m = state.ai?.meta || {};
   const idx = wsIndex().filter(x => x.id !== wsId);
   idx.push({ id: wsId, tambon: m.tambon || cur.tis?.tambon || ana.comm?.tambon || null, amphoe: m.amphoe || cur.tis?.amphoe || null, plan_year: m.plan_year || null, updated_at: snap.updated_at });
-  lsSet(WS_INDEX, idx); lsSet(WS_ACTIVE, wsId);
+  const okIdx = lsSet(WS_INDEX, idx) && lsSet(WS_ACTIVE, wsId);
+  setSaveState(okIdx ? 'saved' : 'error', snap.updated_at);
   wsRenderBar();
+  refreshProgress();
 }
 function wsReset(){
   Object.assign(state, { pdfName:null, pdf:null, ai:null, usingSample:false, review:{}, filter:'all' });
@@ -1758,7 +2063,7 @@ function wsRefreshUI(){
     $('#s2').classList.toggle('done', !!state.ai);
     document.querySelectorAll('.chip').forEach(c => c.setAttribute('aria-pressed', String(c.dataset.f === 'all')));
     $('#exportBox').hidden = true; $('#exportBox').value = '';
-    ['#saveNote','#saveNote2','#saveNote3','#saveNote4','#bookNote'].forEach(s => { const el = $(s); if (el) el.textContent = ''; });
+    ['#saveNote','#bookNote'].forEach(s => { const el = $(s); if (el) el.textContent = ''; });
     if (state.ai) runChecks(); else { facts($('#aiFacts'), []); render(); }
     // ①
     $('#drop2Title').textContent = cur.tisFile || UI0.drop2;
@@ -1782,9 +2087,12 @@ function wsLoad(id){
   wsId = id;
   wsApply(lsGet(WS + id));
   wsRefreshUI();
-  lsSet(WS_ACTIVE, id);
+  const okActive = lsSet(WS_ACTIVE, id);
+  const e = wsIndex().find(x => x.id === id);
+  setSaveState(!okActive && wsSnapHasData(wsSnapshot()) || !storageOk() ? 'error' : e?.updated_at ? 'saved' : 'empty', e?.updated_at);
   wsFacts(wsNotice ? [['warn', esc(wsNotice)]] : []);
 }
+function storageOk(){ try{ localStorage.setItem(WS + '_t', '1'); localStorage.removeItem(WS + '_t'); return true; }catch(e){ return false; } }
 function wsName(x){
   if (!x || x.id === WS_DRAFT) return 'งานที่ยังไม่ระบุตำบล';
   return `ตำบล${x.tambon || '?'}${x.amphoe ? ' อำเภอ' + x.amphoe : ''} แผนปี ${x.plan_year || '?'}`;
@@ -1971,6 +2279,14 @@ $('#wsSel').addEventListener('change', e => wsSwitch(e.target.value));
 $('#wsNew').addEventListener('click', wsNew);
 $('#wsOpen').addEventListener('click', () => $('#wsFile').click());
 $('#wsFile').addEventListener('change', async e => { const f = e.target.files[0]; e.target.value = ''; if (f) await wsOpenFile(f); });
+$('#wsBackup').addEventListener('click', backupFile);
+// มีการพิมพ์ที่ยังไม่ถูกบันทึก: ฟังแบบ capture จึงทำงานก่อนตัวบันทึกของช่องนั้น ถ้าช่องนั้นบันทึกทันที สถานะจะกลับเป็น “บันทึกแล้ว”
+document.addEventListener('input', e => {
+  const el = e.target;
+  if (!el.matches('input, textarea, select') || el.type === 'file' || el.id === 'wsSel' || el.readOnly) return;
+  setSaveState('dirty');
+}, true);
+window.addEventListener('beforeunload', e => { if (saveState === 'dirty' || saveState === 'error'){ e.preventDefault(); e.returnValue = ''; } });
 
 wsMigrate();
 { const a = lsGet(WS_ACTIVE); wsLoad(a && lsGet(WS + a) ? a : WS_DRAFT); }

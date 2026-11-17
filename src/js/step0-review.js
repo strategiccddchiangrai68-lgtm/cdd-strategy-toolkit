@@ -85,10 +85,10 @@ function runChecks(){
     const pdfRows = Object.keys(state.pdf.rows).length;
     if (pdfRows !== projects.length) out.push(['bad', `จำนวนโครงการไม่ตรงกัน ไฟล์มี ${pdfRows} แถว แต่ AI ส่งมา ${projects.length} โครงการ`]);
     const mis = projects.filter(p => budgetCheck(p).kind==='mismatch').length;
-    out.push([mis? 'bad':'ok', mis ? `งบประมาณที่ AI อ่านไม่ตรงกับไฟล์ ${mis} โครงการ ต้องตรวจกับเล่มจริงในขั้นที่ 3` : 'งบประมาณทุกโครงการตรงกับตัวเลขในไฟล์']);
+    out.push([mis? 'bad':'ok', mis ? `งบประมาณที่ AI อ่านไม่ตรงกับไฟล์ ${mis} โครงการ ต้องตรวจกับเล่มจริงในข้อ ค` : 'งบประมาณทุกโครงการตรงกับตัวเลขในไฟล์']);
     const pr = ai.part2?.problems?.length || 0;
     if (state.pdf.problemRows.length && pr !== state.pdf.problemRows.length) out.push(['warn', `ตารางวิเคราะห์ปัญหาในไฟล์มี ${state.pdf.problemRows.length} แถว แต่ AI ส่งมา ${pr} แถว`]);
-  } else if (!state.pdf) out.push(['warn','ยังไม่ได้แนบ PDF ในขั้นที่ 1 จึงยังเทียบงบกับต้นฉบับไม่ได้']);
+  } else if (!state.pdf) out.push(['warn','ยังไม่ได้แนบ PDF ในข้อ ก จึงยังเทียบงบกับต้นฉบับไม่ได้']);
   else out.push(['warn','ไฟล์ไม่มีข้อความให้เทียบ ต้องยืนยันงบทุกบรรทัดด้วยตา']);
   const pop = ai.part1?.population;
   if (pop && pop.total && pop.male + pop.female !== pop.total) out.push(['warn', `ประชากรชายรวมหญิง (${fmt(pop.male+pop.female)}) ไม่เท่ากับยอดรวม (${fmt(pop.total)})`]);
@@ -144,7 +144,7 @@ function statusHTML(p){
 }
 function render(){
   const ai = state.ai, list = $('#list');
-  if (!ai){ list.innerHTML = '<div class="empty">วางคำตอบจาก AI ในขั้นที่ 2 แล้วรายการโครงการจะขึ้นที่นี่</div>'; tally(); summary(); return; }
+  if (!ai){ list.innerHTML = '<div class="empty">วางคำตอบจาก AI ในข้อ ข แล้วรายการโครงการจะขึ้นที่นี่</div>'; tally(); summary(); return; }
   const ps = ai.part3.projects.filter(p => state.filter==='all' || (state.filter==='check' && needsCheck(p)) || (state.filter==='nostatus' && !rv(p.id).status));
   if (!ps.length){ list.innerHTML = '<div class="empty">ไม่มีรายการในตัวกรองนี้</div>'; }
   else list.innerHTML = ps.map(p => {
@@ -229,23 +229,32 @@ function exportData(){
     workspace: wsSnapshot()
   };
 }
-$('#saveBtn').addEventListener('click', async () => {
-  if (!state.ai){ toast('ทำขั้น ⓪ ทบทวนแผนเดิมก่อน แล้วค่อยบันทึก'); return; }
+// สำรองงานทั้งหมดของตำบลที่เปิดอยู่เป็นไฟล์ .json (ปุ่มที่แถบตำบลด้านบนและในข้อ ง)
+async function backupFile(){
+  if (!state.ai){ toast('ยังสำรองไม่ได้ ต้องนำโครงการจากแผนเดิมเข้ามาในขั้น ⓪ ก่อน'); location.hash = '#review'; return; }
   const ps = state.ai.part3.projects;
   const pend = ps.filter(needsCheck).length, nost = ps.filter(p=>!rv(p.id).status).length;
-  $('#bookNote').textContent = $('#saveNote4').textContent = $('#saveNote3').textContent = $('#saveNote2').textContent = $('#saveNote').textContent = (pend||nost) ? `ยังเหลืองบที่ต้องตรวจ ${pend} รายการ และยังไม่ระบุสถานะ ${nost} รายการ ไฟล์ที่บันทึกจะติดสถานะ “ยังไม่ครบ” ไว้` : 'ตรวจครบทุกรายการแล้ว';
+  $('#saveNote').textContent = (pend||nost) ? `ยังเหลืองบที่ต้องตรวจ ${pend} รายการ และยังไม่ระบุสถานะ ${nost} รายการ ไฟล์ที่สำรองจะติดสถานะ “ยังไม่ครบ” ไว้` : 'ตรวจครบทุกรายการแล้ว';
   const data = JSON.stringify(exportData(), null, 1);
-  const name = `ทบทวนแผน_${state.ai.meta?.tambon||'ตำบล'}_${state.ai.meta?.plan_year||''}.json`;
+  const d = new Date(), pad = n => String(n).padStart(2, '0');
+  const name = `แผนตำบล_${state.ai.meta?.tambon||'ตำบล'}_${state.ai.meta?.plan_year||''}_สำรอง_${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}.json`;
   let dl = null; try{ dl = await window.claude?.use?.('downloads'); }catch(e){}
   if (dl){
-    try{ await dl.save({ filename:name, data }); toast('บันทึกไฟล์แล้ว'); return; }
+    try{ await dl.save({ filename:name, data }); toast('บันทึกไฟล์สำรองแล้ว: ' + name); return; }
     catch(e){ if (e?.code==='declined') { toast('ยกเลิกการบันทึก'); return; } }
   }
+  // เว็บทั่วไป (เช่น GitHub Pages): ดาวน์โหลดผ่านลิงก์
+  try{
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([data], { type:'application/json' })); a.download = name;
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    toast('เริ่มดาวน์โหลดไฟล์สำรองแล้ว: ' + name + ' ดูในโฟลเดอร์ดาวน์โหลด (Downloads)'); return;
+  }catch(e){}
   const box=$('#exportBox'); box.hidden=false; box.value=data; box.focus(); box.select();
-  toast('บันทึกไฟล์จากหน้านี้ไม่ได้ คัดลอกข้อความในกล่องไปเก็บแทน');
-});
+  toast('ดาวน์โหลดไฟล์จากหน้านี้ไม่ได้ คัดลอกข้อความในกล่องไปเก็บในไฟล์ .json แทน');
+}
+$('#saveBtn').addEventListener('click', backupFile);
 $('#resetBtn').addEventListener('click', () => {
   if (!state.ai) return;
-  if (!confirm('ล้างผลตรวจและสถานะของตำบลนี้ในเครื่องนี้ทั้งหมด?')) return;
-  state.review = {}; render(); toast('ล้างข้อมูลแล้ว');
+  if (!confirm('ล้างสถานะโครงการและงบที่ยืนยันไว้ในขั้น ⓪ ของตำบลนี้?\n\nข้อมูลขั้นอื่นไม่ถูกลบ ย้อนกลับไม่ได้ ถ้าเคยสำรองไฟล์ไว้ เปิดไฟล์นั้นเพื่อกู้คืนได้')) return;
+  state.review = {}; render(); toast('ล้างสถานะและงบที่ตรวจในขั้น ⓪ แล้ว');
 });

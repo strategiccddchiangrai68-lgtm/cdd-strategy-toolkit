@@ -71,7 +71,11 @@
   - SheetJS xlsx 0.18.5 (cdnjs)
   - docx 8.5.0 UMD (jsdelivr) → global `docx`
   - ฟอนต์ Sarabun จาก Google Fonts
-- Routing ด้วย hash: `#review` ⓪, `#current` ①, `#analysis` ②, `#projects` ③, `#book` ④
+- Routing ด้วย hash: `#home` ภาพรวม (หน้าแรก/hash อื่น), `#review` ⓪, `#current` ①, `#analysis` ②, `#projects` ③, `#book` ④ (`VIEWS`/`showView()` ใน `step1-current.js`)
+- `js/progress.js` (UX รอบ 1, พ.ย. 2569): `stepStatus(key)` คำนวณสถานะ todo/doing/done/fix + รายการที่ขาดจากข้อมูลจริง (ไม่เก็บข้อมูลใหม่) → แถบขั้น, หัวขั้น `#sh-*`, แถบย้อนกลับ/ถัดไป `#stepbar`, หน้าภาพรวม `renderHome()`; ลิงก์ `data-el` พาไปข้อย่อย (ข้อย่อยในแต่ละขั้นใช้ ก ข ค ง ไม่ใช้เลข)
+- ตัวบอกการบันทึก `#saveState` (`setSaveState` ใน workspace.js): saved/dirty/error/empty — บอก “บันทึกแล้ว” เฉพาะเมื่อ localStorage เขียนสำเร็จ; dirty จับ `input` แบบ capture; เตือน beforeunload เมื่อ dirty/error
+- สำรองไฟล์ปุ่มเดียว `backupFile()` (แถบตำบลด้านบน + ข้อ ง ของ ⓪) ดาวน์โหลดผ่าน `<a download>` บนเว็บทั่วไป (เดิมบน GitHub Pages ได้แค่กล่องข้อความ)
+- สี: เขียวราชการ `--brand`, ข้อมูล `--info` (น้ำเงินเทา), ปุ่มสูงอย่างน้อย 44px
 - การบันทึกสถานะ: `localStorage` แบบ “ชุดข้อมูลรายตำบล” (workspace) — ทุกขั้นของตำบลหนึ่งอยู่ใน key เดียว
   - `tambon-ws:{อำเภอ}|{ตำบล}|{ปีแผนเดิม}` = `wsSnapshot()` → `{v, updated_at, review:{review,ai,usingSample}, pdf, cur, ana, prj, bk, notice}` (ตำบล/อำเภอ/ปีมาจาก `meta` ขั้น ⓪; ใส่อำเภอเพราะอาจมีตำบลชื่อซ้ำ)
   - `pdf` เก็บเฉพาะตัวเลขงบรายแถวจาก text layer (ไม่เก็บข้อความในไฟล์) เพื่อให้เทียบงบได้หลังเปิดใหม่

@@ -41,7 +41,7 @@ function renderBook(){
   f.push(['warn','ตารางการวิเคราะห์ปัญหาของตำบล: แอปยังไม่สร้างให้ ต้องเติมจากเวที']);
   const chk = checkPlan(D.items, part2Ctx());
   f.push([D.items.length ? (chk.bad.length || chk.warn.length ? 'warn' : 'ok') : 'warn', D.items.length ? `ส่วนที่ 3: ${D.items.length} โครงการ${chk.bad.concat(chk.warn).length ? ' ' + chk.bad.concat(chk.warn).join(' ') : ''}` : 'ส่วนที่ 3: ยังไม่มีโครงการ']);
-  f.push([bk.rdate && bk.rres ? 'ok' : 'warn', bk.rdate ? 'ส่วนที่ 4: มีบันทึกการทบทวน' : 'ส่วนที่ 4: ยังไม่ได้กรอกข้อมูลการประชุมทบทวนในข้อ 1']);
+  f.push([bk.rdate && bk.rres ? 'ok' : 'warn', bk.rdate ? 'ส่วนที่ 4: มีบันทึกการทบทวน' : 'ส่วนที่ 4: ยังไม่ได้กรอกข้อมูลการประชุมทบทวนในข้อ ก']);
   f.push(['info', `ส่วนที่ 5: แอปใส่แหล่งข้อมูลที่ใช้ ${D.sources.length} แหล่ง และสรุปผลทบทวนแผนเดิมให้ ช่วยตอบเกณฑ์ข้อ 3.3 ของแบบประเมินอำเภอ`]);
   f.push(['info','ภาคผนวก: รายชื่อผู้สูงอายุและคนพิการต้องแนบเองนอกระบบ แอปไม่บันทึกข้อมูลส่วนบุคคล']);
   if (!window.docx) f.unshift(['bad','โหลดตัวสร้างไฟล์ Word ไม่สำเร็จ ตรวจการเชื่อมต่ออินเทอร์เน็ตแล้วเปิดหน้านี้ใหม่']);
@@ -63,6 +63,5 @@ $('#dlBook').addEventListener('click', async () => {
   try{ const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove(); $('#bookNote').textContent = 'ถ้าไฟล์ไม่ถูกดาวน์โหลด ให้เปิดหน้านี้จากลิงก์ของ artifact โดยตรง'; }
   catch(e){ $('#bookNote').textContent = 'บันทึกไฟล์จากหน้านี้ไม่ได้'; }
 });
-$('#saveBtn5').addEventListener('click', () => $('#saveBtn').click());
 [['#aiBox','#checkBtn'],['#ans1Box','#check1'],['#ans2Box','#check2']].forEach(([box, btn]) => $(box).addEventListener('paste', () => setTimeout(() => $(btn).click(), 60)));
 
