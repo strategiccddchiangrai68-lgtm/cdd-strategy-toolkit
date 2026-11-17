@@ -8,7 +8,7 @@ function normDim(s){
 }
 function parseTisRows(rows){
   const flat = r => r.map(c => String(c ?? '')).join(' ');
-  const out = { year:null, province:null, amphoe:null, tambon:null, villages:[], warnings:[] };
+  const out = { year:null, province:null, amphoe:null, tambon:null, villages:[], warnings:[], skipped:[] };
   for (const r of rows.slice(0,6)){
     const s = flat(r);
     const y = s.match(/ปีงบประมาณ\s*(\d{4})/); if (y) out.year = +y[1];
@@ -25,7 +25,11 @@ function parseTisRows(rows){
     if (flat(r).includes('ประเด็นการพัฒนา')) break;
     const moo = parseInt(r[cMoo], 10);
     const ranks = cRank.map(c => c >= 0 ? normDim(r[c]) : '');
-    if (!moo || !ranks[0]) continue;
+    if (!moo || !ranks[0]){
+      // แถวที่มีข้อมูลแต่อ่านไม่ได้ เก็บเหตุผลไว้แจ้งผู้ใช้ (แถวว่างข้ามเงียบ ๆ)
+      if (flat(r).trim()) out.skipped.push({ row: i + 1, reason: !moo ? 'ไม่มีเลขหมู่ในคอลัมน์ “หมู่ที่”' : 'ไม่มีการจัดอันดับที่ 1' });
+      continue;
+    }
     const name = String(cName >= 0 ? r[cName] : '').replace(/^บ้าน\s+/, 'บ้าน').trim();
     const bad = ranks.filter(d => !TIS_DIMS.includes(d));
     if (bad.length || new Set(ranks).size !== 5) out.warnings.push(`หมู่ ${moo} จัดอันดับไม่ครบ 5 ด้าน หรือมีชื่อด้านที่ไม่รู้จัก`);
@@ -99,11 +103,15 @@ function renderCurrent(){
   const t = cur.tis, S = cur.tisStats, m = state.ai?.meta;
   // facts
   if (t){
-    const out = [['ok', `ตำบล${esc(t.tambon||'?')} อำเภอ${esc(t.amphoe||'?')} ข้อมูล ${t.villages.length} หมู่บ้าน${cur.tisIsSample?' (ตัวอย่างจริงจากป่าแดด)':''}`]];
+    const out = [[t.villages.length ? 'ok' : 'bad', `นำเข้าสำเร็จ ${t.villages.length} หมู่บ้าน · ตำบล${esc(t.tambon||'?')} อำเภอ${esc(t.amphoe||'?')}${cur.tisIsSample?' (ตัวอย่างจริงจากป่าแดด)':''}`]];
+    out.push(['info', `แหล่งข้อมูล: รายงานผลการวิเคราะห์ TIS${t.year ? ' ปีงบประมาณ ' + esc(t.year) : ' (ไม่พบปีในไฟล์)'} · ไฟล์ ${esc(cur.tisFile || '–')}`]);
+    if ((t.skipped || []).length) out.push(['warn', `ข้ามไป ${t.skipped.length} แถวที่อ่านไม่ได้: ` + t.skipped.slice(0, 5).map(s => `แถว ${s.row} (${esc(s.reason)})`).join(', ') + (t.skipped.length > 5 ? ` และอีก ${t.skipped.length - 5} แถว` : '') + ' ตรวจในไฟล์ Excel ว่าแถวเหล่านี้ควรเป็นข้อมูลหมู่บ้านหรือไม่']);
     if (t.year) out.push([t.year < 2570 ? 'warn' : 'ok', `ข้อมูล TIS ปีงบประมาณ ${t.year}${t.year < 2570 ? ' ตรวจว่า TIS มีข้อมูลรอบใหม่หรือยัง ถ้ายังไม่มี ให้ระบุปีของข้อมูลในเล่มแผนให้ชัด' : ''}`]);
     if (m?.tambon && t.tambon && m.tambon !== t.tambon) out.push(['bad', `ตำบลไม่ตรงกัน แผนเดิมเป็นตำบล${esc(m.tambon)} แต่รายงาน TIS เป็นตำบล${esc(t.tambon)}`]);
     (t.warnings||[]).forEach(w => out.push(['warn', esc(w)]));
     facts($('#tisFacts'), out);
+    // ตารางให้ตรวจข้อมูลที่นำเข้าทีละหมู่บ้าน
+    $('#tisFacts').insertAdjacentHTML('beforeend', `<li class="info"><details><summary style="cursor:pointer;font-weight:600">ตรวจข้อมูลที่นำเข้าทีละหมู่บ้าน (${t.villages.length} หมู่)</summary><div class="scroll"><table class="mini" style="margin-top:6px"><thead><tr><th>หมู่</th><th>หมู่บ้าน</th><th>อันดับ 1</th><th>อันดับ 2</th><th>อันดับ 3</th></tr></thead><tbody>${t.villages.map(v => `<tr><td>${esc(v.moo)}</td><td>${esc(v.name)}</td>${v.ranks.slice(0, 3).map(r => `<td>${esc(short(r))}</td>`).join('')}</tr>`).join('')}</tbody></table></div></details></li>`);
   }
   // heat
   if (S){

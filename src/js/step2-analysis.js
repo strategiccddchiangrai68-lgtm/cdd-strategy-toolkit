@@ -62,9 +62,9 @@ $('#copyP1').addEventListener('click', async () => {
 });
 $('#check1').addEventListener('click', () => {
   ana.answerText = $('#ans1Box').value;
-  try{ ana.answer = parseAI(ana.answerText); }
-  catch(e){ ana.answer = null; facts($('#ans1Facts'), [['bad','อ่านคำตอบไม่ได้ ต้องเป็น JSON ทั้งก้อน ตรวจว่าคัดลอกมาครบ']]); anaPersist(); return; }
-  anaPersist(); renderAnalysis();
+  try{ if (looksLikePrompt(ana.answerText)) throw new Error('prompt'); ana.answer = parseAI(ana.answerText); }
+  catch(e){ ana.answer = null; setRaw('ans1Raw', false); facts($('#ans1Facts'), [['bad', esc(aiErrorMsg(ana.answerText))]]); anaPersist(); return; }
+  setRaw('ans1Raw', true); anaPersist(); renderAnalysis();
 });
 function renderResult1(ev){
   const box = $('#result1');

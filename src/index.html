@@ -72,18 +72,103 @@
       <p>คัดลอกคำสั่ง เปิด Gemini แนบไฟล์ PDF เดิม วางคำสั่ง แล้วคัดลอกคำตอบทั้งหมดมาวางในช่องด้านล่าง</p>
     </div></div>
     <div class="panel">
-      <div class="row-actions">
-        <button class="btn" id="copyPrompt" type="button">คัดลอกคำสั่งและเปิด Gemini</button>
-        <a class="btn ghost" style="text-decoration:none" href="https://gemini.google.com/app" target="gemini" rel="noopener">เปิด Gemini</a>
-        <button class="btn ghost" id="loadSample" type="button">ลองด้วยคำตอบจริงของ Gemini (ป่าแดด)</button>
-      </div>
-      <details class="prompt"><summary>ดูคำสั่งทั้งหมด</summary><textarea id="promptBox" readonly></textarea></details>
-      <div class="privacy">เล่มแผนเดิมบางเล่มมีชื่อและเบอร์โทรศัพท์ของผู้นำหรือประธานกลุ่ม การแนบไฟล์ให้ AI คือการส่งข้อมูลเหล่านี้ออกไปด้วย ถ้าทำได้ ให้ใช้ไฟล์ที่ตัดหน้าเหล่านั้นออก</div>
-      <p class="note" id="sampleNote" hidden>กำลังใช้คำตอบจริงของ Gemini จากการทดสอบกับแผนตำบลป่าแดด (ตัดส่วน SWOT ออก) แนบไฟล์แผนป่าแดดในข้อ ก เพื่อดูการเทียบงบ</p>
-      <label for="aiBox" style="display:block;margin:14px 0 6px;font-weight:600">คำตอบจาก AI</label>
-      <textarea id="aiBox" placeholder="วางคำตอบ JSON ทั้งหมดจาก Gemini ที่นี่"></textarea>
-      <div class="row-actions" style="margin-top:10px"><button class="btn" id="checkBtn" type="button">ตรวจคำตอบ</button></div>
-      <ul class="facts" id="aiFacts"></ul>
+
+      <ol class="aisteps">
+        <li><div class="ai-h">คัดลอกคำสั่งสำหรับ AI</div>
+          <div class="row-actions"><button class="btn" id="copyPrompt" type="button">คัดลอกคำสั่งและเปิด Gemini</button><button class="btn ghost" id="loadSample" type="button">ลองด้วยคำตอบจริงของ Gemini (ป่าแดด)</button></div>
+          <details class="prompt"><summary>ดูคำสั่งทั้งหมด</summary><textarea id="promptBox" readonly></textarea></details></li>
+        <li><div class="ai-h">ใน Gemini: แนบไฟล์ PDF แผนเดิม วางคำสั่ง (Ctrl+V) แล้วกดส่ง</div>
+          <div class="row-actions"><a class="btn ghost" href="https://gemini.google.com/app" target="gemini" rel="noopener">เปิด Gemini</a></div>
+          <div class="privacy">เล่มแผนเดิมบางเล่มมีชื่อและเบอร์โทรศัพท์ของผู้นำหรือประธานกลุ่ม การแนบไฟล์ให้ AI คือการส่งข้อมูลเหล่านี้ออกไปด้วย ถ้าทำได้ ให้ใช้ไฟล์ที่ตัดหน้าเหล่านั้นออก แอปไม่ส่งข้อมูลใดให้ AI เอง</div></li>
+        <li><div class="ai-h">คัดลอกคำตอบทั้งหมดจาก Gemini กลับมาวาง</div>
+          <p class="note" style="margin-top:0">กดปุ่มคัดลอกใต้คำตอบของ Gemini แล้ววางในช่องด้านล่าง แอปจะตรวจให้ทันทีที่วาง</p>
+          <details class="rawjson" id="aiRaw" open><summary>ช่องวางคำตอบจาก AI</summary>
+            <label for="aiBox" class="sr-only">คำตอบจาก AI</label>
+            <textarea id="aiBox" placeholder="วางคำตอบจาก Gemini ที่นี่ (ข้อความเริ่มด้วย { และจบด้วย })"></textarea>
+          </details>
+          <details class="example"><summary>ดูตัวอย่างคำตอบที่ถูกรูปแบบ</summary><p class="note" style="margin:6px 0 0">ย่อให้สั้น คำตอบจริงจะมีทุกโครงการในตาราง 3.1 ข้อความในตัวอย่างเป็นข้อความสมมติ ไม่ใช่ข้อมูลจริง</p><pre>{
+ "meta": {
+  "tambon": "ชื่อตำบล",
+  "amphoe": "ชื่ออำเภอ",
+  "changwat": "เชียงราย",
+  "plan_year": 2569,
+  "file_check": {
+   "is_full_plan": true,
+   "pages": 36,
+   "sections_found": [
+    "ส่วนที่ 1 …"
+   ],
+   "sections_missing": []
+  }
+ },
+ "part1": {
+  "villages": 12,
+  "population": {
+   "total": 5000,
+   "male": 2450,
+   "female": 2550
+  },
+  "households": 1800,
+  "data_source": "จปฐ. ปี …",
+  "avg_income_per_person_year": 0,
+  "main_occupation_note": "…"
+ },
+ "part2": {
+  "strengths": [
+   "…"
+  ],
+  "weaknesses": [
+   "…"
+  ],
+  "opportunities": [
+   "…"
+  ],
+  "threats": [
+   "…"
+  ],
+  "direction": "…",
+  "strategies": [
+   "…"
+  ],
+  "problems": [
+   {
+    "rank": 1,
+    "name": "…"
+   }
+  ]
+ },
+ "part3": {
+  "projects": [
+   {
+    "id": "XX69-01",
+    "priority_no": 1,
+    "name": "ชื่อโครงการตามเล่ม",
+    "budget": 50000,
+    "target": "ทุกหมู่บ้าน",
+    "form_dimension": "เศรษฐกิจ",
+    "method": "ทำเอง",
+    "source_page_printed": 20
+   }
+  ]
+ },
+ "part4": {
+  "reviews": [
+   {
+    "date": "…",
+    "round": 1,
+    "resolution": "เห็นชอบ",
+    "attendees": 20
+   }
+  ]
+ },
+ "flags": []
+}</pre></details></li>
+        <li><div class="ai-h">ตรวจและยืนยันก่อนนำไปใช้</div>
+          <div class="row-actions"><button class="btn" id="checkBtn" type="button">ตรวจคำตอบ</button></div>
+          <p class="note" id="sampleNote" hidden>กำลังใช้คำตอบจริงของ Gemini จากการทดสอบกับแผนตำบลป่าแดด (ตัดส่วน SWOT ออก) แนบไฟล์แผนป่าแดดในข้อ ก เพื่อดูการเทียบงบ</p>
+          <ul class="facts" id="aiFacts"></ul>
+          <p class="note">ข้อมูลจาก AI ยังไม่ถือว่ายืนยัน งบและสถานะของแต่ละโครงการต้องตรวจกับเล่มจริงในข้อ ค</p></li>
+      </ol>
     </div>
   </section>
 
@@ -93,11 +178,18 @@
       <p>แถวขอบแดงคืองบที่ AI อ่านไม่ตรงกับไฟล์ ให้เปิดเล่มจริงดูแล้วเลือกค่าที่ถูก สถานะโครงการต้องได้จากเวทีหรือผู้รู้ในพื้นที่ แอปเดาให้ไม่ได้</p>
     </div></div>
     <div class="ledger">
+      <div class="tools" data-nosave>
+        <label class="grow">ค้นหาชื่อโครงการ<input type="search" id="lfQ" placeholder="พิมพ์บางส่วนของชื่อ"></label>
+        <label>สถานะการดำเนินงาน<select id="lfSt"><option value="">ทุกสถานะ</option><option value="done">ทำแล้ว จบโครงการ</option><option value="done_continue">ทำแล้ว และทำต่อในแผนใหม่</option><option value="not_done">ยังไม่ได้ทำ</option><option value="none">ยังไม่ระบุ</option></select></label>
+        <label>ด้าน<select id="lfDim"><option value="">ทุกด้าน</option></select></label>
+        <label>เรียงตาม<select id="lfSort"><option value="no">ลำดับในแผนเดิม</option><option value="budget_desc">งบมาก → น้อย</option><option value="budget_asc">งบน้อย → มาก</option><option value="name">ชื่อ ก → ฮ</option></select></label>
+      </div>
       <div class="filters" role="group" aria-label="กรองรายการ">
         <button class="chip" data-f="all" aria-pressed="true" type="button">ทั้งหมด</button>
         <button class="chip" data-f="check" aria-pressed="false" type="button">งบต้องตรวจ</button>
         <button class="chip" data-f="nostatus" aria-pressed="false" type="button">ยังไม่ระบุสถานะ</button>
       </div>
+      <p class="note" id="lfCount" aria-live="polite" style="margin:0 0 8px"></p>
       <div id="list"><div class="empty">วางคำตอบจาก AI ในข้อ ข แล้วรายการโครงการจะขึ้นที่นี่</div></div>
     </div>
   </section>
@@ -133,6 +225,16 @@
         <small>ไฟล์ชื่อประมาณ “รายงานผลการวิเคราะห์ TIS.xlsx”</small>
       </label>
       <div class="row-actions" style="margin-top:10px"><button class="btn ghost" id="loadTisSample" type="button">ลองด้วยรายงาน TIS จริงของป่าแดด</button></div>
+      <details class="howto"><summary>ไฟล์แบบไหนใช้ได้ และหาไฟล์จากที่ไหน</summary>
+        <ul>
+          <li><b>ประเภทไฟล์:</b> Excel (.xlsx หรือ .xls) ที่ส่งออกจากระบบ TIS (datatis.cdd.go.th) เมนูรายงาน → “รายงานผลการวิเคราะห์ TIS” ของตำบล</li>
+          <li><b>ไม่ต้องแก้ไฟล์ก่อนนำเข้า</b> แอปอ่านหัวตารางตามรูปแบบของ TIS</li>
+          <li><b>แอปหาแถวหัวตาราง</b> ที่มีคำว่า “หมู่ที่” และ “อันดับที่ 1” แล้วอ่านแถวถัดไปทีละหมู่บ้าน ตัวอย่างโครงตาราง:</li>
+        </ul>
+        <div class="scroll"><table class="mini"><thead><tr><th>หมู่ที่</th><th>หมู่บ้าน</th><th>อันดับที่ 1</th><th>อันดับที่ 2</th><th>…</th><th>อันดับที่ 5</th></tr></thead>
+          <tbody><tr><td>1</td><td>บ้าน…</td><td>ด้านเศรษฐกิจและอาชีพ</td><td>ด้านการจัดการข้อมูล</td><td>…</td><td>ด้านสังคม วัฒนธรรม</td></tr></tbody></table></div>
+        <p class="note">ชื่อด้านต้องเป็น 1 ใน 5 ด้านของ TIS ถ้าหมู่บ้านไหนจัดอันดับไม่ครบ แอปจะแจ้งรายหมู่ ข้อมูลนี้เป็นข้อมูลประกอบ ข้อมูลจากเวทีได้น้ำหนักมากกว่า</p>
+      </details>
       <ul class="facts" id="tisFacts"></ul>
     </div>
   </section>
@@ -172,6 +274,13 @@
         <small>จากเมนูรายงานใน TIS</small>
       </label>
       <div class="row-actions" style="margin-top:10px"><button class="btn ghost" id="loadCommSample" type="button">ลองด้วยรายงานจริงของป่าแดด</button></div>
+      <details class="howto"><summary>ไฟล์แบบไหนใช้ได้ และหาไฟล์จากที่ไหน</summary>
+        <ul>
+          <li><b>ประเภทไฟล์:</b> Excel (.xlsx หรือ .xls) จากระบบ TIS เมนูรายงาน → “ผลการวิเคราะห์ข้อมูลชุมชน” ของตำบล</li>
+          <li><b>แอปอ่าน:</b> คอลัมน์ทุนชุมชน 5 ประเภท (มนุษย์ สังคม เงิน กายภาพ ธรรมชาติ), ผลการวิเคราะห์ SWOT (จุดแข็ง จุดอ่อน โอกาส อุปสรรค), จำนวนประชากรชาย/หญิง และทะเบียนโครงการ</li>
+          <li><b>SWOT ของ TIS</b> ใช้เป็นข้อมูลประกอบเท่านั้น แอปจะเตือนข้อที่ขัดกับข้อมูลอื่น</li>
+        </ul>
+      </details>
       <ul class="facts" id="commFacts"></ul>
       <div class="capsum" id="capSum"></div>
     </div>
@@ -196,13 +305,88 @@
       <p>คัดลอกคำสั่ง วางใน Gemini (ไม่ต้องแนบไฟล์) แล้วคัดลอกคำตอบทั้งหมดกลับมาวาง</p>
     </div></div>
     <div class="panel">
-      <div class="row-actions"><button class="btn" id="copyP1" type="button">คัดลอกคำสั่งและเปิด Gemini</button><a class="btn ghost" style="text-decoration:none" href="https://gemini.google.com/app" target="gemini" rel="noopener">เปิด Gemini</a></div>
-      <details class="prompt"><summary>ดูคำสั่งทั้งหมด</summary><textarea id="p1Box" readonly></textarea></details>
-      <label for="ans1Box" style="display:block;margin:14px 0 6px;font-weight:600">คำตอบจาก AI</label>
-      <textarea id="ans1Box" placeholder="วางคำตอบ JSON ทั้งหมดจาก Gemini ที่นี่"></textarea>
-      <div class="row-actions" style="margin-top:10px"><button class="btn" id="check1" type="button">ตรวจคำตอบ</button><button class="btn ghost" id="fixP1" type="button" hidden>คัดลอกคำสั่งให้ AI แก้จุดที่ผิด</button></div>
-      <textarea id="fixBox" readonly hidden style="margin-top:10px;min-height:120px"></textarea>
-      <ul class="facts" id="ans1Facts"></ul>
+
+      <ol class="aisteps">
+        <li><div class="ai-h">คัดลอกคำสั่งสำหรับ AI</div>
+          <div class="row-actions"><button class="btn" id="copyP1" type="button">คัดลอกคำสั่งและเปิด Gemini</button></div>
+          <details class="prompt"><summary>ดูคำสั่งทั้งหมด</summary><textarea id="p1Box" readonly></textarea></details></li>
+        <li><div class="ai-h">ใน Gemini: วางคำสั่ง (Ctrl+V) แล้วกดส่ง ไม่ต้องแนบไฟล์</div>
+          <div class="row-actions"><a class="btn ghost" href="https://gemini.google.com/app" target="gemini" rel="noopener">เปิด Gemini</a></div></li>
+        <li><div class="ai-h">คัดลอกคำตอบทั้งหมดจาก Gemini กลับมาวาง</div>
+          <p class="note" style="margin-top:0">กดปุ่มคัดลอกใต้คำตอบของ Gemini แล้ววางในช่องด้านล่าง แอปจะตรวจให้ทันทีที่วาง</p>
+          <details class="rawjson" id="ans1Raw" open><summary>ช่องวางคำตอบจาก AI</summary>
+            <label for="ans1Box" class="sr-only">คำตอบจาก AI</label>
+            <textarea id="ans1Box" placeholder="วางคำตอบจาก Gemini ที่นี่ (ข้อความเริ่มด้วย { และจบด้วย })"></textarea>
+          </details>
+          <details class="example"><summary>ดูตัวอย่างคำตอบที่ถูกรูปแบบ</summary><p class="note" style="margin:6px 0 0">ย่อให้สั้น คำตอบจริงจะมี SWOT ด้านละ 4–8 ข้อ ทุกข้อต้องอ้างรหัสหลักฐานที่มีจริงในข้อ ข ข้อความในตัวอย่างเป็นข้อความสมมติ ไม่ใช่ข้อมูลจริง</p><pre>{
+ "swot": {
+  "S": [
+   {
+    "id": "S1",
+    "text": "ข้อความจุดแข็ง",
+    "evidence": [
+     "CN1",
+     "V2"
+    ]
+   }
+  ],
+  "W": [
+   {
+    "id": "W1",
+    "text": "ข้อความจุดอ่อน",
+    "evidence": [
+     "PW2"
+    ]
+   }
+  ],
+  "O": [
+   {
+    "id": "O1",
+    "text": "ข้อความโอกาส",
+    "evidence": [
+     "CR-P2-1.3"
+    ]
+   }
+  ],
+  "T": [
+   {
+    "id": "T1",
+    "text": "ข้อความอุปสรรค",
+    "evidence": [
+     "PT5"
+    ]
+   }
+  ]
+ },
+ "tows": [
+  {
+   "id": "SO1",
+   "type": "SO",
+   "pair": [
+    "S1",
+    "O1"
+   ],
+   "text": "กลยุทธ์ที่ใช้จุดแข็งรับโอกาส"
+  }
+ ],
+ "direction": "ทิศทางการพัฒนาตำบล",
+ "strategies": [
+  {
+   "no": 1,
+   "name": "ชื่อยุทธศาสตร์",
+   "detail": "รายละเอียดสั้น ๆ",
+   "from": [
+    "SO1"
+   ]
+  }
+ ]
+}</pre></details></li>
+        <li><div class="ai-h">ตรวจและยืนยันก่อนนำไปใช้</div>
+          <div class="row-actions"><button class="btn" id="check1" type="button">ตรวจคำตอบ</button><button class="btn ghost" id="fixP1" type="button" hidden>คัดลอกคำสั่งให้ AI แก้จุดที่ผิด</button></div>
+          <textarea id="fixBox" readonly hidden style="margin-top:10px;min-height:120px"></textarea>
+          <ul class="facts" id="ans1Facts"></ul>
+          <p class="note">ร่างจาก AI ต้องให้เวทีประชาคมพิจารณาก่อนใช้ ดูร่างในข้อ ง</p></li>
+      </ol>
     </div>
   </section>
 
@@ -231,13 +415,41 @@
       <p>คำสั่งสร้างจากร่างส่วนที่ 2 ในขั้น ② AI จะเสนอเฉพาะยุทธศาสตร์ที่ยังขาดโครงการ และไม่กำหนดงบประมาณให้ เวทีเป็นผู้กำหนดเอง</p>
     </div></div>
     <div class="panel">
-      <div class="row-actions"><button class="btn" id="copyP2" type="button">คัดลอกคำสั่งและเปิด Gemini</button><a class="btn ghost" style="text-decoration:none" href="https://gemini.google.com/app" target="gemini" rel="noopener">เปิด Gemini</a></div>
-      <details class="prompt"><summary>ดูคำสั่งทั้งหมด</summary><textarea id="p2Box" readonly></textarea></details>
-      <label for="ans2Box" style="display:block;margin:14px 0 6px;font-weight:600">คำตอบจาก AI</label>
-      <textarea id="ans2Box" placeholder="วางคำตอบ JSON ทั้งหมดจาก Gemini ที่นี่"></textarea>
-      <div class="row-actions" style="margin-top:10px"><button class="btn" id="check2" type="button">ตรวจคำตอบ</button></div>
-      <ul class="facts" id="ans2Facts"></ul>
-      <div id="cands" style="margin-top:12px"></div>
+
+      <ol class="aisteps">
+        <li><div class="ai-h">คัดลอกคำสั่งสำหรับ AI</div>
+          <div class="row-actions"><button class="btn" id="copyP2" type="button">คัดลอกคำสั่งและเปิด Gemini</button></div>
+          <details class="prompt"><summary>ดูคำสั่งทั้งหมด</summary><textarea id="p2Box" readonly></textarea></details></li>
+        <li><div class="ai-h">ใน Gemini: วางคำสั่ง (Ctrl+V) แล้วกดส่ง ไม่ต้องแนบไฟล์</div>
+          <div class="row-actions"><a class="btn ghost" href="https://gemini.google.com/app" target="gemini" rel="noopener">เปิด Gemini</a></div></li>
+        <li><div class="ai-h">คัดลอกคำตอบทั้งหมดจาก Gemini กลับมาวาง</div>
+          <p class="note" style="margin-top:0">กดปุ่มคัดลอกใต้คำตอบของ Gemini แล้ววางในช่องด้านล่าง แอปจะตรวจให้ทันทีที่วาง</p>
+          <details class="rawjson" id="ans2Raw" open><summary>ช่องวางคำตอบจาก AI</summary>
+            <label for="ans2Box" class="sr-only">คำตอบจาก AI</label>
+            <textarea id="ans2Box" placeholder="วางคำตอบจาก Gemini ที่นี่ (ข้อความเริ่มด้วย { และจบด้วย })"></textarea>
+          </details>
+          <details class="example"><summary>ดูตัวอย่างคำตอบที่ถูกรูปแบบ</summary><p class="note" style="margin:6px 0 0">AI จะไม่กำหนดงบประมาณ เวทีเป็นผู้กำหนดเอง ข้อความในตัวอย่างเป็นข้อความสมมติ ไม่ใช่ข้อมูลจริง</p><pre>{
+ "projects": [
+  {
+   "name": "ชื่อโครงการ",
+   "strategy_no": 1,
+   "tows": [
+    "SO1"
+   ],
+   "form_dimension": "เศรษฐกิจ",
+   "method": "ทำเอง",
+   "target": "ทุกหมู่บ้าน",
+   "detail": "ทำอะไร อย่างไร",
+   "why": "แก้ปัญหาอะไรของตำบล"
+  }
+ ]
+}</pre></details></li>
+        <li><div class="ai-h">ตรวจและยืนยันก่อนนำไปใช้</div>
+          <div class="row-actions"><button class="btn" id="check2" type="button">ตรวจคำตอบ</button></div>
+          <ul class="facts" id="ans2Facts"></ul>
+          <div id="cands" style="margin-top:12px"></div>
+          <p class="note">โครงการที่ AI เสนอจะเข้ารายการในข้อ ค เฉพาะที่ติ๊กเลือก (เวทีเห็นชอบ) เท่านั้น</p></li>
+      </ol>
     </div>
   </section>
 
@@ -260,6 +472,13 @@
         </div>
         <div class="row-actions" style="margin-top:10px"><button class="btn" id="addPj" type="button">เพิ่มเข้ารายการ</button><span class="note" id="nMsg" style="margin:0"></span></div>
       </div>
+      <div class="tools" data-nosave>
+        <label class="grow">ค้นหาโครงการ<input type="search" id="pfQ" placeholder="พิมพ์บางส่วนของชื่อ"></label>
+        <label>ยุทธศาสตร์<select id="pfStrat"><option value="">ทุกยุทธศาสตร์</option></select></label>
+        <label>งบประมาณ<select id="pfBudget"><option value="">ทั้งหมด</option><option value="none">ยังไม่กำหนดงบ</option><option value="lt100k">ต่ำกว่า 100,000</option><option value="100k-1m">100,000–1,000,000</option><option value="gt1m">มากกว่า 1,000,000</option></select></label>
+        <label>แสดง<select id="pfShow"><option value="">ทุกโครงการ</option><option value="issue">เฉพาะที่ยังไม่ครบหรือต้องแก้</option></select></label>
+      </div>
+      <div class="pjsum" id="pjSum" aria-live="polite"></div>
       <div id="pjList"></div>
     </div>
   </section>

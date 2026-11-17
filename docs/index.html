@@ -308,6 +308,40 @@ details.evlist td:first-child{ font-weight:600; white-space:nowrap; font-variant
 .welcome ul.plain{ list-style:none; margin:10px 0 0; padding:0; }
 .welcome ul.plain li{ margin:6px 0; }
 .sr-only{ position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+
+/* ===== UX รอบ 2: ขั้นตอนใช้ AI 4 ข้อ ===== */
+.aisteps{ list-style:none; counter-reset:ai; margin:0; padding:0; display:grid; gap:14px; }
+.aisteps > li{ counter-increment:ai; position:relative; padding:0 0 0 44px; }
+.aisteps > li::before{ content:counter(ai); position:absolute; left:0; top:0; width:30px; height:30px; border-radius:50%; display:grid; place-items:center;
+  background:var(--brand-soft); color:var(--brand); font-weight:700; border:1px solid var(--brand); }
+.aisteps > li:not(:last-child)::after{ content:""; position:absolute; left:15px; top:34px; bottom:-12px; width:2px; background:var(--rule); }
+.ai-h{ font-weight:700; font-size:16.5px; margin:2px 0 8px; }
+details.rawjson > summary, details.example > summary, details.howto > summary{ cursor:pointer; color:var(--brand); font-weight:600; margin:4px 0; }
+details.rawjson[open] > summary{ margin-bottom:6px; }
+details.example pre{ margin:6px 0 0; max-height:260px; overflow:auto; padding:10px 12px; background:var(--sunk); border:1px solid var(--rule); border-radius:8px; font-size:13px; line-height:1.45; white-space:pre-wrap; word-break:break-word; }
+details.howto{ margin-top:12px; padding:8px 12px; border:1px solid var(--rule); border-radius:8px; background:var(--sunk); }
+details.howto ul{ margin:6px 0; padding-left:1.2em; font-size:15px; }
+details.howto li{ margin:4px 0; }
+table.mini{ border-collapse:collapse; font-size:13.5px; min-width:520px; background:var(--surface); }
+table.mini th, table.mini td{ border:1px solid var(--rule); padding:4px 8px; text-align:left; }
+table.mini th{ background:var(--brand-soft); }
+
+/* ===== เครื่องมือค้นหา/กรอง/เรียง ===== */
+.tools{ display:flex; flex-wrap:wrap; gap:8px 12px; align-items:flex-end; margin-bottom:10px; padding:10px 12px; border:1px solid var(--rule); border-radius:10px; background:var(--surface); }
+.tools label{ display:grid; gap:2px; font-size:13.5px; color:var(--muted); font-weight:600; flex:0 1 auto; }
+.tools label.grow{ flex:1 1 220px; }
+.tools input, .tools select{ min-height:40px; padding:6px 8px; border:1px solid var(--rule); border-radius:8px; background:var(--surface); color:var(--ink); font-size:15.5px; font-weight:400; min-width:0; }
+@media (max-width:640px){ .tools label{ flex:1 1 calc(50% - 12px); } }
+.cell-lbl{ font-size:12.5px; font-weight:700; color:var(--muted); margin-bottom:4px; text-transform:none; }
+.tag.dup{ background:var(--warn-soft); border-color:var(--warn); color:var(--warn); font-weight:600; }
+.item details.more{ margin-top:6px; font-size:14px; }
+.item details.more summary{ cursor:pointer; color:var(--brand); font-weight:600; }
+.item details.more dl{ display:grid; grid-template-columns:auto 1fr; gap:2px 10px; margin:6px 0 0; }
+.item details.more dt{ color:var(--muted); } .item details.more dd{ margin:0; }
+.pjsum{ display:flex; flex-wrap:wrap; gap:6px 16px; align-items:baseline; margin:0 0 10px; font-size:15px; color:var(--muted); }
+.pjsum b{ color:var(--ink); font-size:18px; font-variant-numeric:tabular-nums; }
+.pjsum .warnc{ color:var(--warn); font-weight:600; } .pjsum .badc{ color:var(--bad); font-weight:600; }
+.pj-top button[disabled]{ opacity:.35; }
 </style>
 </head>
 <body>
@@ -372,18 +406,103 @@ details.evlist td:first-child{ font-weight:600; white-space:nowrap; font-variant
       <p>คัดลอกคำสั่ง เปิด Gemini แนบไฟล์ PDF เดิม วางคำสั่ง แล้วคัดลอกคำตอบทั้งหมดมาวางในช่องด้านล่าง</p>
     </div></div>
     <div class="panel">
-      <div class="row-actions">
-        <button class="btn" id="copyPrompt" type="button">คัดลอกคำสั่งและเปิด Gemini</button>
-        <a class="btn ghost" style="text-decoration:none" href="https://gemini.google.com/app" target="gemini" rel="noopener">เปิด Gemini</a>
-        <button class="btn ghost" id="loadSample" type="button">ลองด้วยคำตอบจริงของ Gemini (ป่าแดด)</button>
-      </div>
-      <details class="prompt"><summary>ดูคำสั่งทั้งหมด</summary><textarea id="promptBox" readonly></textarea></details>
-      <div class="privacy">เล่มแผนเดิมบางเล่มมีชื่อและเบอร์โทรศัพท์ของผู้นำหรือประธานกลุ่ม การแนบไฟล์ให้ AI คือการส่งข้อมูลเหล่านี้ออกไปด้วย ถ้าทำได้ ให้ใช้ไฟล์ที่ตัดหน้าเหล่านั้นออก</div>
-      <p class="note" id="sampleNote" hidden>กำลังใช้คำตอบจริงของ Gemini จากการทดสอบกับแผนตำบลป่าแดด (ตัดส่วน SWOT ออก) แนบไฟล์แผนป่าแดดในข้อ ก เพื่อดูการเทียบงบ</p>
-      <label for="aiBox" style="display:block;margin:14px 0 6px;font-weight:600">คำตอบจาก AI</label>
-      <textarea id="aiBox" placeholder="วางคำตอบ JSON ทั้งหมดจาก Gemini ที่นี่"></textarea>
-      <div class="row-actions" style="margin-top:10px"><button class="btn" id="checkBtn" type="button">ตรวจคำตอบ</button></div>
-      <ul class="facts" id="aiFacts"></ul>
+
+      <ol class="aisteps">
+        <li><div class="ai-h">คัดลอกคำสั่งสำหรับ AI</div>
+          <div class="row-actions"><button class="btn" id="copyPrompt" type="button">คัดลอกคำสั่งและเปิด Gemini</button><button class="btn ghost" id="loadSample" type="button">ลองด้วยคำตอบจริงของ Gemini (ป่าแดด)</button></div>
+          <details class="prompt"><summary>ดูคำสั่งทั้งหมด</summary><textarea id="promptBox" readonly></textarea></details></li>
+        <li><div class="ai-h">ใน Gemini: แนบไฟล์ PDF แผนเดิม วางคำสั่ง (Ctrl+V) แล้วกดส่ง</div>
+          <div class="row-actions"><a class="btn ghost" href="https://gemini.google.com/app" target="gemini" rel="noopener">เปิด Gemini</a></div>
+          <div class="privacy">เล่มแผนเดิมบางเล่มมีชื่อและเบอร์โทรศัพท์ของผู้นำหรือประธานกลุ่ม การแนบไฟล์ให้ AI คือการส่งข้อมูลเหล่านี้ออกไปด้วย ถ้าทำได้ ให้ใช้ไฟล์ที่ตัดหน้าเหล่านั้นออก แอปไม่ส่งข้อมูลใดให้ AI เอง</div></li>
+        <li><div class="ai-h">คัดลอกคำตอบทั้งหมดจาก Gemini กลับมาวาง</div>
+          <p class="note" style="margin-top:0">กดปุ่มคัดลอกใต้คำตอบของ Gemini แล้ววางในช่องด้านล่าง แอปจะตรวจให้ทันทีที่วาง</p>
+          <details class="rawjson" id="aiRaw" open><summary>ช่องวางคำตอบจาก AI</summary>
+            <label for="aiBox" class="sr-only">คำตอบจาก AI</label>
+            <textarea id="aiBox" placeholder="วางคำตอบจาก Gemini ที่นี่ (ข้อความเริ่มด้วย { และจบด้วย })"></textarea>
+          </details>
+          <details class="example"><summary>ดูตัวอย่างคำตอบที่ถูกรูปแบบ</summary><p class="note" style="margin:6px 0 0">ย่อให้สั้น คำตอบจริงจะมีทุกโครงการในตาราง 3.1 ข้อความในตัวอย่างเป็นข้อความสมมติ ไม่ใช่ข้อมูลจริง</p><pre>{
+ "meta": {
+  "tambon": "ชื่อตำบล",
+  "amphoe": "ชื่ออำเภอ",
+  "changwat": "เชียงราย",
+  "plan_year": 2569,
+  "file_check": {
+   "is_full_plan": true,
+   "pages": 36,
+   "sections_found": [
+    "ส่วนที่ 1 …"
+   ],
+   "sections_missing": []
+  }
+ },
+ "part1": {
+  "villages": 12,
+  "population": {
+   "total": 5000,
+   "male": 2450,
+   "female": 2550
+  },
+  "households": 1800,
+  "data_source": "จปฐ. ปี …",
+  "avg_income_per_person_year": 0,
+  "main_occupation_note": "…"
+ },
+ "part2": {
+  "strengths": [
+   "…"
+  ],
+  "weaknesses": [
+   "…"
+  ],
+  "opportunities": [
+   "…"
+  ],
+  "threats": [
+   "…"
+  ],
+  "direction": "…",
+  "strategies": [
+   "…"
+  ],
+  "problems": [
+   {
+    "rank": 1,
+    "name": "…"
+   }
+  ]
+ },
+ "part3": {
+  "projects": [
+   {
+    "id": "XX69-01",
+    "priority_no": 1,
+    "name": "ชื่อโครงการตามเล่ม",
+    "budget": 50000,
+    "target": "ทุกหมู่บ้าน",
+    "form_dimension": "เศรษฐกิจ",
+    "method": "ทำเอง",
+    "source_page_printed": 20
+   }
+  ]
+ },
+ "part4": {
+  "reviews": [
+   {
+    "date": "…",
+    "round": 1,
+    "resolution": "เห็นชอบ",
+    "attendees": 20
+   }
+  ]
+ },
+ "flags": []
+}</pre></details></li>
+        <li><div class="ai-h">ตรวจและยืนยันก่อนนำไปใช้</div>
+          <div class="row-actions"><button class="btn" id="checkBtn" type="button">ตรวจคำตอบ</button></div>
+          <p class="note" id="sampleNote" hidden>กำลังใช้คำตอบจริงของ Gemini จากการทดสอบกับแผนตำบลป่าแดด (ตัดส่วน SWOT ออก) แนบไฟล์แผนป่าแดดในข้อ ก เพื่อดูการเทียบงบ</p>
+          <ul class="facts" id="aiFacts"></ul>
+          <p class="note">ข้อมูลจาก AI ยังไม่ถือว่ายืนยัน งบและสถานะของแต่ละโครงการต้องตรวจกับเล่มจริงในข้อ ค</p></li>
+      </ol>
     </div>
   </section>
 
@@ -393,11 +512,18 @@ details.evlist td:first-child{ font-weight:600; white-space:nowrap; font-variant
       <p>แถวขอบแดงคืองบที่ AI อ่านไม่ตรงกับไฟล์ ให้เปิดเล่มจริงดูแล้วเลือกค่าที่ถูก สถานะโครงการต้องได้จากเวทีหรือผู้รู้ในพื้นที่ แอปเดาให้ไม่ได้</p>
     </div></div>
     <div class="ledger">
+      <div class="tools" data-nosave>
+        <label class="grow">ค้นหาชื่อโครงการ<input type="search" id="lfQ" placeholder="พิมพ์บางส่วนของชื่อ"></label>
+        <label>สถานะการดำเนินงาน<select id="lfSt"><option value="">ทุกสถานะ</option><option value="done">ทำแล้ว จบโครงการ</option><option value="done_continue">ทำแล้ว และทำต่อในแผนใหม่</option><option value="not_done">ยังไม่ได้ทำ</option><option value="none">ยังไม่ระบุ</option></select></label>
+        <label>ด้าน<select id="lfDim"><option value="">ทุกด้าน</option></select></label>
+        <label>เรียงตาม<select id="lfSort"><option value="no">ลำดับในแผนเดิม</option><option value="budget_desc">งบมาก → น้อย</option><option value="budget_asc">งบน้อย → มาก</option><option value="name">ชื่อ ก → ฮ</option></select></label>
+      </div>
       <div class="filters" role="group" aria-label="กรองรายการ">
         <button class="chip" data-f="all" aria-pressed="true" type="button">ทั้งหมด</button>
         <button class="chip" data-f="check" aria-pressed="false" type="button">งบต้องตรวจ</button>
         <button class="chip" data-f="nostatus" aria-pressed="false" type="button">ยังไม่ระบุสถานะ</button>
       </div>
+      <p class="note" id="lfCount" aria-live="polite" style="margin:0 0 8px"></p>
       <div id="list"><div class="empty">วางคำตอบจาก AI ในข้อ ข แล้วรายการโครงการจะขึ้นที่นี่</div></div>
     </div>
   </section>
@@ -433,6 +559,16 @@ details.evlist td:first-child{ font-weight:600; white-space:nowrap; font-variant
         <small>ไฟล์ชื่อประมาณ “รายงานผลการวิเคราะห์ TIS.xlsx”</small>
       </label>
       <div class="row-actions" style="margin-top:10px"><button class="btn ghost" id="loadTisSample" type="button">ลองด้วยรายงาน TIS จริงของป่าแดด</button></div>
+      <details class="howto"><summary>ไฟล์แบบไหนใช้ได้ และหาไฟล์จากที่ไหน</summary>
+        <ul>
+          <li><b>ประเภทไฟล์:</b> Excel (.xlsx หรือ .xls) ที่ส่งออกจากระบบ TIS (datatis.cdd.go.th) เมนูรายงาน → “รายงานผลการวิเคราะห์ TIS” ของตำบล</li>
+          <li><b>ไม่ต้องแก้ไฟล์ก่อนนำเข้า</b> แอปอ่านหัวตารางตามรูปแบบของ TIS</li>
+          <li><b>แอปหาแถวหัวตาราง</b> ที่มีคำว่า “หมู่ที่” และ “อันดับที่ 1” แล้วอ่านแถวถัดไปทีละหมู่บ้าน ตัวอย่างโครงตาราง:</li>
+        </ul>
+        <div class="scroll"><table class="mini"><thead><tr><th>หมู่ที่</th><th>หมู่บ้าน</th><th>อันดับที่ 1</th><th>อันดับที่ 2</th><th>…</th><th>อันดับที่ 5</th></tr></thead>
+          <tbody><tr><td>1</td><td>บ้าน…</td><td>ด้านเศรษฐกิจและอาชีพ</td><td>ด้านการจัดการข้อมูล</td><td>…</td><td>ด้านสังคม วัฒนธรรม</td></tr></tbody></table></div>
+        <p class="note">ชื่อด้านต้องเป็น 1 ใน 5 ด้านของ TIS ถ้าหมู่บ้านไหนจัดอันดับไม่ครบ แอปจะแจ้งรายหมู่ ข้อมูลนี้เป็นข้อมูลประกอบ ข้อมูลจากเวทีได้น้ำหนักมากกว่า</p>
+      </details>
       <ul class="facts" id="tisFacts"></ul>
     </div>
   </section>
@@ -472,6 +608,13 @@ details.evlist td:first-child{ font-weight:600; white-space:nowrap; font-variant
         <small>จากเมนูรายงานใน TIS</small>
       </label>
       <div class="row-actions" style="margin-top:10px"><button class="btn ghost" id="loadCommSample" type="button">ลองด้วยรายงานจริงของป่าแดด</button></div>
+      <details class="howto"><summary>ไฟล์แบบไหนใช้ได้ และหาไฟล์จากที่ไหน</summary>
+        <ul>
+          <li><b>ประเภทไฟล์:</b> Excel (.xlsx หรือ .xls) จากระบบ TIS เมนูรายงาน → “ผลการวิเคราะห์ข้อมูลชุมชน” ของตำบล</li>
+          <li><b>แอปอ่าน:</b> คอลัมน์ทุนชุมชน 5 ประเภท (มนุษย์ สังคม เงิน กายภาพ ธรรมชาติ), ผลการวิเคราะห์ SWOT (จุดแข็ง จุดอ่อน โอกาส อุปสรรค), จำนวนประชากรชาย/หญิง และทะเบียนโครงการ</li>
+          <li><b>SWOT ของ TIS</b> ใช้เป็นข้อมูลประกอบเท่านั้น แอปจะเตือนข้อที่ขัดกับข้อมูลอื่น</li>
+        </ul>
+      </details>
       <ul class="facts" id="commFacts"></ul>
       <div class="capsum" id="capSum"></div>
     </div>
@@ -496,13 +639,88 @@ details.evlist td:first-child{ font-weight:600; white-space:nowrap; font-variant
       <p>คัดลอกคำสั่ง วางใน Gemini (ไม่ต้องแนบไฟล์) แล้วคัดลอกคำตอบทั้งหมดกลับมาวาง</p>
     </div></div>
     <div class="panel">
-      <div class="row-actions"><button class="btn" id="copyP1" type="button">คัดลอกคำสั่งและเปิด Gemini</button><a class="btn ghost" style="text-decoration:none" href="https://gemini.google.com/app" target="gemini" rel="noopener">เปิด Gemini</a></div>
-      <details class="prompt"><summary>ดูคำสั่งทั้งหมด</summary><textarea id="p1Box" readonly></textarea></details>
-      <label for="ans1Box" style="display:block;margin:14px 0 6px;font-weight:600">คำตอบจาก AI</label>
-      <textarea id="ans1Box" placeholder="วางคำตอบ JSON ทั้งหมดจาก Gemini ที่นี่"></textarea>
-      <div class="row-actions" style="margin-top:10px"><button class="btn" id="check1" type="button">ตรวจคำตอบ</button><button class="btn ghost" id="fixP1" type="button" hidden>คัดลอกคำสั่งให้ AI แก้จุดที่ผิด</button></div>
-      <textarea id="fixBox" readonly hidden style="margin-top:10px;min-height:120px"></textarea>
-      <ul class="facts" id="ans1Facts"></ul>
+
+      <ol class="aisteps">
+        <li><div class="ai-h">คัดลอกคำสั่งสำหรับ AI</div>
+          <div class="row-actions"><button class="btn" id="copyP1" type="button">คัดลอกคำสั่งและเปิด Gemini</button></div>
+          <details class="prompt"><summary>ดูคำสั่งทั้งหมด</summary><textarea id="p1Box" readonly></textarea></details></li>
+        <li><div class="ai-h">ใน Gemini: วางคำสั่ง (Ctrl+V) แล้วกดส่ง ไม่ต้องแนบไฟล์</div>
+          <div class="row-actions"><a class="btn ghost" href="https://gemini.google.com/app" target="gemini" rel="noopener">เปิด Gemini</a></div></li>
+        <li><div class="ai-h">คัดลอกคำตอบทั้งหมดจาก Gemini กลับมาวาง</div>
+          <p class="note" style="margin-top:0">กดปุ่มคัดลอกใต้คำตอบของ Gemini แล้ววางในช่องด้านล่าง แอปจะตรวจให้ทันทีที่วาง</p>
+          <details class="rawjson" id="ans1Raw" open><summary>ช่องวางคำตอบจาก AI</summary>
+            <label for="ans1Box" class="sr-only">คำตอบจาก AI</label>
+            <textarea id="ans1Box" placeholder="วางคำตอบจาก Gemini ที่นี่ (ข้อความเริ่มด้วย { และจบด้วย })"></textarea>
+          </details>
+          <details class="example"><summary>ดูตัวอย่างคำตอบที่ถูกรูปแบบ</summary><p class="note" style="margin:6px 0 0">ย่อให้สั้น คำตอบจริงจะมี SWOT ด้านละ 4–8 ข้อ ทุกข้อต้องอ้างรหัสหลักฐานที่มีจริงในข้อ ข ข้อความในตัวอย่างเป็นข้อความสมมติ ไม่ใช่ข้อมูลจริง</p><pre>{
+ "swot": {
+  "S": [
+   {
+    "id": "S1",
+    "text": "ข้อความจุดแข็ง",
+    "evidence": [
+     "CN1",
+     "V2"
+    ]
+   }
+  ],
+  "W": [
+   {
+    "id": "W1",
+    "text": "ข้อความจุดอ่อน",
+    "evidence": [
+     "PW2"
+    ]
+   }
+  ],
+  "O": [
+   {
+    "id": "O1",
+    "text": "ข้อความโอกาส",
+    "evidence": [
+     "CR-P2-1.3"
+    ]
+   }
+  ],
+  "T": [
+   {
+    "id": "T1",
+    "text": "ข้อความอุปสรรค",
+    "evidence": [
+     "PT5"
+    ]
+   }
+  ]
+ },
+ "tows": [
+  {
+   "id": "SO1",
+   "type": "SO",
+   "pair": [
+    "S1",
+    "O1"
+   ],
+   "text": "กลยุทธ์ที่ใช้จุดแข็งรับโอกาส"
+  }
+ ],
+ "direction": "ทิศทางการพัฒนาตำบล",
+ "strategies": [
+  {
+   "no": 1,
+   "name": "ชื่อยุทธศาสตร์",
+   "detail": "รายละเอียดสั้น ๆ",
+   "from": [
+    "SO1"
+   ]
+  }
+ ]
+}</pre></details></li>
+        <li><div class="ai-h">ตรวจและยืนยันก่อนนำไปใช้</div>
+          <div class="row-actions"><button class="btn" id="check1" type="button">ตรวจคำตอบ</button><button class="btn ghost" id="fixP1" type="button" hidden>คัดลอกคำสั่งให้ AI แก้จุดที่ผิด</button></div>
+          <textarea id="fixBox" readonly hidden style="margin-top:10px;min-height:120px"></textarea>
+          <ul class="facts" id="ans1Facts"></ul>
+          <p class="note">ร่างจาก AI ต้องให้เวทีประชาคมพิจารณาก่อนใช้ ดูร่างในข้อ ง</p></li>
+      </ol>
     </div>
   </section>
 
@@ -531,13 +749,41 @@ details.evlist td:first-child{ font-weight:600; white-space:nowrap; font-variant
       <p>คำสั่งสร้างจากร่างส่วนที่ 2 ในขั้น ② AI จะเสนอเฉพาะยุทธศาสตร์ที่ยังขาดโครงการ และไม่กำหนดงบประมาณให้ เวทีเป็นผู้กำหนดเอง</p>
     </div></div>
     <div class="panel">
-      <div class="row-actions"><button class="btn" id="copyP2" type="button">คัดลอกคำสั่งและเปิด Gemini</button><a class="btn ghost" style="text-decoration:none" href="https://gemini.google.com/app" target="gemini" rel="noopener">เปิด Gemini</a></div>
-      <details class="prompt"><summary>ดูคำสั่งทั้งหมด</summary><textarea id="p2Box" readonly></textarea></details>
-      <label for="ans2Box" style="display:block;margin:14px 0 6px;font-weight:600">คำตอบจาก AI</label>
-      <textarea id="ans2Box" placeholder="วางคำตอบ JSON ทั้งหมดจาก Gemini ที่นี่"></textarea>
-      <div class="row-actions" style="margin-top:10px"><button class="btn" id="check2" type="button">ตรวจคำตอบ</button></div>
-      <ul class="facts" id="ans2Facts"></ul>
-      <div id="cands" style="margin-top:12px"></div>
+
+      <ol class="aisteps">
+        <li><div class="ai-h">คัดลอกคำสั่งสำหรับ AI</div>
+          <div class="row-actions"><button class="btn" id="copyP2" type="button">คัดลอกคำสั่งและเปิด Gemini</button></div>
+          <details class="prompt"><summary>ดูคำสั่งทั้งหมด</summary><textarea id="p2Box" readonly></textarea></details></li>
+        <li><div class="ai-h">ใน Gemini: วางคำสั่ง (Ctrl+V) แล้วกดส่ง ไม่ต้องแนบไฟล์</div>
+          <div class="row-actions"><a class="btn ghost" href="https://gemini.google.com/app" target="gemini" rel="noopener">เปิด Gemini</a></div></li>
+        <li><div class="ai-h">คัดลอกคำตอบทั้งหมดจาก Gemini กลับมาวาง</div>
+          <p class="note" style="margin-top:0">กดปุ่มคัดลอกใต้คำตอบของ Gemini แล้ววางในช่องด้านล่าง แอปจะตรวจให้ทันทีที่วาง</p>
+          <details class="rawjson" id="ans2Raw" open><summary>ช่องวางคำตอบจาก AI</summary>
+            <label for="ans2Box" class="sr-only">คำตอบจาก AI</label>
+            <textarea id="ans2Box" placeholder="วางคำตอบจาก Gemini ที่นี่ (ข้อความเริ่มด้วย { และจบด้วย })"></textarea>
+          </details>
+          <details class="example"><summary>ดูตัวอย่างคำตอบที่ถูกรูปแบบ</summary><p class="note" style="margin:6px 0 0">AI จะไม่กำหนดงบประมาณ เวทีเป็นผู้กำหนดเอง ข้อความในตัวอย่างเป็นข้อความสมมติ ไม่ใช่ข้อมูลจริง</p><pre>{
+ "projects": [
+  {
+   "name": "ชื่อโครงการ",
+   "strategy_no": 1,
+   "tows": [
+    "SO1"
+   ],
+   "form_dimension": "เศรษฐกิจ",
+   "method": "ทำเอง",
+   "target": "ทุกหมู่บ้าน",
+   "detail": "ทำอะไร อย่างไร",
+   "why": "แก้ปัญหาอะไรของตำบล"
+  }
+ ]
+}</pre></details></li>
+        <li><div class="ai-h">ตรวจและยืนยันก่อนนำไปใช้</div>
+          <div class="row-actions"><button class="btn" id="check2" type="button">ตรวจคำตอบ</button></div>
+          <ul class="facts" id="ans2Facts"></ul>
+          <div id="cands" style="margin-top:12px"></div>
+          <p class="note">โครงการที่ AI เสนอจะเข้ารายการในข้อ ค เฉพาะที่ติ๊กเลือก (เวทีเห็นชอบ) เท่านั้น</p></li>
+      </ol>
     </div>
   </section>
 
@@ -560,6 +806,13 @@ details.evlist td:first-child{ font-weight:600; white-space:nowrap; font-variant
         </div>
         <div class="row-actions" style="margin-top:10px"><button class="btn" id="addPj" type="button">เพิ่มเข้ารายการ</button><span class="note" id="nMsg" style="margin:0"></span></div>
       </div>
+      <div class="tools" data-nosave>
+        <label class="grow">ค้นหาโครงการ<input type="search" id="pfQ" placeholder="พิมพ์บางส่วนของชื่อ"></label>
+        <label>ยุทธศาสตร์<select id="pfStrat"><option value="">ทุกยุทธศาสตร์</option></select></label>
+        <label>งบประมาณ<select id="pfBudget"><option value="">ทั้งหมด</option><option value="none">ยังไม่กำหนดงบ</option><option value="lt100k">ต่ำกว่า 100,000</option><option value="100k-1m">100,000–1,000,000</option><option value="gt1m">มากกว่า 1,000,000</option></select></label>
+        <label>แสดง<select id="pfShow"><option value="">ทุกโครงการ</option><option value="issue">เฉพาะที่ยังไม่ครบหรือต้องแก้</option></select></label>
+      </div>
+      <div class="pjsum" id="pjSum" aria-live="polite"></div>
       <div id="pjList"></div>
     </div>
   </section>
@@ -710,6 +963,24 @@ function openGemini(hint){
   toast(w ? 'คัดลอกคำสั่งแล้ว เปิด Gemini ในแท็บใหม่ให้แล้ว ' + hint
           : 'คัดลอกคำสั่งแล้ว แต่เบราว์เซอร์ไม่ให้เปิดแท็บใหม่ กดปุ่ม “เปิด Gemini” แล้ว' + hint);
 }
+// ข้อความเมื่ออ่านคำตอบ AI ไม่ได้ บอกสาเหตุที่น่าจะเป็นและวิธีแก้ (ใช้ทั้งขั้น ⓪ ② ③)
+// คำสั่งที่ส่งให้ AI มีโครงสร้าง JSON ตัวอย่างอยู่ข้างใน ถ้าผู้ใช้วางคำสั่งกลับมาจะอ่านได้แต่เป็นข้อมูลเปล่า จึงต้องจับไว้ก่อน
+const looksLikePrompt = t => /^s*คุณคือ|## กติกาบังคับ|## โครงสร้าง JSON/.test(String(t || ''));
+function aiErrorMsg(text){
+  const t = String(text || '').trim();
+  if (!t) return 'ยังไม่ได้วางคำตอบ คัดลอกคำตอบทั้งหมดจาก Gemini แล้ววางในช่องในข้อ 3';
+  if (looksLikePrompt(t)) return 'ข้อความที่วางเป็น “คำสั่ง” ที่ส่งให้ Gemini ไม่ใช่คำตอบ ให้คัดลอกข้อความที่ Gemini ตอบกลับมาแทน';
+  const a = t.indexOf('{'), b = t.lastIndexOf('}');
+  if (a < 0) return 'ข้อความที่วางไม่ใช่คำตอบรูปแบบที่แอปอ่านได้ (ต้องมีเครื่องหมาย { … }) ลองขอให้ Gemini “ตอบเป็น JSON อย่างเดียวตามโครงสร้างที่กำหนด”';
+  if (b < a) return 'คำตอบถูกตัดกลาง ไม่มีเครื่องหมาย } ปิดท้าย ถ้า Gemini ตอบยาวจนหยุด ให้พิมพ์ในแชตว่า “ตอบต่อจากเดิม” แล้วนำข้อความมาต่อท้าย หรือขอให้ตอบใหม่';
+  return 'คำตอบไม่ครบหรือรูปแบบผิด ตรวจว่าคัดลอกครบตั้งแต่ { ตัวแรกถึง } ตัวสุดท้าย ถ้ายังไม่ได้ ให้กดคัดลอกคำสั่งใหม่แล้วถาม Gemini อีกครั้ง';
+}
+// พับช่อง JSON ดิบเมื่อได้คำตอบที่ใช้ได้แล้ว (ยังเปิดดู/แก้/วางใหม่ได้)
+function setRaw(id, has){
+  const d = $('#' + id); if (!d) return;
+  d.open = !has;
+  d.querySelector('summary').textContent = has ? '✓ รับคำตอบแล้ว — กดเพื่อดู แก้ไข หรือวางคำตอบใหม่' : 'ช่องวางคำตอบจาก AI';
+}
 // การบันทึกทุกขั้นไปรวมที่ชุดข้อมูลของตำบล (ดู wsSave ด้านล่าง)
 function persist(){ wsSave(); }
 
@@ -764,11 +1035,12 @@ function parseAI(text){
 }
 function ingest(){
   let ai;
-  try{ ai = parseAI($('#aiBox').value); }
-  catch(e){ facts($('#aiFacts'), [['bad','อ่านคำตอบไม่ได้ ต้องเป็น JSON ทั้งก้อน ตรวจว่าคัดลอกมาครบตั้งแต่ { ตัวแรกถึง } ตัวสุดท้าย']]); return; }
-  if (!ai?.part3?.projects?.length){ facts($('#aiFacts'), [['bad','ในคำตอบไม่มีรายการโครงการ (part3.projects) ให้ส่งคำสั่งให้ AI ใหม่อีกครั้ง']]); return; }
+  try{ if (looksLikePrompt($('#aiBox').value)) throw new Error('prompt'); ai = parseAI($('#aiBox').value); }
+  catch(e){ setRaw('aiRaw', false); facts($('#aiFacts'), [['bad', esc(aiErrorMsg($('#aiBox').value))]]); return; }
+  if (!ai?.part3?.projects?.length){ setRaw('aiRaw', false); facts($('#aiFacts'), [['bad','อ่านคำตอบได้ แต่ไม่มีรายการโครงการ (part3.projects) ตรวจว่าแนบไฟล์ PDF แผนเดิมใน Gemini แล้ว แล้วถามใหม่อีกครั้ง']]); return; }
   ai.part3.projects.forEach((p,i) => { if(!p.id) p.id = 'P'+String(i+1).padStart(2,'0'); if(!p.priority_no) p.priority_no = i+1; });
   if (!wsAdoptAi(ai)) return;
+  setRaw('aiRaw', true);
   $('#s2').classList.add('done');
   runChecks();
 }
@@ -847,7 +1119,7 @@ function statusHTML(p){
   const r = rv(p.id);
   const opts = ['<option value="">ระบุสถานะ…</option>'].concat(Object.entries(STATUS).map(([k,v]) => `<option value="${k}" ${r.status===k?'selected':''}>${v}</option>`)).join('');
   const rs = ['<option value="">เพราะอะไร…</option>'].concat(REASONS.map(x => `<option ${r.reason===x?'selected':''}>${x}</option>`)).join('');
-  return `<select data-act="status" aria-label="สถานะโครงการ">${opts}</select>
+  return `<div class="cell-lbl">สถานะการดำเนินงาน</div><select data-act="status" aria-label="สถานะการดำเนินงานของโครงการ">${opts}</select>
     <div class="sub" ${r.status==='not_done'?'':'hidden'}>
       <select data-act="reason" aria-label="เหตุผลที่ยังไม่ได้ทำ">${rs}</select>
       <select data-act="decision" aria-label="การตัดสินใจ">
@@ -857,24 +1129,60 @@ function statusHTML(p){
       </select>
     </div>`;
 }
+// ตัวค้นหา/กรอง/เรียงของรายการโครงการ (อยู่ในหน้าจอเท่านั้น ไม่บันทึก)
+const lf = { q:'', st:'', dim:'', sort:'no' };
+const normQ = s => String(s || '').replace(/\s+/g, '').toLowerCase();
+// โครงการที่ชื่อเกือบซ้ำกัน (ความเหมือน ≥ 0.9) → { id: [ลำดับที่ซ้ำ] }
+function dupMap(ps){
+  const m = {};
+  for (let i = 0; i < ps.length; i++) for (let j = i + 1; j < ps.length; j++){
+    const a = ps[i], b = ps[j];
+    if (sim(rv(a.id).name ?? a.name, rv(b.id).name ?? b.name) >= .9){ (m[a.id] = m[a.id] || []).push(b.priority_no); (m[b.id] = m[b.id] || []).push(a.priority_no); }
+  }
+  return m;
+}
 function render(){
   const ai = state.ai, list = $('#list');
-  if (!ai){ list.innerHTML = '<div class="empty">วางคำตอบจาก AI ในข้อ ข แล้วรายการโครงการจะขึ้นที่นี่</div>'; tally(); summary(); return; }
-  const ps = ai.part3.projects.filter(p => state.filter==='all' || (state.filter==='check' && needsCheck(p)) || (state.filter==='nostatus' && !rv(p.id).status));
-  if (!ps.length){ list.innerHTML = '<div class="empty">ไม่มีรายการในตัวกรองนี้</div>'; }
+  if (!ai){ list.innerHTML = '<div class="empty">วางคำตอบจาก AI ในข้อ ข แล้วรายการโครงการจะขึ้นที่นี่</div>'; $('#lfCount').textContent = ''; tally(); summary(); return; }
+  const all = ai.part3.projects;
+  // ตัวเลือก “ด้าน” มาจากข้อมูลจริงในแผน
+  const dims = [...new Set(all.map(p => p.form_dimension || 'ไม่ระบุด้าน'))];
+  const dsel = $('#lfDim'), keepDim = lf.dim;
+  dsel.innerHTML = '<option value="">ทุกด้าน</option>' + dims.map(d => `<option value="${esc(d)}">${esc(d)}</option>`).join(''); dsel.value = dims.includes(keepDim) ? keepDim : '';
+  const dups = dupMap(all), q = normQ(lf.q);
+  let ps = all.filter(p => state.filter==='all' || (state.filter==='check' && needsCheck(p)) || (state.filter==='nostatus' && !rv(p.id).status));
+  if (q) ps = ps.filter(p => normQ(rv(p.id).name ?? p.name).includes(q));
+  if (lf.st) ps = ps.filter(p => lf.st === 'none' ? !rv(p.id).status : rv(p.id).status === lf.st);
+  if (lf.dim) ps = ps.filter(p => (p.form_dimension || 'ไม่ระบุด้าน') === lf.dim);
+  const bud = p => finalBudget(p) ?? Number(p.budget) ?? 0;
+  if (lf.sort === 'budget_desc') ps = ps.slice().sort((a, b) => bud(b) - bud(a));
+  if (lf.sort === 'budget_asc') ps = ps.slice().sort((a, b) => bud(a) - bud(b));
+  if (lf.sort === 'name') ps = ps.slice().sort((a, b) => String(rv(a.id).name ?? a.name).localeCompare(String(rv(b.id).name ?? b.name), 'th'));
+  $('#lfCount').textContent = ps.length === all.length ? `แสดงทั้งหมด ${all.length} โครงการ` : `แสดง ${ps.length} จาก ${all.length} โครงการ`;
+  if (!ps.length){ list.innerHTML = '<div class="empty">ไม่มีโครงการที่ตรงกับการค้นหาหรือตัวกรองนี้</div>'; }
   else list.innerHTML = ps.map(p => {
-    const k = budgetCheck(p).kind, r = rv(p.id);
+    const k = budgetCheck(p).kind, r = rv(p.id), c = budgetCheck(p);
     const cls = (k==='mismatch' && !r.budgetConfirmed) ? 'flag-bad' : (k!=='match' && !r.budgetConfirmed ? 'flag-warn' : '');
     return `<article class="item ${cls}" data-id="${esc(p.id)}">
       <div class="no">${esc(p.priority_no)}</div>
-      <div class="name"><input value="${esc(r.name ?? p.name)}" data-act="name" aria-label="ชื่อโครงการ ลำดับ ${esc(p.priority_no)}">
-        <div class="meta"><span class="tag">${esc(p.form_dimension||'ไม่ระบุด้าน')}</span><span class="tag">${esc(p.method||'ไม่ระบุวิธี')}</span>เป้าหมาย ${esc(p.target||'–')}</div></div>
-      <div class="money">${moneyHTML(p)}</div>
+      <div class="name"><input value="${esc(r.name ?? p.name)}" data-act="name" aria-label="ชื่อโครงการ ลำดับ ${esc(p.priority_no)} (แก้ไขได้)">
+        <div class="meta"><span class="tag">${esc(p.form_dimension||'ไม่ระบุด้าน')}</span><span class="tag">${esc(p.method||'ไม่ระบุวิธี')}</span>${dups[p.id] ? `<span class="tag dup">อาจซ้ำกับลำดับ ${dups[p.id].join(', ')}</span>` : ''}เป้าหมาย ${esc(p.target||'–')}</div>
+        <details class="more"><summary>รายละเอียด</summary><dl>
+          <dt>รหัส</dt><dd>${esc(p.id)}</dd>
+          <dt>ชื่อตามที่ AI อ่าน</dt><dd>${esc(p.name)}${r.name && r.name !== p.name ? ' (แก้ชื่อแล้ว)' : ''}</dd>
+          <dt>หน้าในเล่ม</dt><dd>${esc(p.source_page_printed ?? '–')}</dd>
+          <dt>งบที่ AI อ่าน</dt><dd>${fmt(p.budget)} บาท</dd>
+          <dt>งบในไฟล์ PDF</dt><dd>${c.pdf !== undefined ? fmt(c.pdf) + ' บาท' : 'ยังไม่ได้เทียบ'}</dd>
+          <dt>งบที่ใช้ (ยืนยันแล้ว)</dt><dd>${finalBudget(p) !== null ? fmt(finalBudget(p)) + ' บาท' : 'ยังไม่ยืนยัน'}</dd>
+        </dl></details></div>
+      <div class="money"><div class="cell-lbl">งบประมาณ</div>${moneyHTML(p)}</div>
       <div class="status">${statusHTML(p)}</div>
     </article>`;
   }).join('');
   tally(); summary(); persist();
 }
+$('#lfQ').addEventListener('input', e => { lf.q = e.target.value; clearTimeout(render._t); render._t = setTimeout(render, 150); });
+[['#lfSt','st'],['#lfDim','dim'],['#lfSort','sort']].forEach(([s, k]) => $(s).addEventListener('change', e => { lf[k] = e.target.value; render(); }));
 $('#list').addEventListener('click', e => {
   const b = e.target.closest('button[data-act]'); if (!b) return;
   const art = b.closest('.item'); const p = state.ai.part3.projects.find(x => x.id===art.dataset.id); const r = rv(p.id);
@@ -892,7 +1200,11 @@ $('#list').addEventListener('change', e => {
   if (a==='reason') r.reason = el.value || undefined;
   if (a==='decision') r.decision = el.value || undefined;
   if (a==='name') r.name = el.value.trim() || undefined;
-  if (a==='manual') r.budgetFinal = el.value==='' ? null : Number(el.value);
+  if (a==='manual'){
+    const v = Number(el.value);
+    if (el.value !== '' && !(Number.isFinite(v) && v >= 0)){ toast('งบประมาณต้องเป็นตัวเลขตั้งแต่ 0 ขึ้นไป ไม่ต้องใส่จุลภาค'); el.value = r.budgetFinal ?? ''; return; }
+    r.budgetFinal = el.value==='' ? null : v;
+  }
   if (a==='manualOk'){ if (r.budgetFinal===undefined) r.budgetFinal = Number(p.budget); r.budgetConfirmed = el.checked; render(); return; }
   tally(); summary(); persist();
 });
@@ -983,7 +1295,7 @@ function normDim(s){
 }
 function parseTisRows(rows){
   const flat = r => r.map(c => String(c ?? '')).join(' ');
-  const out = { year:null, province:null, amphoe:null, tambon:null, villages:[], warnings:[] };
+  const out = { year:null, province:null, amphoe:null, tambon:null, villages:[], warnings:[], skipped:[] };
   for (const r of rows.slice(0,6)){
     const s = flat(r);
     const y = s.match(/ปีงบประมาณ\s*(\d{4})/); if (y) out.year = +y[1];
@@ -1000,7 +1312,11 @@ function parseTisRows(rows){
     if (flat(r).includes('ประเด็นการพัฒนา')) break;
     const moo = parseInt(r[cMoo], 10);
     const ranks = cRank.map(c => c >= 0 ? normDim(r[c]) : '');
-    if (!moo || !ranks[0]) continue;
+    if (!moo || !ranks[0]){
+      // แถวที่มีข้อมูลแต่อ่านไม่ได้ เก็บเหตุผลไว้แจ้งผู้ใช้ (แถวว่างข้ามเงียบ ๆ)
+      if (flat(r).trim()) out.skipped.push({ row: i + 1, reason: !moo ? 'ไม่มีเลขหมู่ในคอลัมน์ “หมู่ที่”' : 'ไม่มีการจัดอันดับที่ 1' });
+      continue;
+    }
     const name = String(cName >= 0 ? r[cName] : '').replace(/^บ้าน\s+/, 'บ้าน').trim();
     const bad = ranks.filter(d => !TIS_DIMS.includes(d));
     if (bad.length || new Set(ranks).size !== 5) out.warnings.push(`หมู่ ${moo} จัดอันดับไม่ครบ 5 ด้าน หรือมีชื่อด้านที่ไม่รู้จัก`);
@@ -1074,11 +1390,15 @@ function renderCurrent(){
   const t = cur.tis, S = cur.tisStats, m = state.ai?.meta;
   // facts
   if (t){
-    const out = [['ok', `ตำบล${esc(t.tambon||'?')} อำเภอ${esc(t.amphoe||'?')} ข้อมูล ${t.villages.length} หมู่บ้าน${cur.tisIsSample?' (ตัวอย่างจริงจากป่าแดด)':''}`]];
+    const out = [[t.villages.length ? 'ok' : 'bad', `นำเข้าสำเร็จ ${t.villages.length} หมู่บ้าน · ตำบล${esc(t.tambon||'?')} อำเภอ${esc(t.amphoe||'?')}${cur.tisIsSample?' (ตัวอย่างจริงจากป่าแดด)':''}`]];
+    out.push(['info', `แหล่งข้อมูล: รายงานผลการวิเคราะห์ TIS${t.year ? ' ปีงบประมาณ ' + esc(t.year) : ' (ไม่พบปีในไฟล์)'} · ไฟล์ ${esc(cur.tisFile || '–')}`]);
+    if ((t.skipped || []).length) out.push(['warn', `ข้ามไป ${t.skipped.length} แถวที่อ่านไม่ได้: ` + t.skipped.slice(0, 5).map(s => `แถว ${s.row} (${esc(s.reason)})`).join(', ') + (t.skipped.length > 5 ? ` และอีก ${t.skipped.length - 5} แถว` : '') + ' ตรวจในไฟล์ Excel ว่าแถวเหล่านี้ควรเป็นข้อมูลหมู่บ้านหรือไม่']);
     if (t.year) out.push([t.year < 2570 ? 'warn' : 'ok', `ข้อมูล TIS ปีงบประมาณ ${t.year}${t.year < 2570 ? ' ตรวจว่า TIS มีข้อมูลรอบใหม่หรือยัง ถ้ายังไม่มี ให้ระบุปีของข้อมูลในเล่มแผนให้ชัด' : ''}`]);
     if (m?.tambon && t.tambon && m.tambon !== t.tambon) out.push(['bad', `ตำบลไม่ตรงกัน แผนเดิมเป็นตำบล${esc(m.tambon)} แต่รายงาน TIS เป็นตำบล${esc(t.tambon)}`]);
     (t.warnings||[]).forEach(w => out.push(['warn', esc(w)]));
     facts($('#tisFacts'), out);
+    // ตารางให้ตรวจข้อมูลที่นำเข้าทีละหมู่บ้าน
+    $('#tisFacts').insertAdjacentHTML('beforeend', `<li class="info"><details><summary style="cursor:pointer;font-weight:600">ตรวจข้อมูลที่นำเข้าทีละหมู่บ้าน (${t.villages.length} หมู่)</summary><div class="scroll"><table class="mini" style="margin-top:6px"><thead><tr><th>หมู่</th><th>หมู่บ้าน</th><th>อันดับ 1</th><th>อันดับ 2</th><th>อันดับ 3</th></tr></thead><tbody>${t.villages.map(v => `<tr><td>${esc(v.moo)}</td><td>${esc(v.name)}</td>${v.ranks.slice(0, 3).map(r => `<td>${esc(short(r))}</td>`).join('')}</tr>`).join('')}</tbody></table></div></details></li>`);
   }
   // heat
   if (S){
@@ -1323,9 +1643,9 @@ $('#copyP1').addEventListener('click', async () => {
 });
 $('#check1').addEventListener('click', () => {
   ana.answerText = $('#ans1Box').value;
-  try{ ana.answer = parseAI(ana.answerText); }
-  catch(e){ ana.answer = null; facts($('#ans1Facts'), [['bad','อ่านคำตอบไม่ได้ ต้องเป็น JSON ทั้งก้อน ตรวจว่าคัดลอกมาครบ']]); anaPersist(); return; }
-  anaPersist(); renderAnalysis();
+  try{ if (looksLikePrompt(ana.answerText)) throw new Error('prompt'); ana.answer = parseAI(ana.answerText); }
+  catch(e){ ana.answer = null; setRaw('ans1Raw', false); facts($('#ans1Facts'), [['bad', esc(aiErrorMsg(ana.answerText))]]); anaPersist(); return; }
+  setRaw('ans1Raw', true); anaPersist(); renderAnalysis();
 });
 function renderResult1(ev){
   const box = $('#result1');
@@ -1432,12 +1752,21 @@ function checkPlan(items, ctx){
     const f = [];
     if (!String(it.name||'').trim()) f.push(['bad','ยังไม่มีชื่อโครงการ']);
     if (it.budget === null || it.budget === undefined || it.budget === '') f.push(['warn','ยังไม่กำหนดงบประมาณ']);
+    else if (!(Number.isFinite(Number(it.budget)) && Number(it.budget) >= 0)) f.push(['bad','งบประมาณไม่ถูกต้อง ต้องเป็นตัวเลขตั้งแต่ 0 ขึ้นไป']);
+    else if (!Number.isInteger(Number(it.budget))) f.push(['warn','งบประมาณมีทศนิยม ตรวจว่าพิมพ์ถูกหรือไม่ (ใช้จำนวนเต็มบาท)']);
     if (!it.dim) f.push(['warn','ยังไม่ระบุด้าน']);
     if (!it.method) f.push(['warn','ยังไม่ระบุวิธีดำเนินการ']);
     if (strategies.length && !it.strategy) f.push(['warn','ยังไม่ระบุยุทธศาสตร์ที่รองรับ']);
     if (/เบี้ยยังชีพ/.test(it.name||'')) f.push(['info','สวัสดิการตามกฎหมายที่ อปท. จ่ายอยู่แล้ว ควรตกลงแนวปฏิบัติว่าจะนับรวมในแผนหรือไม่']);
     out.perItem[it.uid] = f;
   });
+  // ชื่อโครงการเกือบซ้ำกัน (ใช้ sim() จากขั้น ⓪ ถ้ามี)
+  if (typeof sim === 'function') for (let i = 0; i < items.length; i++) for (let j = i + 1; j < items.length; j++){
+    if (sim(items[i].name || '', items[j].name || '') >= .85){
+      out.perItem[items[i].uid].push(['warn', `ชื่อคล้ายกับ “${items[j].name}” อาจเป็นโครงการซ้ำ`]);
+      out.perItem[items[j].uid].push(['warn', `ชื่อคล้ายกับ “${items[i].name}” อาจเป็นโครงการซ้ำ`]);
+    }
+  }
   const n = items.length;
   if (!n){ out.warn.push('ยังไม่มีโครงการในแผนใหม่'); return out; }
   strategies.forEach(s => { if (!items.some(it => String(it.strategy) === String(s.no))) out.warn.push(`ยุทธศาสตร์ ${s.no} “${s.name}” ยังไม่มีโครงการรองรับ`); });
@@ -1482,6 +1811,19 @@ function itemRef(uid){
   return prj.extra.find(x => x.uid === uid);
 }
 function part2Ctx(){ return { part2: ana.answer || {}, taxonomy: TAXONOMY }; }
+// ตัวค้นหา/กรองของรายการโครงการแผนใหม่ (อยู่ในหน้าจอเท่านั้น ไม่บันทึก)
+const pf = { q:'', strat:'', budget:'', show:'' };
+function pfMatch(it, fl){
+  if (pf.q && !normQ(it.name).includes(normQ(pf.q))) return false;
+  if (pf.strat && String(it.strategy) !== pf.strat) return false;
+  const b = it.budget === null || it.budget === undefined || it.budget === '' ? null : Number(it.budget);
+  if (pf.budget === 'none' && b !== null) return false;
+  if (pf.budget === 'lt100k' && !(b !== null && b < 100000)) return false;
+  if (pf.budget === '100k-1m' && !(b !== null && b >= 100000 && b <= 1000000)) return false;
+  if (pf.budget === 'gt1m' && !(b !== null && b > 1000000)) return false;
+  if (pf.show === 'issue' && !fl.some(x => x[0] === 'bad' || x[0] === 'warn')) return false;
+  return true;
+}
 function renderProjects(){
   const olds = carriedOld();
   const all = state.ai?.part3?.projects || [];
@@ -1504,13 +1846,20 @@ function renderProjects(){
   // list
   const chk = checkPlan(items, part2Ctx());
   const strategies = ana.answer?.strategies || [];
+  const ssel = $('#pfStrat'); ssel.innerHTML = '<option value="">ทุกยุทธศาสตร์</option>' + strategies.map(s => `<option value="${esc(s.no)}">${esc(s.no + '. ' + s.name)}</option>`).join(''); ssel.value = strategies.some(s => String(s.no) === pf.strat) ? pf.strat : '';
+  if (!strategies.some(s => String(s.no) === pf.strat)) pf.strat = '';
+  const filtering = !!(pf.q || pf.strat || pf.budget || pf.show);
+  const shown = items.filter(it => pfMatch(it, chk.perItem[it.uid] || []));
+  const sumB = items.reduce((a, it) => a + (Number(it.budget) || 0), 0), noB = items.filter(it => it.budget === null || it.budget === undefined || it.budget === '').length;
+  const nWarn = items.filter(it => (chk.perItem[it.uid] || []).some(x => x[0] === 'warn') && !(chk.perItem[it.uid] || []).some(x => x[0] === 'bad')).length, nBad = items.filter(it => (chk.perItem[it.uid] || []).some(x => x[0] === 'bad')).length;
+  $('#pjSum').innerHTML = items.length ? `<span><b>${items.length}</b> โครงการ</span><span>งบรวม <b>${fmt(sumB)}</b> บาท</span>${noB ? `<span class="warnc">ยังไม่กำหนดงบ ${noB}</span>` : ''}${nWarn ? `<span class="warnc">ยังไม่ครบ ${nWarn}</span>` : ''}${nBad ? `<span class="badc">ต้องแก้ ${nBad}</span>` : ''}${filtering ? `<span>แสดง ${shown.length} จาก ${items.length} · ปิดปุ่มเลื่อนลำดับ ▲▼ ระหว่างค้นหา/กรอง</span>` : ''}` : '';
   const sel = (f, val, opts) => `<select data-f="${f}"><option value="">เลือก…</option>${opts.map(o => `<option value="${esc(o[0])}" ${String(val)===String(o[0])?'selected':''}>${esc(o[1])}</option>`).join('')}</select>`;
-  $('#pjList').innerHTML = items.length ? items.map(it => {
+  $('#pjList').innerHTML = !items.length ? '' : !shown.length ? '<div class="empty">ไม่มีโครงการที่ตรงกับการค้นหาหรือตัวกรองนี้</div>' : shown.map(it => {
     const fl = chk.perItem[it.uid] || [];
     const cls = fl.some(x => x[0]==='bad') ? 'bad' : fl.some(x => x[0]==='warn') ? 'warn' : '';
     const srcTxt = it.source === 'old' ? 'แผนเดิม: ' + it.note : it.source === 'ai' ? 'AI เสนอ เวทีเลือก' : 'เพิ่มเอง';
     return `<div class="pj ${cls}" data-uid="${esc(it.uid)}">
-      <div class="pj-top"><button class="btn ghost small" data-act="up" type="button" aria-label="เลื่อนขึ้น">▲</button><button class="btn ghost small" data-act="down" type="button" aria-label="เลื่อนลง">▼</button><input data-f="name" value="${esc(it.name)}" aria-label="ชื่อโครงการ"><span class="src">${esc(srcTxt)}</span>${it.source !== 'old' ? '<button class="btn ghost small" data-act="remove" type="button">เอาออก</button>' : ''}</div>
+      <div class="pj-top"><button class="btn ghost small" data-act="up" type="button" aria-label="เลื่อนลำดับขึ้น"${filtering ? ' disabled' : ''}>▲</button><button class="btn ghost small" data-act="down" type="button" aria-label="เลื่อนลำดับลง"${filtering ? ' disabled' : ''}>▼</button><input data-f="name" value="${esc(it.name)}" aria-label="ชื่อโครงการ"><span class="src">${esc(srcTxt)}</span>${it.source !== 'old' ? '<button class="btn ghost small" data-act="remove" type="button">เอาออก</button>' : ''}</div>
       <div class="pj-grid">
         <label>งบประมาณ (บาท)<input type="number" min="0" data-f="budget" value="${esc(it.budget ?? '')}"></label>
         <label>เป้าหมาย<input data-f="target" value="${esc(it.target||'')}"></label>
@@ -1520,11 +1869,12 @@ function renderProjects(){
         <label>ยุทธศาสตร์ที่รองรับ (2.5)${sel('strategy', it.strategy, strategies.map(s => [s.no, s.no + '. ' + s.name]))}</label>
       </div>
       ${fl.map(x => `<div class="flagline ${x[0]==='info'?'':x[0]}">${esc(x[1])}</div>`).join('')}
-    </div>`; }).join('') : '<div class="empty">ยังไม่มีโครงการ ติ๊กสถานะในขั้น ⓪ หรือเลือกโครงการที่ AI เสนอ หรือกรอกในช่องเพิ่มโครงการใหม่ด้านบน</div>';
-  const pf = [];
-  chk.bad.forEach(x => pf.push(['bad', esc(x)])); chk.warn.forEach(x => pf.push(['warn', esc(x)])); chk.info.forEach(x => pf.push(['info', esc(x)]));
-  if (items.length && !pf.length) pf.push(['ok','ข้อมูลโครงการครบตามแบบฟอร์มและแนวทาง']);
-  facts($('#planFacts'), pf);
+    </div>`; }).join('');
+  if (!items.length) $('#pjList').innerHTML = '<div class="empty">ยังไม่มีโครงการ ติ๊กสถานะในขั้น ⓪ หรือเลือกโครงการที่ AI เสนอ หรือกรอกในช่องเพิ่มโครงการใหม่ด้านบน</div>';
+  const pfacts = [];
+  chk.bad.forEach(x => pfacts.push(['bad', esc(x)])); chk.warn.forEach(x => pfacts.push(['warn', esc(x)])); chk.info.forEach(x => pfacts.push(['info', esc(x)]));
+  if (items.length && !pfacts.length) pfacts.push(['ok','ข้อมูลโครงการครบตามแบบฟอร์มและแนวทาง']);
+  facts($('#planFacts'), pfacts);
   $('#dimSum').innerHTML = items.length ? FORM_DIMS.map(d => { const arr = items.filter(i => i.dim === d); return `<div><b>${arr.length}</b><span>ด้าน${d} ${fmt(arr.reduce((s,i) => s + (Number(i.budget)||0), 0))} บาท</span></div>`; }).join('') : '';
   const ord = priorityOrder(items);
   $('#p31').innerHTML = items.length ? '<thead><tr><th>ที่</th><th>ชื่อโครงการ</th><th>งบประมาณ</th><th>เป้าหมาย</th><th>ด้าน</th><th>วิธีดำเนินการ</th></tr></thead><tbody>' +
@@ -1538,7 +1888,8 @@ $('#copyP2').addEventListener('click', async () => {
 });
 $('#check2').addEventListener('click', () => {
   prj.ans2Text = $('#ans2Box').value;
-  let ans; try{ ans = parseAI(prj.ans2Text); }catch(e){ facts($('#ans2Facts'), [['bad','อ่านคำตอบไม่ได้ ต้องเป็น JSON ทั้งก้อน ตรวจว่าคัดลอกมาครบ']]); return; }
+  let ans; try{ if (looksLikePrompt(prj.ans2Text)) throw new Error('prompt'); ans = parseAI(prj.ans2Text); }catch(e){ setRaw('ans2Raw', false); facts($('#ans2Facts'), [['bad', esc(aiErrorMsg(prj.ans2Text))]]); return; }
+  setRaw('ans2Raw', true);
   const v = validateAnswer2(ans, part2Ctx());
   const keep = prj.extra.filter(x => x.source !== 'ai' || x.accepted);
   const fresh = v.projects.map(p => ({ uid:'ai:'+(prj.seq++), source:'ai', accepted:false, name:p.name||'', budget:null, target:p.target||'', period:'', dim: FORM_DIMS.includes(p.form_dimension) ? p.form_dimension : '', method: METHODS.includes(p.method) ? p.method : '',
@@ -1569,6 +1920,7 @@ $('#pjList').addEventListener('change', e => {
   const el = e.target, card = el.closest('.pj'); if (!card || !el.dataset.f) return;
   const ref = itemRef(card.dataset.uid); if (!ref) return;
   const f = el.dataset.f;
+  if (f === 'budget' && el.value !== '' && !(Number.isFinite(Number(el.value)) && Number(el.value) >= 0)){ toast('งบประมาณต้องเป็นตัวเลขตั้งแต่ 0 ขึ้นไป ไม่ต้องใส่จุลภาค'); el.value = ref.budget ?? ''; return; }
   ref[f] = (f === 'budget' || f === 'votes') ? (el.value === '' ? null : Number(el.value)) : (f === 'cr' ? el.value.trim().toUpperCase() : el.value);
   if (f === 'budget' && card.dataset.uid.startsWith('old:')){ /* แก้งบของโครงการเดิมในแผนใหม่ได้ ไม่กระทบผลทบทวน */ }
   prjPersist(); renderProjects();
@@ -1588,6 +1940,9 @@ $('#pjList').addEventListener('click', e => {
   const n = document.querySelector(`#pjList .pj[data-uid="${CSS.escape(uid)}"] button[data-act=${b.dataset.act}]`); if (n) n.focus();
 });
 
+
+$('#pfQ').addEventListener('input', e => { pf.q = e.target.value; clearTimeout(renderProjects._t); renderProjects._t = setTimeout(renderProjects, 150); });
+[['#pfStrat','strat'],['#pfBudget','budget'],['#pfShow','show']].forEach(([s, k]) => $(s).addEventListener('change', e => { pf[k] = e.target.value; renderProjects(); }));
 // step4-docx.js — ④ สร้างรูปเล่ม .docx ด้วยไลบรารี docx (ไม่แตะ DOM)
 // ---- step 4: book builder (docx) ----
 function buildBook(D, X){
@@ -2078,6 +2433,9 @@ function wsRefreshUI(){
     $('#a3').classList.toggle('done', !!ana.answer); $('#a4').classList.toggle('done', !!ana.answer);
     // ③
     $('#ans2Box').value = prj.ans2Text || ''; facts($('#ans2Facts'), []);
+    setRaw('aiRaw', !!state.ai); setRaw('ans1Raw', !!ana.answer); setRaw('ans2Raw', !!prj.ans2Text);
+    Object.assign(lf, { q:'', st:'', dim:'', sort:'no' }); Object.assign(pf, { q:'', strat:'', budget:'', show:'' });
+    ['#lfQ','#lfSt','#lfSort','#pfQ','#pfStrat','#pfBudget','#pfShow'].forEach(s => { const el = $(s); if (el) el.value = s === '#lfSort' ? 'no' : ''; });
     $('#p1').classList.remove('done'); $('#p2').classList.toggle('done', !!prj.ans2Text);
     wsRenderBar();
     showView();
@@ -2283,7 +2641,7 @@ $('#wsBackup').addEventListener('click', backupFile);
 // มีการพิมพ์ที่ยังไม่ถูกบันทึก: ฟังแบบ capture จึงทำงานก่อนตัวบันทึกของช่องนั้น ถ้าช่องนั้นบันทึกทันที สถานะจะกลับเป็น “บันทึกแล้ว”
 document.addEventListener('input', e => {
   const el = e.target;
-  if (!el.matches('input, textarea, select') || el.type === 'file' || el.id === 'wsSel' || el.readOnly) return;
+  if (!el.matches('input, textarea, select') || el.type === 'file' || el.id === 'wsSel' || el.readOnly || el.closest('[data-nosave]')) return;
   setSaveState('dirty');
 }, true);
 window.addEventListener('beforeunload', e => { if (saveState === 'dirty' || saveState === 'error'){ e.preventDefault(); e.returnValue = ''; } });

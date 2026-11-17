@@ -7,7 +7,7 @@ $('#wsBackup').addEventListener('click', backupFile);
 // มีการพิมพ์ที่ยังไม่ถูกบันทึก: ฟังแบบ capture จึงทำงานก่อนตัวบันทึกของช่องนั้น ถ้าช่องนั้นบันทึกทันที สถานะจะกลับเป็น “บันทึกแล้ว”
 document.addEventListener('input', e => {
   const el = e.target;
-  if (!el.matches('input, textarea, select') || el.type === 'file' || el.id === 'wsSel' || el.readOnly) return;
+  if (!el.matches('input, textarea, select') || el.type === 'file' || el.id === 'wsSel' || el.readOnly || el.closest('[data-nosave]')) return;
   setSaveState('dirty');
 }, true);
 window.addEventListener('beforeunload', e => { if (saveState === 'dirty' || saveState === 'error'){ e.preventDefault(); e.returnValue = ''; } });

@@ -49,11 +49,12 @@ function parseAI(text){
 }
 function ingest(){
   let ai;
-  try{ ai = parseAI($('#aiBox').value); }
-  catch(e){ facts($('#aiFacts'), [['bad','อ่านคำตอบไม่ได้ ต้องเป็น JSON ทั้งก้อน ตรวจว่าคัดลอกมาครบตั้งแต่ { ตัวแรกถึง } ตัวสุดท้าย']]); return; }
-  if (!ai?.part3?.projects?.length){ facts($('#aiFacts'), [['bad','ในคำตอบไม่มีรายการโครงการ (part3.projects) ให้ส่งคำสั่งให้ AI ใหม่อีกครั้ง']]); return; }
+  try{ if (looksLikePrompt($('#aiBox').value)) throw new Error('prompt'); ai = parseAI($('#aiBox').value); }
+  catch(e){ setRaw('aiRaw', false); facts($('#aiFacts'), [['bad', esc(aiErrorMsg($('#aiBox').value))]]); return; }
+  if (!ai?.part3?.projects?.length){ setRaw('aiRaw', false); facts($('#aiFacts'), [['bad','อ่านคำตอบได้ แต่ไม่มีรายการโครงการ (part3.projects) ตรวจว่าแนบไฟล์ PDF แผนเดิมใน Gemini แล้ว แล้วถามใหม่อีกครั้ง']]); return; }
   ai.part3.projects.forEach((p,i) => { if(!p.id) p.id = 'P'+String(i+1).padStart(2,'0'); if(!p.priority_no) p.priority_no = i+1; });
   if (!wsAdoptAi(ai)) return;
+  setRaw('aiRaw', true);
   $('#s2').classList.add('done');
   runChecks();
 }
@@ -132,7 +133,7 @@ function statusHTML(p){
   const r = rv(p.id);
   const opts = ['<option value="">ระบุสถานะ…</option>'].concat(Object.entries(STATUS).map(([k,v]) => `<option value="${k}" ${r.status===k?'selected':''}>${v}</option>`)).join('');
   const rs = ['<option value="">เพราะอะไร…</option>'].concat(REASONS.map(x => `<option ${r.reason===x?'selected':''}>${x}</option>`)).join('');
-  return `<select data-act="status" aria-label="สถานะโครงการ">${opts}</select>
+  return `<div class="cell-lbl">สถานะการดำเนินงาน</div><select data-act="status" aria-label="สถานะการดำเนินงานของโครงการ">${opts}</select>
     <div class="sub" ${r.status==='not_done'?'':'hidden'}>
       <select data-act="reason" aria-label="เหตุผลที่ยังไม่ได้ทำ">${rs}</select>
       <select data-act="decision" aria-label="การตัดสินใจ">
@@ -142,24 +143,60 @@ function statusHTML(p){
       </select>
     </div>`;
 }
+// ตัวค้นหา/กรอง/เรียงของรายการโครงการ (อยู่ในหน้าจอเท่านั้น ไม่บันทึก)
+const lf = { q:'', st:'', dim:'', sort:'no' };
+const normQ = s => String(s || '').replace(/\s+/g, '').toLowerCase();
+// โครงการที่ชื่อเกือบซ้ำกัน (ความเหมือน ≥ 0.9) → { id: [ลำดับที่ซ้ำ] }
+function dupMap(ps){
+  const m = {};
+  for (let i = 0; i < ps.length; i++) for (let j = i + 1; j < ps.length; j++){
+    const a = ps[i], b = ps[j];
+    if (sim(rv(a.id).name ?? a.name, rv(b.id).name ?? b.name) >= .9){ (m[a.id] = m[a.id] || []).push(b.priority_no); (m[b.id] = m[b.id] || []).push(a.priority_no); }
+  }
+  return m;
+}
 function render(){
   const ai = state.ai, list = $('#list');
-  if (!ai){ list.innerHTML = '<div class="empty">วางคำตอบจาก AI ในข้อ ข แล้วรายการโครงการจะขึ้นที่นี่</div>'; tally(); summary(); return; }
-  const ps = ai.part3.projects.filter(p => state.filter==='all' || (state.filter==='check' && needsCheck(p)) || (state.filter==='nostatus' && !rv(p.id).status));
-  if (!ps.length){ list.innerHTML = '<div class="empty">ไม่มีรายการในตัวกรองนี้</div>'; }
+  if (!ai){ list.innerHTML = '<div class="empty">วางคำตอบจาก AI ในข้อ ข แล้วรายการโครงการจะขึ้นที่นี่</div>'; $('#lfCount').textContent = ''; tally(); summary(); return; }
+  const all = ai.part3.projects;
+  // ตัวเลือก “ด้าน” มาจากข้อมูลจริงในแผน
+  const dims = [...new Set(all.map(p => p.form_dimension || 'ไม่ระบุด้าน'))];
+  const dsel = $('#lfDim'), keepDim = lf.dim;
+  dsel.innerHTML = '<option value="">ทุกด้าน</option>' + dims.map(d => `<option value="${esc(d)}">${esc(d)}</option>`).join(''); dsel.value = dims.includes(keepDim) ? keepDim : '';
+  const dups = dupMap(all), q = normQ(lf.q);
+  let ps = all.filter(p => state.filter==='all' || (state.filter==='check' && needsCheck(p)) || (state.filter==='nostatus' && !rv(p.id).status));
+  if (q) ps = ps.filter(p => normQ(rv(p.id).name ?? p.name).includes(q));
+  if (lf.st) ps = ps.filter(p => lf.st === 'none' ? !rv(p.id).status : rv(p.id).status === lf.st);
+  if (lf.dim) ps = ps.filter(p => (p.form_dimension || 'ไม่ระบุด้าน') === lf.dim);
+  const bud = p => finalBudget(p) ?? Number(p.budget) ?? 0;
+  if (lf.sort === 'budget_desc') ps = ps.slice().sort((a, b) => bud(b) - bud(a));
+  if (lf.sort === 'budget_asc') ps = ps.slice().sort((a, b) => bud(a) - bud(b));
+  if (lf.sort === 'name') ps = ps.slice().sort((a, b) => String(rv(a.id).name ?? a.name).localeCompare(String(rv(b.id).name ?? b.name), 'th'));
+  $('#lfCount').textContent = ps.length === all.length ? `แสดงทั้งหมด ${all.length} โครงการ` : `แสดง ${ps.length} จาก ${all.length} โครงการ`;
+  if (!ps.length){ list.innerHTML = '<div class="empty">ไม่มีโครงการที่ตรงกับการค้นหาหรือตัวกรองนี้</div>'; }
   else list.innerHTML = ps.map(p => {
-    const k = budgetCheck(p).kind, r = rv(p.id);
+    const k = budgetCheck(p).kind, r = rv(p.id), c = budgetCheck(p);
     const cls = (k==='mismatch' && !r.budgetConfirmed) ? 'flag-bad' : (k!=='match' && !r.budgetConfirmed ? 'flag-warn' : '');
     return `<article class="item ${cls}" data-id="${esc(p.id)}">
       <div class="no">${esc(p.priority_no)}</div>
-      <div class="name"><input value="${esc(r.name ?? p.name)}" data-act="name" aria-label="ชื่อโครงการ ลำดับ ${esc(p.priority_no)}">
-        <div class="meta"><span class="tag">${esc(p.form_dimension||'ไม่ระบุด้าน')}</span><span class="tag">${esc(p.method||'ไม่ระบุวิธี')}</span>เป้าหมาย ${esc(p.target||'–')}</div></div>
-      <div class="money">${moneyHTML(p)}</div>
+      <div class="name"><input value="${esc(r.name ?? p.name)}" data-act="name" aria-label="ชื่อโครงการ ลำดับ ${esc(p.priority_no)} (แก้ไขได้)">
+        <div class="meta"><span class="tag">${esc(p.form_dimension||'ไม่ระบุด้าน')}</span><span class="tag">${esc(p.method||'ไม่ระบุวิธี')}</span>${dups[p.id] ? `<span class="tag dup">อาจซ้ำกับลำดับ ${dups[p.id].join(', ')}</span>` : ''}เป้าหมาย ${esc(p.target||'–')}</div>
+        <details class="more"><summary>รายละเอียด</summary><dl>
+          <dt>รหัส</dt><dd>${esc(p.id)}</dd>
+          <dt>ชื่อตามที่ AI อ่าน</dt><dd>${esc(p.name)}${r.name && r.name !== p.name ? ' (แก้ชื่อแล้ว)' : ''}</dd>
+          <dt>หน้าในเล่ม</dt><dd>${esc(p.source_page_printed ?? '–')}</dd>
+          <dt>งบที่ AI อ่าน</dt><dd>${fmt(p.budget)} บาท</dd>
+          <dt>งบในไฟล์ PDF</dt><dd>${c.pdf !== undefined ? fmt(c.pdf) + ' บาท' : 'ยังไม่ได้เทียบ'}</dd>
+          <dt>งบที่ใช้ (ยืนยันแล้ว)</dt><dd>${finalBudget(p) !== null ? fmt(finalBudget(p)) + ' บาท' : 'ยังไม่ยืนยัน'}</dd>
+        </dl></details></div>
+      <div class="money"><div class="cell-lbl">งบประมาณ</div>${moneyHTML(p)}</div>
       <div class="status">${statusHTML(p)}</div>
     </article>`;
   }).join('');
   tally(); summary(); persist();
 }
+$('#lfQ').addEventListener('input', e => { lf.q = e.target.value; clearTimeout(render._t); render._t = setTimeout(render, 150); });
+[['#lfSt','st'],['#lfDim','dim'],['#lfSort','sort']].forEach(([s, k]) => $(s).addEventListener('change', e => { lf[k] = e.target.value; render(); }));
 $('#list').addEventListener('click', e => {
   const b = e.target.closest('button[data-act]'); if (!b) return;
   const art = b.closest('.item'); const p = state.ai.part3.projects.find(x => x.id===art.dataset.id); const r = rv(p.id);
@@ -177,7 +214,11 @@ $('#list').addEventListener('change', e => {
   if (a==='reason') r.reason = el.value || undefined;
   if (a==='decision') r.decision = el.value || undefined;
   if (a==='name') r.name = el.value.trim() || undefined;
-  if (a==='manual') r.budgetFinal = el.value==='' ? null : Number(el.value);
+  if (a==='manual'){
+    const v = Number(el.value);
+    if (el.value !== '' && !(Number.isFinite(v) && v >= 0)){ toast('งบประมาณต้องเป็นตัวเลขตั้งแต่ 0 ขึ้นไป ไม่ต้องใส่จุลภาค'); el.value = r.budgetFinal ?? ''; return; }
+    r.budgetFinal = el.value==='' ? null : v;
+  }
   if (a==='manualOk'){ if (r.budgetFinal===undefined) r.budgetFinal = Number(p.budget); r.budgetConfirmed = el.checked; render(); return; }
   tally(); summary(); persist();
 });

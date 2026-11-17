@@ -103,6 +103,9 @@ function wsRefreshUI(){
     $('#a3').classList.toggle('done', !!ana.answer); $('#a4').classList.toggle('done', !!ana.answer);
     // ③
     $('#ans2Box').value = prj.ans2Text || ''; facts($('#ans2Facts'), []);
+    setRaw('aiRaw', !!state.ai); setRaw('ans1Raw', !!ana.answer); setRaw('ans2Raw', !!prj.ans2Text);
+    Object.assign(lf, { q:'', st:'', dim:'', sort:'no' }); Object.assign(pf, { q:'', strat:'', budget:'', show:'' });
+    ['#lfQ','#lfSt','#lfSort','#pfQ','#pfStrat','#pfBudget','#pfShow'].forEach(s => { const el = $(s); if (el) el.value = s === '#lfSort' ? 'no' : ''; });
     $('#p1').classList.remove('done'); $('#p2').classList.toggle('done', !!prj.ans2Text);
     wsRenderBar();
     showView();

@@ -70,12 +70,21 @@ function checkPlan(items, ctx){
     const f = [];
     if (!String(it.name||'').trim()) f.push(['bad','ยังไม่มีชื่อโครงการ']);
     if (it.budget === null || it.budget === undefined || it.budget === '') f.push(['warn','ยังไม่กำหนดงบประมาณ']);
+    else if (!(Number.isFinite(Number(it.budget)) && Number(it.budget) >= 0)) f.push(['bad','งบประมาณไม่ถูกต้อง ต้องเป็นตัวเลขตั้งแต่ 0 ขึ้นไป']);
+    else if (!Number.isInteger(Number(it.budget))) f.push(['warn','งบประมาณมีทศนิยม ตรวจว่าพิมพ์ถูกหรือไม่ (ใช้จำนวนเต็มบาท)']);
     if (!it.dim) f.push(['warn','ยังไม่ระบุด้าน']);
     if (!it.method) f.push(['warn','ยังไม่ระบุวิธีดำเนินการ']);
     if (strategies.length && !it.strategy) f.push(['warn','ยังไม่ระบุยุทธศาสตร์ที่รองรับ']);
     if (/เบี้ยยังชีพ/.test(it.name||'')) f.push(['info','สวัสดิการตามกฎหมายที่ อปท. จ่ายอยู่แล้ว ควรตกลงแนวปฏิบัติว่าจะนับรวมในแผนหรือไม่']);
     out.perItem[it.uid] = f;
   });
+  // ชื่อโครงการเกือบซ้ำกัน (ใช้ sim() จากขั้น ⓪ ถ้ามี)
+  if (typeof sim === 'function') for (let i = 0; i < items.length; i++) for (let j = i + 1; j < items.length; j++){
+    if (sim(items[i].name || '', items[j].name || '') >= .85){
+      out.perItem[items[i].uid].push(['warn', `ชื่อคล้ายกับ “${items[j].name}” อาจเป็นโครงการซ้ำ`]);
+      out.perItem[items[j].uid].push(['warn', `ชื่อคล้ายกับ “${items[i].name}” อาจเป็นโครงการซ้ำ`]);
+    }
+  }
   const n = items.length;
   if (!n){ out.warn.push('ยังไม่มีโครงการในแผนใหม่'); return out; }
   strategies.forEach(s => { if (!items.some(it => String(it.strategy) === String(s.no))) out.warn.push(`ยุทธศาสตร์ ${s.no} “${s.name}” ยังไม่มีโครงการรองรับ`); });

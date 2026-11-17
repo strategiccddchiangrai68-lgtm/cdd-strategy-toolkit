@@ -250,6 +250,69 @@ const file = p => { const b = fs.readFileSync(p); return { name: path.basename(p
     console.log('✓ หน้าภาพรวม สถานะรายขั้น ปุ่มถัดไป ตัวบอกการบันทึก สำรองไฟล์');
   }
 
+  // ===== รอบ UX 2: ขั้นตอน AI, ค้นหา/กรอง/เรียง, รายการซ้ำ, ตรวจงบ, ผลนำเข้า Excel =====
+  {
+    const h = boot(); await wait(100); const hd = h.document;
+    const ev2 = (el, type = 'change') => el.dispatchEvent(new h.Event(type, { bubbles: true }));
+    // ข้อความผิดพลาดของคำตอบ AI ต้องบอกสาเหตุและวิธีแก้
+    hd.querySelector('#aiBox').value = h.eval('PROMPT'); hd.querySelector('#checkBtn').click();
+    assert.ok(/เป็น “คำสั่ง”/.test(hd.querySelector('#aiFacts').textContent), 'ai: วางคำสั่งแทนคำตอบต้องบอกให้รู้');
+    hd.querySelector('#aiBox').value = '{"meta":{"tambon":"x"'; hd.querySelector('#checkBtn').click();
+    assert.ok(/ถูกตัดกลาง/.test(hd.querySelector('#aiFacts').textContent), 'ai: คำตอบไม่ครบต้องบอกว่าถูกตัด');
+    assert.ok(hd.querySelector('#aiRaw').open, 'ai: ยังไม่มีคำตอบที่ใช้ได้ ช่องวางต้องเปิดอยู่');
+    hd.querySelector('#loadSample').click(); await wait(20);
+    assert.ok(!hd.querySelector('#aiRaw').open && /รับคำตอบแล้ว/.test(hd.querySelector('#aiRaw summary').textContent), 'ai: ได้คำตอบแล้วต้องพับ JSON เก็บ');
+    assert.strictEqual(hd.querySelectorAll('.aisteps').length, 3, 'ai: ขั้น ⓪ ② ③ ต้องมีขั้นตอน AI 4 ข้อ');
+    assert.ok(hd.querySelectorAll('.aisteps')[0].querySelectorAll(':scope > li').length === 4 && hd.querySelector('#s2 details.example pre'), 'ai: ต้องมี 4 ข้อและตัวอย่างคำตอบ');
+    // ⓪ ค้นหา กรอง เรียง รายการซ้ำ
+    const q = hd.querySelector('#lfQ'); q.value = 'วิ่ง'; ev2(q, 'input'); await wait(200);
+    assert.strictEqual(hd.querySelectorAll('#list .item').length, 2, 'list: ค้นหา “วิ่ง” ต้องเจอ 2 โครงการ');
+    assert.ok(/อาจซ้ำกับลำดับ 11/.test(hd.querySelector('#list').textContent), 'list: ต้องเตือนชื่อเกือบซ้ำ (วิ่งเทล/วิ่งเทรล)');
+    assert.ok(/แสดง 2 จาก 33/.test(hd.querySelector('#lfCount').textContent), 'list: ต้องบอกจำนวนที่แสดง');
+    assert.strictEqual(hd.querySelector('#saveState').dataset.s, 'saved', 'list: พิมพ์ค้นหาไม่ใช่การแก้ข้อมูล ต้องไม่ขึ้นว่ายังไม่บันทึก');
+    q.value = ''; ev2(q, 'input'); await wait(200);
+    const so = hd.querySelector('#lfSort'); so.value = 'budget_desc'; ev2(so);
+    assert.strictEqual(hd.querySelector('#list .item .no').textContent, '20', 'list: เรียงงบมากไปน้อย ลำดับแรกต้องเป็นเบี้ยยังชีพผู้สูงอายุ (ลำดับ 20)');
+    so.value = 'no'; ev2(so);
+    const s0 = hd.querySelector('.item select[data-act=status]'); s0.value = 'done'; ev2(s0);
+    const st = hd.querySelector('#lfSt'); st.value = 'done'; ev2(st);
+    assert.strictEqual(hd.querySelectorAll('#list .item').length, 1, 'list: กรองสถานะ “ทำแล้ว จบโครงการ” ต้องเหลือ 1');
+    st.value = 'none'; ev2(st);
+    assert.strictEqual(hd.querySelectorAll('#list .item').length, 32, 'list: กรอง “ยังไม่ระบุ” ต้องเหลือ 32');
+    st.value = ''; ev2(st);
+    assert.ok(hd.querySelector('.item .money .cell-lbl') && /สถานะการดำเนินงาน/.test(hd.querySelector('.item .status').textContent), 'list: แยกหัวข้องบประมาณกับสถานะการดำเนินงาน');
+    assert.ok(hd.querySelector('.item details.more dl'), 'list: ต้องดูรายละเอียดรายโครงการได้');
+    // งบที่กรอกเองต้องไม่ติดลบ
+    const s2 = hd.querySelectorAll('.item select[data-act=status]')[1]; s2.value = 'done_continue'; ev2(s2);
+    // ① ผลนำเข้า Excel
+    h.location.hash = '#current'; await wait(30);
+    await h.eval('readXls')(file(fx('tis_village_ranking_padaet_2569.xlsx')));
+    const tf = hd.querySelector('#tisFacts').textContent;
+    assert.ok(/นำเข้าสำเร็จ 22 หมู่บ้าน/.test(tf) && /ปีงบประมาณ 2569/.test(tf), 'excel: ต้องบอกจำนวนที่นำเข้าและปีของข้อมูล');
+    assert.strictEqual(hd.querySelectorAll('#tisFacts table tbody tr').length, 22, 'excel: ต้องมีตารางให้ตรวจทีละหมู่บ้าน');
+    const bad = h.eval('parseTisRows')([['ปีงบประมาณ 2570'], ['หมู่ที่', 'หมู่บ้าน', 'อันดับที่ 1', 'อันดับที่ 2', 'อันดับที่ 3', 'อันดับที่ 4', 'อันดับที่ 5'], ['', 'บ้านไม่มีเลขหมู่', 'ด้านเศรษฐกิจและอาชีพ', '', '', '', '']]);
+    assert.ok(bad.skipped.length === 1 && /ไม่มีเลขหมู่/.test(bad.skipped[0].reason), 'excel: แถวที่อ่านไม่ได้ต้องบอกเหตุผล');
+    // ③ ค้นหา กรอง สรุปงบ ตรวจงบ โครงการซ้ำ
+    h.location.hash = '#projects'; await wait(30);
+    hd.querySelector('#nName').value = 'ธนาคารขยะชุมชน'; hd.querySelector('#nBudget').value = '20000'; hd.querySelector('#addPj').click();
+    hd.querySelector('#nName').value = 'ธนาคารขยะชุมชน.'; hd.querySelector('#addPj').click();
+    assert.ok(/อาจเป็นโครงการซ้ำ/.test(hd.querySelector('#pjList').textContent), 'pj: ต้องเตือนโครงการชื่อซ้ำ');
+    const nPj = hd.querySelectorAll('#pjList .pj').length;
+    assert.ok(nPj === 3 && /งบรวม/.test(hd.querySelector('#pjSum').textContent) && new RegExp(`^${nPj} โครงการ`).test(hd.querySelector('#pjSum').textContent), 'pj: ต้องสรุปจำนวนและงบรวม (ยกมา 1 + เพิ่มเอง 2)');
+    const pq = hd.querySelector('#pfQ'); pq.value = 'ธนาคาร'; ev2(pq, 'input'); await wait(200);
+    assert.strictEqual(hd.querySelectorAll('#pjList .pj').length, 2, 'pj: ค้นหาต้องกรองรายการ');
+    assert.ok(hd.querySelector('#pjList button[data-act=up]').disabled, 'pj: ระหว่างกรองต้องปิดปุ่มเลื่อนลำดับ');
+    pq.value = ''; ev2(pq, 'input'); await wait(200);
+    const pb = hd.querySelector('#pfBudget'); pb.value = 'none'; ev2(pb);
+    assert.ok([...hd.querySelectorAll('#pjList .pj input[data-f=budget]')].every(i => i.value === ''), 'pj: กรอง “ยังไม่กำหนดงบ” ต้องเหลือเฉพาะที่ไม่มีงบ');
+    pb.value = ''; ev2(pb);
+    const bIn = [...hd.querySelectorAll('#pjList .pj')].find(x => x.querySelector('input[data-f=name]').value === 'ธนาคารขยะชุมชน').querySelector('input[data-f=budget]');
+    bIn.value = '-500'; ev2(bIn);
+    assert.ok(/ตั้งแต่ 0 ขึ้นไป/.test(hd.querySelector('#toast').textContent), 'pj: งบติดลบต้องเตือน');
+    assert.strictEqual(h.eval('prj.extra.find(x => x.name === "ธนาคารขยะชุมชน").budget'), 20000, 'pj: งบติดลบต้องไม่ถูกบันทึก');
+    console.log('✓ ขั้นตอน AI 4 ข้อ ค้นหา/กรอง/เรียง รายการซ้ำ ตรวจงบ ผลนำเข้า Excel');
+  }
+
   assert.deepStrictEqual(errs, [], 'ต้องไม่มี error ในหน้า');
   console.log('ผ่านทั้งหมด'); process.exit(0);
 })().catch(e => { console.error('✗', e.message); process.exit(1); });

@@ -24,6 +24,19 @@ function itemRef(uid){
   return prj.extra.find(x => x.uid === uid);
 }
 function part2Ctx(){ return { part2: ana.answer || {}, taxonomy: TAXONOMY }; }
+// ตัวค้นหา/กรองของรายการโครงการแผนใหม่ (อยู่ในหน้าจอเท่านั้น ไม่บันทึก)
+const pf = { q:'', strat:'', budget:'', show:'' };
+function pfMatch(it, fl){
+  if (pf.q && !normQ(it.name).includes(normQ(pf.q))) return false;
+  if (pf.strat && String(it.strategy) !== pf.strat) return false;
+  const b = it.budget === null || it.budget === undefined || it.budget === '' ? null : Number(it.budget);
+  if (pf.budget === 'none' && b !== null) return false;
+  if (pf.budget === 'lt100k' && !(b !== null && b < 100000)) return false;
+  if (pf.budget === '100k-1m' && !(b !== null && b >= 100000 && b <= 1000000)) return false;
+  if (pf.budget === 'gt1m' && !(b !== null && b > 1000000)) return false;
+  if (pf.show === 'issue' && !fl.some(x => x[0] === 'bad' || x[0] === 'warn')) return false;
+  return true;
+}
 function renderProjects(){
   const olds = carriedOld();
   const all = state.ai?.part3?.projects || [];
@@ -46,13 +59,20 @@ function renderProjects(){
   // list
   const chk = checkPlan(items, part2Ctx());
   const strategies = ana.answer?.strategies || [];
+  const ssel = $('#pfStrat'); ssel.innerHTML = '<option value="">ทุกยุทธศาสตร์</option>' + strategies.map(s => `<option value="${esc(s.no)}">${esc(s.no + '. ' + s.name)}</option>`).join(''); ssel.value = strategies.some(s => String(s.no) === pf.strat) ? pf.strat : '';
+  if (!strategies.some(s => String(s.no) === pf.strat)) pf.strat = '';
+  const filtering = !!(pf.q || pf.strat || pf.budget || pf.show);
+  const shown = items.filter(it => pfMatch(it, chk.perItem[it.uid] || []));
+  const sumB = items.reduce((a, it) => a + (Number(it.budget) || 0), 0), noB = items.filter(it => it.budget === null || it.budget === undefined || it.budget === '').length;
+  const nWarn = items.filter(it => (chk.perItem[it.uid] || []).some(x => x[0] === 'warn') && !(chk.perItem[it.uid] || []).some(x => x[0] === 'bad')).length, nBad = items.filter(it => (chk.perItem[it.uid] || []).some(x => x[0] === 'bad')).length;
+  $('#pjSum').innerHTML = items.length ? `<span><b>${items.length}</b> โครงการ</span><span>งบรวม <b>${fmt(sumB)}</b> บาท</span>${noB ? `<span class="warnc">ยังไม่กำหนดงบ ${noB}</span>` : ''}${nWarn ? `<span class="warnc">ยังไม่ครบ ${nWarn}</span>` : ''}${nBad ? `<span class="badc">ต้องแก้ ${nBad}</span>` : ''}${filtering ? `<span>แสดง ${shown.length} จาก ${items.length} · ปิดปุ่มเลื่อนลำดับ ▲▼ ระหว่างค้นหา/กรอง</span>` : ''}` : '';
   const sel = (f, val, opts) => `<select data-f="${f}"><option value="">เลือก…</option>${opts.map(o => `<option value="${esc(o[0])}" ${String(val)===String(o[0])?'selected':''}>${esc(o[1])}</option>`).join('')}</select>`;
-  $('#pjList').innerHTML = items.length ? items.map(it => {
+  $('#pjList').innerHTML = !items.length ? '' : !shown.length ? '<div class="empty">ไม่มีโครงการที่ตรงกับการค้นหาหรือตัวกรองนี้</div>' : shown.map(it => {
     const fl = chk.perItem[it.uid] || [];
     const cls = fl.some(x => x[0]==='bad') ? 'bad' : fl.some(x => x[0]==='warn') ? 'warn' : '';
     const srcTxt = it.source === 'old' ? 'แผนเดิม: ' + it.note : it.source === 'ai' ? 'AI เสนอ เวทีเลือก' : 'เพิ่มเอง';
     return `<div class="pj ${cls}" data-uid="${esc(it.uid)}">
-      <div class="pj-top"><button class="btn ghost small" data-act="up" type="button" aria-label="เลื่อนขึ้น">▲</button><button class="btn ghost small" data-act="down" type="button" aria-label="เลื่อนลง">▼</button><input data-f="name" value="${esc(it.name)}" aria-label="ชื่อโครงการ"><span class="src">${esc(srcTxt)}</span>${it.source !== 'old' ? '<button class="btn ghost small" data-act="remove" type="button">เอาออก</button>' : ''}</div>
+      <div class="pj-top"><button class="btn ghost small" data-act="up" type="button" aria-label="เลื่อนลำดับขึ้น"${filtering ? ' disabled' : ''}>▲</button><button class="btn ghost small" data-act="down" type="button" aria-label="เลื่อนลำดับลง"${filtering ? ' disabled' : ''}>▼</button><input data-f="name" value="${esc(it.name)}" aria-label="ชื่อโครงการ"><span class="src">${esc(srcTxt)}</span>${it.source !== 'old' ? '<button class="btn ghost small" data-act="remove" type="button">เอาออก</button>' : ''}</div>
       <div class="pj-grid">
         <label>งบประมาณ (บาท)<input type="number" min="0" data-f="budget" value="${esc(it.budget ?? '')}"></label>
         <label>เป้าหมาย<input data-f="target" value="${esc(it.target||'')}"></label>
@@ -62,11 +82,12 @@ function renderProjects(){
         <label>ยุทธศาสตร์ที่รองรับ (2.5)${sel('strategy', it.strategy, strategies.map(s => [s.no, s.no + '. ' + s.name]))}</label>
       </div>
       ${fl.map(x => `<div class="flagline ${x[0]==='info'?'':x[0]}">${esc(x[1])}</div>`).join('')}
-    </div>`; }).join('') : '<div class="empty">ยังไม่มีโครงการ ติ๊กสถานะในขั้น ⓪ หรือเลือกโครงการที่ AI เสนอ หรือกรอกในช่องเพิ่มโครงการใหม่ด้านบน</div>';
-  const pf = [];
-  chk.bad.forEach(x => pf.push(['bad', esc(x)])); chk.warn.forEach(x => pf.push(['warn', esc(x)])); chk.info.forEach(x => pf.push(['info', esc(x)]));
-  if (items.length && !pf.length) pf.push(['ok','ข้อมูลโครงการครบตามแบบฟอร์มและแนวทาง']);
-  facts($('#planFacts'), pf);
+    </div>`; }).join('');
+  if (!items.length) $('#pjList').innerHTML = '<div class="empty">ยังไม่มีโครงการ ติ๊กสถานะในขั้น ⓪ หรือเลือกโครงการที่ AI เสนอ หรือกรอกในช่องเพิ่มโครงการใหม่ด้านบน</div>';
+  const pfacts = [];
+  chk.bad.forEach(x => pfacts.push(['bad', esc(x)])); chk.warn.forEach(x => pfacts.push(['warn', esc(x)])); chk.info.forEach(x => pfacts.push(['info', esc(x)]));
+  if (items.length && !pfacts.length) pfacts.push(['ok','ข้อมูลโครงการครบตามแบบฟอร์มและแนวทาง']);
+  facts($('#planFacts'), pfacts);
   $('#dimSum').innerHTML = items.length ? FORM_DIMS.map(d => { const arr = items.filter(i => i.dim === d); return `<div><b>${arr.length}</b><span>ด้าน${d} ${fmt(arr.reduce((s,i) => s + (Number(i.budget)||0), 0))} บาท</span></div>`; }).join('') : '';
   const ord = priorityOrder(items);
   $('#p31').innerHTML = items.length ? '<thead><tr><th>ที่</th><th>ชื่อโครงการ</th><th>งบประมาณ</th><th>เป้าหมาย</th><th>ด้าน</th><th>วิธีดำเนินการ</th></tr></thead><tbody>' +
@@ -80,7 +101,8 @@ $('#copyP2').addEventListener('click', async () => {
 });
 $('#check2').addEventListener('click', () => {
   prj.ans2Text = $('#ans2Box').value;
-  let ans; try{ ans = parseAI(prj.ans2Text); }catch(e){ facts($('#ans2Facts'), [['bad','อ่านคำตอบไม่ได้ ต้องเป็น JSON ทั้งก้อน ตรวจว่าคัดลอกมาครบ']]); return; }
+  let ans; try{ if (looksLikePrompt(prj.ans2Text)) throw new Error('prompt'); ans = parseAI(prj.ans2Text); }catch(e){ setRaw('ans2Raw', false); facts($('#ans2Facts'), [['bad', esc(aiErrorMsg(prj.ans2Text))]]); return; }
+  setRaw('ans2Raw', true);
   const v = validateAnswer2(ans, part2Ctx());
   const keep = prj.extra.filter(x => x.source !== 'ai' || x.accepted);
   const fresh = v.projects.map(p => ({ uid:'ai:'+(prj.seq++), source:'ai', accepted:false, name:p.name||'', budget:null, target:p.target||'', period:'', dim: FORM_DIMS.includes(p.form_dimension) ? p.form_dimension : '', method: METHODS.includes(p.method) ? p.method : '',
@@ -111,6 +133,7 @@ $('#pjList').addEventListener('change', e => {
   const el = e.target, card = el.closest('.pj'); if (!card || !el.dataset.f) return;
   const ref = itemRef(card.dataset.uid); if (!ref) return;
   const f = el.dataset.f;
+  if (f === 'budget' && el.value !== '' && !(Number.isFinite(Number(el.value)) && Number(el.value) >= 0)){ toast('งบประมาณต้องเป็นตัวเลขตั้งแต่ 0 ขึ้นไป ไม่ต้องใส่จุลภาค'); el.value = ref.budget ?? ''; return; }
   ref[f] = (f === 'budget' || f === 'votes') ? (el.value === '' ? null : Number(el.value)) : (f === 'cr' ? el.value.trim().toUpperCase() : el.value);
   if (f === 'budget' && card.dataset.uid.startsWith('old:')){ /* แก้งบของโครงการเดิมในแผนใหม่ได้ ไม่กระทบผลทบทวน */ }
   prjPersist(); renderProjects();
@@ -130,3 +153,6 @@ $('#pjList').addEventListener('click', e => {
   const n = document.querySelector(`#pjList .pj[data-uid="${CSS.escape(uid)}"] button[data-act=${b.dataset.act}]`); if (n) n.focus();
 });
 
+
+$('#pfQ').addEventListener('input', e => { pf.q = e.target.value; clearTimeout(renderProjects._t); renderProjects._t = setTimeout(renderProjects, 150); });
+[['#pfStrat','strat'],['#pfBudget','budget'],['#pfShow','show']].forEach(([s, k]) => $(s).addEventListener('change', e => { pf[k] = e.target.value; renderProjects(); }));

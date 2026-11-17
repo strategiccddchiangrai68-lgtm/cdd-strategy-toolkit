@@ -297,3 +297,37 @@ details.evlist td:first-child{ font-weight:600; white-space:nowrap; font-variant
 .welcome ul.plain{ list-style:none; margin:10px 0 0; padding:0; }
 .welcome ul.plain li{ margin:6px 0; }
 .sr-only{ position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+
+/* ===== UX รอบ 2: ขั้นตอนใช้ AI 4 ข้อ ===== */
+.aisteps{ list-style:none; counter-reset:ai; margin:0; padding:0; display:grid; gap:14px; }
+.aisteps > li{ counter-increment:ai; position:relative; padding:0 0 0 44px; }
+.aisteps > li::before{ content:counter(ai); position:absolute; left:0; top:0; width:30px; height:30px; border-radius:50%; display:grid; place-items:center;
+  background:var(--brand-soft); color:var(--brand); font-weight:700; border:1px solid var(--brand); }
+.aisteps > li:not(:last-child)::after{ content:""; position:absolute; left:15px; top:34px; bottom:-12px; width:2px; background:var(--rule); }
+.ai-h{ font-weight:700; font-size:16.5px; margin:2px 0 8px; }
+details.rawjson > summary, details.example > summary, details.howto > summary{ cursor:pointer; color:var(--brand); font-weight:600; margin:4px 0; }
+details.rawjson[open] > summary{ margin-bottom:6px; }
+details.example pre{ margin:6px 0 0; max-height:260px; overflow:auto; padding:10px 12px; background:var(--sunk); border:1px solid var(--rule); border-radius:8px; font-size:13px; line-height:1.45; white-space:pre-wrap; word-break:break-word; }
+details.howto{ margin-top:12px; padding:8px 12px; border:1px solid var(--rule); border-radius:8px; background:var(--sunk); }
+details.howto ul{ margin:6px 0; padding-left:1.2em; font-size:15px; }
+details.howto li{ margin:4px 0; }
+table.mini{ border-collapse:collapse; font-size:13.5px; min-width:520px; background:var(--surface); }
+table.mini th, table.mini td{ border:1px solid var(--rule); padding:4px 8px; text-align:left; }
+table.mini th{ background:var(--brand-soft); }
+
+/* ===== เครื่องมือค้นหา/กรอง/เรียง ===== */
+.tools{ display:flex; flex-wrap:wrap; gap:8px 12px; align-items:flex-end; margin-bottom:10px; padding:10px 12px; border:1px solid var(--rule); border-radius:10px; background:var(--surface); }
+.tools label{ display:grid; gap:2px; font-size:13.5px; color:var(--muted); font-weight:600; flex:0 1 auto; }
+.tools label.grow{ flex:1 1 220px; }
+.tools input, .tools select{ min-height:40px; padding:6px 8px; border:1px solid var(--rule); border-radius:8px; background:var(--surface); color:var(--ink); font-size:15.5px; font-weight:400; min-width:0; }
+@media (max-width:640px){ .tools label{ flex:1 1 calc(50% - 12px); } }
+.cell-lbl{ font-size:12.5px; font-weight:700; color:var(--muted); margin-bottom:4px; text-transform:none; }
+.tag.dup{ background:var(--warn-soft); border-color:var(--warn); color:var(--warn); font-weight:600; }
+.item details.more{ margin-top:6px; font-size:14px; }
+.item details.more summary{ cursor:pointer; color:var(--brand); font-weight:600; }
+.item details.more dl{ display:grid; grid-template-columns:auto 1fr; gap:2px 10px; margin:6px 0 0; }
+.item details.more dt{ color:var(--muted); } .item details.more dd{ margin:0; }
+.pjsum{ display:flex; flex-wrap:wrap; gap:6px 16px; align-items:baseline; margin:0 0 10px; font-size:15px; color:var(--muted); }
+.pjsum b{ color:var(--ink); font-size:18px; font-variant-numeric:tabular-nums; }
+.pjsum .warnc{ color:var(--warn); font-weight:600; } .pjsum .badc{ color:var(--bad); font-weight:600; }
+.pj-top button[disabled]{ opacity:.35; }
