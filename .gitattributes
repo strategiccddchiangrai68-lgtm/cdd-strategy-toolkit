@@ -1,0 +1,6 @@
+# บังคับขึ้นบรรทัดแบบ LF ทุกเครื่อง (build.js และ test อ่านไฟล์โดยถือว่าเป็น LF)
+* text=auto eol=lf
+*.docx binary
+*.doc binary
+*.xlsx binary
+*.pdf binary
