@@ -1,26 +1,32 @@
 /* app.css — สไตล์ทั้งหมดของแอป (สีรองรับโหมดมืด) */
-/* สี: เขียวราชการเป็นสีหลัก (--brand), เขียว = สำเร็จ, ส้ม = เตือน, แดง = ผิดพลาด, น้ำเงินเทา = ข้อมูล
-   ทุกคู่สีข้อความ/พื้นหลังผ่านเกณฑ์ความคมชัด WCAG AA (≥ 4.5:1) */
+/* สีตามหน้าที่ (อัตลักษณ์ CDD Strategy Toolkit):
+   --brand กรมท่า #232455 = หัวข้อ ปุ่มหลัก | --accent ฟ้าเทอร์ควอยซ์ #00ACC8 = จุดเน้น ไอคอน ขั้นปัจจุบัน (ไม่ใช้เป็นสีตัวอักษรบนพื้นขาว ความคมชัดไม่พอ)
+   --accent-ink = เทอร์ควอยซ์เข้มสำหรับลิงก์/ตัวอักษร | --brand-soft ฟ้าอ่อน #EAF8FB = เมนูที่เลือก กล่องแนะนำ สรุป | --muted เทาอมฟ้า #475569
+   สถานะ: เขียว = สำเร็จ, ส้ม = เตือน, แดง = ผิดพลาด, น้ำเงินเทา = ข้อมูล — ทุกสถานะมีข้อความหรือไอคอนกำกับ ไม่ใช้สีอย่างเดียว
+   ทุกคู่สีข้อความ/พื้นหลังผ่านเกณฑ์ WCAG AA (≥ 4.5:1) ทั้งโหมดสว่างและมืด */
 :root{
-  --bg:#F2F5F3; --surface:#FFFFFF; --sunk:#F6F8F7; --ink:#17251E; --muted:#4D5E55; --rule:#D2DCD6;
-  --brand:#1B6B45; --brand-ink:#FFFFFF; --brand-soft:#E3F1E9;
+  --bg:#FFFFFF; --surface:#FFFFFF; --sunk:#F5F8FA; --ink:#1E2433; --heading:#232455; --muted:#475569; --rule:#D5DEE7;
+  --brand:#232455; --brand-ink:#FFFFFF; --brand-soft:#EAF8FB;
+  --accent:#00ACC8; --accent-ink:#00738A; --accent-soft:#EAF8FB;
   --ok:#157A3E; --ok-soft:#E4F4EA; --bad:#B42318; --bad-soft:#FBE7E5; --warn:#8A5300; --warn-soft:#FDF1DC;
-  --accent:#1B6B45; --accent-soft:#E3F1E9; --info:#2B5C8A; --info-soft:#E6EEF6; --focus:#1F6FD1;
+  --info:#2B5C8A; --info-soft:#E6EEF6; --focus:#00738A;
   color-scheme: light;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
-    --bg:#0F1713; --surface:#16211B; --sunk:#121C17; --ink:#E3ECE6; --muted:#A3B5AA; --rule:#2C3D33;
-    --brand:#7FD1A3; --brand-ink:#0B1D13; --brand-soft:#173325;
+    --bg:#0D1226; --surface:#151B33; --sunk:#10162B; --ink:#E7EAF4; --heading:#F2F5FB; --muted:#A9B3C7; --rule:#2B3452;
+    --brand:#33C3DB; --brand-ink:#0B1030; --brand-soft:#12283A;
+    --accent:#33C3DB; --accent-ink:#5FD3E6; --accent-soft:#12283A;
     --ok:#6CCB8F; --ok-soft:#163020; --bad:#F2877C; --bad-soft:#3A1D1A; --warn:#E8B25E; --warn-soft:#33281A;
-    --accent:#7FD1A3; --accent-soft:#173325; --info:#9CC0E6; --info-soft:#1D2D3C; --focus:#8EC5FF; color-scheme: dark;
+    --info:#9CC0E6; --info-soft:#1D2D3C; --focus:#5FD3E6; color-scheme: dark;
   }
 }
 :root[data-theme="dark"]{
-  --bg:#0F1713; --surface:#16211B; --sunk:#121C17; --ink:#E3ECE6; --muted:#A3B5AA; --rule:#2C3D33;
-  --brand:#7FD1A3; --brand-ink:#0B1D13; --brand-soft:#173325;
+  --bg:#0D1226; --surface:#151B33; --sunk:#10162B; --ink:#E7EAF4; --heading:#F2F5FB; --muted:#A9B3C7; --rule:#2B3452;
+  --brand:#33C3DB; --brand-ink:#0B1030; --brand-soft:#12283A;
+  --accent:#33C3DB; --accent-ink:#5FD3E6; --accent-soft:#12283A;
   --ok:#6CCB8F; --ok-soft:#163020; --bad:#F2877C; --bad-soft:#3A1D1A; --warn:#E8B25E; --warn-soft:#33281A;
-  --accent:#7FD1A3; --accent-soft:#173325; --info:#9CC0E6; --info-soft:#1D2D3C; --focus:#8EC5FF; color-scheme: dark;
+  --info:#9CC0E6; --info-soft:#1D2D3C; --focus:#5FD3E6; color-scheme: dark;
 }
 :root{ box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px); }
 html{ scroll-padding-top:calc(env(safe-area-inset-top,0px) + 64px); }
@@ -107,7 +113,7 @@ textarea{
 }
 .note{ font-size:14.5px; color:var(--muted); margin:10px 0 0; }
 .privacy{ margin-top:12px; padding:10px 12px; border-radius:8px; background:var(--warn-soft); font-size:15px; }
-details.prompt summary{ cursor:pointer; color:var(--accent); font-weight:600; margin-top:10px; }
+details.prompt summary{ cursor:pointer; color:var(--accent-ink); font-weight:600; margin-top:10px; }
 details.prompt textarea{ margin-top:8px; min-height:220px; }
 
 /* ledger */
@@ -123,10 +129,10 @@ details.prompt textarea{ margin-top:8px; min-height:220px; }
 .item.flag-bad{ border-color:var(--bad); box-shadow:inset 4px 0 0 var(--bad); }
 .item.flag-warn{ box-shadow:inset 4px 0 0 var(--warn); }
 .item .no{ font-weight:700; font-size:20px; font-variant-numeric:tabular-nums; color:var(--muted); }
-.item .name input{
+.item .name textarea{
   width:100%; border:1px solid transparent; background:transparent; padding:4px 6px; margin:-4px -6px; border-radius:6px; font-weight:600; font-size:16.5px;
 }
-.item .name input:hover,.item .name input:focus{ border-color:var(--rule); background:var(--sunk); }
+.item .name textarea:hover,.item .name textarea:focus{ border-color:var(--rule); background:var(--sunk); }
 .meta{ font-size:14px; color:var(--muted); margin-top:4px; }
 .tag{ display:inline-block; font-size:13px; padding:1px 8px; border-radius:999px; background:var(--sunk); border:1px solid var(--rule); margin-right:4px; }
 
@@ -204,13 +210,13 @@ h3.sub{ font-size:17px; margin:0 0 8px; }
 .sw li.warn{ border-left:4px solid var(--warn); } .sw li.bad{ border-left:4px solid var(--bad); }
 .sw .id{ font-weight:700; margin-right:6px; color:var(--muted); font-variant-numeric:tabular-nums; }
 .ev{ display:inline-block; font-size:12.5px; padding:0 7px; margin:4px 4px 0 0; border-radius:999px; border:1px solid var(--rule); background:var(--sunk); cursor:help; font-variant-numeric:tabular-nums; }
-.ev.x{ border-style:dashed; color:var(--warn); } .ev.ext{ border-color:var(--accent); color:var(--accent); } .ev.missing{ background:var(--bad-soft); color:var(--bad); border-color:var(--bad); }
+.ev.x{ border-style:dashed; color:var(--warn); } .ev.ext{ border-color:var(--accent-ink); color:var(--accent-ink); } .ev.missing{ background:var(--bad-soft); color:var(--bad); border-color:var(--bad); }
 .flagline{ font-size:13.5px; margin-top:4px; } .flagline.warn{ color:var(--warn); } .flagline.bad{ color:var(--bad); }
 .dir{ font-size:20px; font-weight:600; line-height:1.45; padding:12px 14px; border-left:4px solid var(--brand); background:var(--sunk); border-radius:0 8px 8px 0; }
 .strat{ display:grid; gap:8px; margin:0; padding:0; list-style:none; }
 .strat li{ padding:10px 12px; border:1px solid var(--rule); border-radius:8px; background:var(--surface); }
 .strat b{ display:block; }
-details.evlist summary{ cursor:pointer; color:var(--accent); font-weight:600; }
+details.evlist summary{ cursor:pointer; color:var(--accent-ink); font-weight:600; }
 details.evlist .scroll{ max-height:360px; overflow:auto; margin-top:8px; border:1px solid var(--rule); border-radius:8px; }
 details.evlist table{ width:100%; border-collapse:collapse; font-size:14.5px; }
 details.evlist td{ padding:4px 8px; border-bottom:1px solid var(--rule); vertical-align:top; }
@@ -402,3 +408,125 @@ body.noscroll{ overflow:hidden; }
 .wsmenu-list [role=menuitem]:hover, .wsmenu-list [role=menuitem]:focus-visible{ background:var(--brand-soft); }
 .wsbar{ position:relative; }
 @media (max-width:640px){ .wsmenu{ position:static; } .wsmenu-list{ left:8px; right:8px; min-width:0; max-width:none; top:calc(100% + 4px); } }
+
+/* ===== UX รอบ 5: อัตลักษณ์ CDD Strategy Toolkit (กรมท่า + ฟ้าเทอร์ควอยซ์) ===== */
+h1, h2, h3{ color:var(--heading); }
+a{ color:var(--accent-ink); }
+.wrap{ padding:0 20px 120px; }
+/* หัวเว็บ: โลโก้ (ไม่ยืด ไม่ตัด ไม่ใส่ฟิลเตอร์) + ชื่อเครื่องมือ */
+header.top{ padding:14px 0 0; border-bottom:1px solid var(--rule); margin-bottom:4px; }
+.brandrow{ display:flex; align-items:center; gap:10px 18px; flex-wrap:wrap; }
+.brandrow .logo{ flex:none; display:block; line-height:0; border-radius:8px; }
+.brandrow .logo img{ display:block; height:60px; width:auto; max-width:100%; }
+.brandrow .titles{ flex:1 1 280px; min-width:0; padding-left:18px; border-left:3px solid var(--accent); }
+header.top h1{ font-size:clamp(20px,2.6vw,26px); line-height:1.3; margin:0; font-weight:700; letter-spacing:0; }
+header.top .titles p{ margin:2px 0 0; color:var(--muted); font-size:15px; max-width:70ch; }
+/* โหมดมืด: ตัวอักษร Strategy Toolkit ในโลโก้เป็นสีกรมท่า จึงวางบนแผ่นขาวเพื่อให้อ่านได้ (ไม่เปลี่ยนสีโลโก้) */
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .brandrow .logo{ background:#FFFFFF; padding:4px 8px; } }
+:root[data-theme="dark"] .brandrow .logo{ background:#FFFFFF; padding:4px 8px; }
+.wsbar{ margin-top:12px; background:var(--sunk); }
+.wsbar select, .tools input, .tools select, .status select, .money input[type=number]{ min-height:44px; }
+.money label.chk{ min-height:36px; } .money label.chk input{ width:20px; height:20px; }
+
+/* แถบขั้นตอน: 6 ช่องแถวเดียวบนจอกว้าง ขั้นปัจจุบัน = พื้นกรมท่า + แถบเทอร์ควอยซ์ด้านล่าง */
+nav.tabs{ display:grid; grid-template-columns:repeat(6, minmax(0,1fr)); gap:6px; margin:12px 0 0; padding-bottom:12px; }
+nav.tabs a{ flex-direction:column; align-items:flex-start; justify-content:center; gap:3px; min-height:52px; padding:6px 10px; border-radius:10px; font-size:15px; line-height:1.3; position:relative; }
+nav.tabs a:hover{ border-color:var(--accent); background:var(--brand-soft); }
+nav.tabs a[aria-current="page"]{ background:var(--brand); color:var(--brand-ink); border-color:var(--brand); box-shadow:inset 0 -4px 0 var(--accent); }
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) nav.tabs a[aria-current="page"]{ box-shadow:inset 0 -4px 0 #FFFFFF; } }
+:root[data-theme="dark"] nav.tabs a[aria-current="page"]{ box-shadow:inset 0 -4px 0 #FFFFFF; }
+nav.tabs a[aria-current="page"] .ts{ color:var(--ink); }
+@media (max-width:900px){ nav.tabs{ grid-template-columns:repeat(3, minmax(0,1fr)); } }
+
+/* หัวขั้น */
+.stephead{ border-left-color:var(--accent); background:var(--surface); }
+.stephead .sh-no{ color:var(--accent-ink); }
+.linkbtn{ color:var(--accent-ink); }
+
+/* ตัวเลขสรุปติดด้านบน: 4 ช่องเท่ากัน ตัวเลขเหนือคำอธิบาย */
+.tally{ display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:8px; margin:12px -20px 0; padding:8px 20px; background:var(--surface); border-top:1px solid var(--rule); }
+.tally > div{ display:flex; flex-direction:column; gap:0; padding:4px 10px; border-left:3px solid var(--rule); }
+.tally .t-bad{ border-left-color:var(--bad); } .tally .t-ok{ border-left-color:var(--ok); }
+.tally b{ font-size:21px; line-height:1.25; color:var(--heading); }
+.tally span{ font-size:13.5px; line-height:1.35; }
+
+/* ข้อย่อย ก ข ค ง */
+section.step{ margin-top:30px; }
+.step-no{ border-color:var(--accent); color:var(--heading); background:var(--brand-soft); }
+.step.done .step-no{ background:var(--ok); border-color:var(--ok); color:#FFFFFF; }
+.panel, .tools, .item, .summary div, .empty{ border-radius:12px; }
+.aisteps > li::before{ background:var(--brand-soft); color:var(--heading); border-color:var(--accent); }
+details.rawjson > summary, details.example > summary, details.howto > summary, .item details.more summary{ color:var(--accent-ink); }
+.drop{ background:var(--brand-soft); border-color:var(--accent); }
+.drop:hover{ border-color:var(--brand); }
+.drop strong{ color:var(--heading); }
+
+/* ปุ่ม: หลัก = กรมท่า, รอง = ขอบบาง, อันตราย = ขอบแดง */
+.btn:hover{ filter:none; background:color-mix(in srgb, var(--brand) 88%, var(--accent)); }
+.btn.ghost{ background:var(--surface); color:var(--heading); border-color:var(--rule); }
+.btn.ghost:hover{ background:var(--brand-soft); border-color:var(--accent); }
+.btn.danger:hover{ background:var(--bad-soft); }
+.chip{ min-height:40px; padding:6px 14px; color:var(--ink); }
+.chip[aria-pressed="true"]{ background:var(--brand); color:var(--brand-ink); border-color:var(--brand); }
+.chip[aria-pressed="true"]::before{ content:"✓ "; }
+
+/* สถานะ: ไอคอนคู่กับสี (✓ สำเร็จ, ! เตือน, ✕ ผิดพลาด, i ข้อมูล) */
+.facts li, .issues li{ position:relative; }
+.facts li.ok::before, .facts li.bad::before, .facts li.warn::before, .facts li.info::before,
+.money .verdict::before{ display:inline-block; width:1.25em; font-weight:700; }
+.facts li.ok::before, .money .verdict.ok::before{ content:"✓"; content:"✓" / ""; color:var(--ok); }
+.facts li.bad::before, .money .verdict.bad::before{ content:"✕"; content:"✕" / ""; color:var(--bad); }
+.facts li.warn::before, .money .verdict.warn::before{ content:"!"; content:"!" / ""; color:var(--warn); }
+.facts li.info::before{ content:"i"; content:"i" / ""; color:var(--info); font-style:italic; font-family:Georgia,serif; }
+
+/* รายการโครงการ ⓪: ตารางเทียบบนจอกว้าง / การ์ดแนวตั้งบนมือถือ */
+.item-head{ display:grid; grid-template-columns:44px minmax(0,1fr) 230px 220px; gap:14px; padding:6px 15px; margin-bottom:6px; font-size:13.5px; font-weight:700; color:var(--muted); border-bottom:2px solid var(--accent); position:sticky; top:calc(env(safe-area-inset-top,0px) + 66px); z-index:4; background:var(--bg); }
+.item .name textarea{ display:block; resize:none; overflow:hidden; field-sizing:content; min-height:0; font-family:inherit; line-height:1.45; color:var(--heading); overflow-wrap:anywhere; }
+.item .no{ color:var(--accent-ink); }
+@media (min-width:901px){ .item .money > .cell-lbl, .item .status > .cell-lbl{ display:none; } }
+@media (max-width:900px){
+  .item-head{ display:none; }
+  .item{ grid-template-columns:32px minmax(0,1fr); gap:8px 10px; padding:12px; }
+  .item .money, .item .status{ padding-top:8px; border-top:1px solid var(--rule); }
+  .money .fix .btn{ flex:1 1 140px; }
+}
+.status select{ background:var(--surface); }
+.meta, .item .meta{ overflow-wrap:anywhere; }
+
+/* สรุปผลทบทวน */
+.summary div{ background:var(--brand-soft); border-color:transparent; border-left:4px solid var(--accent); }
+.summary b{ color:var(--heading); }
+
+/* ข้อความยาวและหน้าจอแคบ: ตัดบรรทัด ไม่ล้นจอ */
+body{ overflow-wrap:break-word; }
+.facts li, .issues li, .note, .stephead p, .step-head p{ overflow-wrap:anywhere; }
+@media (max-width:640px){
+  .wrap{ padding:0 16px 120px; }
+  .tally{ margin:12px -16px 0; padding:6px 16px; gap:4px; }
+  .tally > div{ padding:2px 6px; }
+  .tally b{ font-size:19px; } .tally span{ font-size:12.5px; }
+  .brandrow{ gap:8px 12px; flex-wrap:nowrap; }
+  .brandrow .logo img{ height:40px; }
+  .brandrow .titles{ padding-left:12px; flex-basis:auto; }
+  header.top h1{ font-size:17px; }
+  header.top .titles p{ display:none; }
+  nav.tabs a{ min-height:50px; font-size:14px; padding:6px 8px; }
+  section.step{ margin-top:26px; }
+  .step-head h2, .stephead h2{ font-size:20px; }
+  .btn.small, .chip, .linkbtn{ min-height:44px; }
+  .row-actions > .btn{ flex:1 1 220px; }
+  .wsbar label{ flex-basis:100%; }
+  .wsbar .ws-actions{ width:100%; }
+  .wsbar .ws-actions{ display:grid; grid-template-columns:1fr 1fr 44px; gap:6px; }
+  .wsbar .ws-actions .btn{ width:100%; padding:5px 6px; font-size:14.5px; }
+  .lbl-wide{ display:none; }
+  .savestate{ font-size:13.5px; line-height:1.4; }
+}
+@media (max-width:380px){ .brandrow .logo img{ height:34px; } header.top h1{ font-size:16px; } }
+@media (pointer:coarse){ .btn.small, .chip, .linkbtn{ min-height:44px; } }
+/* แท็บเล็ต: งบประมาณกับสถานะวางคู่กันใต้ชื่อโครงการ */
+@media (min-width:641px) and (max-width:900px){
+  .item{ grid-template-columns:32px minmax(0,1fr) minmax(0,1fr); }
+  .item .name{ grid-column:2 / -1; }
+  .item .money{ grid-column:2; } .item .status{ grid-column:3; }
+}

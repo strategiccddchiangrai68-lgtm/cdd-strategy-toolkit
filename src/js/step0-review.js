@@ -174,12 +174,12 @@ function render(){
   if (lf.sort === 'name') ps = ps.slice().sort((a, b) => String(rv(a.id).name ?? a.name).localeCompare(String(rv(b.id).name ?? b.name), 'th'));
   $('#lfCount').textContent = ps.length === all.length ? `แสดงทั้งหมด ${all.length} โครงการ` : `แสดง ${ps.length} จาก ${all.length} โครงการ`;
   if (!ps.length){ list.innerHTML = '<div class="empty">ไม่มีโครงการที่ตรงกับการค้นหาหรือตัวกรองนี้</div>'; }
-  else list.innerHTML = ps.map(p => {
+  else list.innerHTML = '<div class="item-head" aria-hidden="true"><span>ลำดับ</span><span>ชื่อโครงการ</span><span>งบประมาณ</span><span>สถานะการดำเนินงาน</span></div>' + ps.map(p => {
     const k = budgetCheck(p).kind, r = rv(p.id), c = budgetCheck(p);
     const cls = (k==='mismatch' && !r.budgetConfirmed) ? 'flag-bad' : (k!=='match' && !r.budgetConfirmed ? 'flag-warn' : '');
     return `<article class="item ${cls}" data-id="${esc(p.id)}">
       <div class="no">${esc(p.priority_no)}</div>
-      <div class="name"><input value="${esc(r.name ?? p.name)}" data-act="name" aria-label="ชื่อโครงการ ลำดับ ${esc(p.priority_no)} (แก้ไขได้)">
+      <div class="name"><textarea rows="1" data-act="name" aria-label="ชื่อโครงการ ลำดับ ${esc(p.priority_no)} (แก้ไขได้)">${esc(r.name ?? p.name)}</textarea>
         <div class="meta"><span class="tag">${esc(p.form_dimension||'ไม่ระบุด้าน')}</span><span class="tag">${esc(p.method||'ไม่ระบุวิธี')}</span>${dups[p.id] ? `<span class="tag dup">อาจซ้ำกับลำดับ ${dups[p.id].join(', ')}</span>` : ''}เป้าหมาย ${esc(p.target||'–')}</div>
         <details class="more"><summary>รายละเอียด</summary><dl>
           <dt>รหัส</dt><dd>${esc(p.id)}</dd>
@@ -193,8 +193,14 @@ function render(){
       <div class="status">${statusHTML(p)}</div>
     </article>`;
   }).join('');
-  tally(); summary(); persist();
+  fitNames(); tally(); summary(); persist();
 }
+// ช่องชื่อโครงการสูงตามข้อความ (ชื่อยาวตัดบรรทัด ไม่ถูกตัดทิ้ง) และไม่รับการขึ้นบรรทัดใหม่
+function fitNames(root){ (root || $('#list')).querySelectorAll('textarea[data-act=name]').forEach(el => { el.style.height = ''; if (el.offsetParent) el.style.height = el.scrollHeight + 'px'; }); }
+$('#list').addEventListener('input', e => { if (e.target.matches('textarea[data-act=name]')){ if (/[\r\n]/.test(e.target.value)) e.target.value = e.target.value.replace(/[\r\n]+/g, ' '); fitNames({ querySelectorAll: () => [e.target] }); } });
+$('#list').addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.matches('textarea[data-act=name]')){ e.preventDefault(); e.target.blur(); } });
+addEventListener('hashchange', () => setTimeout(() => fitNames(), 0));
+addEventListener('resize', () => { clearTimeout(fitNames._t); fitNames._t = setTimeout(() => fitNames(), 150); });
 $('#lfQ').addEventListener('input', e => { lf.q = e.target.value; clearTimeout(render._t); render._t = setTimeout(render, 150); });
 [['#lfSt','st'],['#lfDim','dim'],['#lfSort','sort']].forEach(([s, k]) => $(s).addEventListener('change', e => { lf[k] = e.target.value; render(); }));
 $('#list').addEventListener('click', e => {

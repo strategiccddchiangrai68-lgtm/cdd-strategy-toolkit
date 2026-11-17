@@ -3,6 +3,7 @@
 // รัน: npm run build
 //   - <link rel="stylesheet" href="ไฟล์ในเครื่อง">  → <style>…</style>
 //   - <script src="ไฟล์ในเครื่อง"> ที่อยู่ติดกัน     → รวมเป็น <script>…</script> เดียว (ลำดับเดิม)
+//   - <img src="ไฟล์ .png/.svg ในเครื่อง">            → data URI ในไฟล์เดียวกัน
 //   - ไลบรารีจาก CDN (https://…) และคอมเมนต์ HTML ไม่ถูกแตะ
 const fs = require('fs'), path = require('path');
 const SRC = path.join(__dirname, 'src');
@@ -18,6 +19,10 @@ function build(){
   html = html.replace(/(?:<script src="(?!https?:)[^"]+"><\/script>\n)+/g, block => {
     const files = [...block.matchAll(/src="([^"]+)"/g)].map(m => m[1]);
     return '<script>\n' + files.map(read).join('') + '</script>\n';
+  });
+  html = html.replace(/<img src="(?!https?:|data:)([^"]+.(png|svg))"/g, (m, f, ext) => {
+    const b = fs.readFileSync(path.join(SRC, f)).toString('base64');
+    return '<img src="data:image/' + (ext === 'svg' ? 'svg+xml' : 'png') + ';base64,' + b + '"';
   });
   // ตัดคอมเมนต์ที่ใช้อธิบายเฉพาะใน src/index.html
   html = html.replace(/<!-- โค้ดของแอป:.*?-->\n/, '');

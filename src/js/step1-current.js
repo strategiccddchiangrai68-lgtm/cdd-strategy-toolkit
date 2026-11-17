@@ -119,7 +119,7 @@ function renderCurrent(){
     const head = '<thead><tr><th>ด้าน</th>' + [1,2,3,4,5].map(k => `<th>อันดับ ${k}</th>`).join('') + '<th>อันดับเฉลี่ย</th></tr></thead>';
     const body = S.order.map(o => '<tr><td>' + esc(short(o.dim)) + '</td>' + o.counts.map(c => {
       const pct = Math.round(c / n * 70);
-      return `<td class="c" style="background:color-mix(in srgb, var(--accent) ${pct}%, var(--surface));${pct>40?'color:var(--surface)':''}">${c || '·'}</td>`;
+      return `<td class="c" style="background:color-mix(in srgb, var(--brand) ${pct}%, var(--surface));${pct>40?'color:var(--surface)':''}">${c || '·'}</td>`;
     }).join('') + `<td class="c">${o.avg.toFixed(2)}</td></tr>`).join('');
     $('#heatWrap').innerHTML = `<table class="heat">${head}<tbody>${body}</tbody></table>`;
     const top = S.order[0], topN = top.counts[0];

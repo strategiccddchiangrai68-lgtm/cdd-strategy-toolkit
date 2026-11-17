@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>CDD Strategy Toolkit</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%277%27 fill=%27%231B6B45%27/%3E%3Cpath d=%27M9 17l5 5 9-11%27 stroke=%27white%27 stroke-width=%273.5%27 fill=%27none%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%277%27 fill=%27%23232455%27/%3E%3Cpath d=%27M9 17l5 5 9-11%27 stroke=%27%2300ACC8%27 stroke-width=%273.5%27 fill=%27none%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -13,9 +13,13 @@
 <body>
 <div class="wrap">
   <header class="top">
-    <div class="brand">CDD Strategy Toolkit</div>
-    <h1>เตรียมข้อมูลแผนพัฒนาตำบล</h1>
-    <p>จัดทำแผนพัฒนาตำบลทีละขั้น ตั้งแต่ทบทวนแผนเดิมจนส่งออกรูปเล่ม ข้อมูลทั้งหมดอยู่ในเครื่องนี้ ไม่ถูกส่งไปที่ใด</p>
+    <div class="brandrow">
+      <a class="logo" href="#home"><img src="img/logo-cdd-strategy-toolkit.png" alt="CDD Strategy Toolkit กรมการพัฒนาชุมชน (ไปหน้าภาพรวม)" width="432" height="144"></a>
+      <div class="titles">
+        <h1>เตรียมข้อมูลแผนพัฒนาตำบล</h1>
+        <p>จัดทำแผนทีละขั้น ตั้งแต่ทบทวนแผนเดิมจนส่งออกรูปเล่ม ข้อมูลทั้งหมดอยู่ในเครื่องนี้ ไม่ถูกส่งไปที่ใด</p>
+      </div>
+    </div>
     <div class="wsbar">
       <label for="wsSel">ตำบลที่ทำอยู่</label>
       <select id="wsSel"></select>
@@ -28,7 +32,7 @@
             <button type="button" role="menuitem" id="wsOpen">⬆ เปิดไฟล์สำรอง (.json)<small>นำงานที่สำรองไว้กลับมาทำต่อ</small></button>
           </div>
         </div>
-        <button class="btn ghost small" id="helpBtn" type="button" data-help="start" aria-haspopup="dialog">? ช่วยเหลือ</button>
+        <button class="btn ghost small" id="helpBtn" type="button" data-help="start" aria-haspopup="dialog" aria-label="ช่วยเหลือ"><span aria-hidden="true">?</span><span class="lbl-wide" aria-hidden="true"> ช่วยเหลือ</span></button>
       </div>
       <input type="file" id="wsFile" accept=".json,application/json" hidden>
       <div class="savestate" id="saveState" role="status" aria-live="polite" data-s="empty">ยังไม่มีงานให้บันทึก</div>

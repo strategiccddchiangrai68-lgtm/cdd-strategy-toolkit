@@ -451,6 +451,24 @@ const file = p => { const b = fs.readFileSync(p); return { name: path.basename(p
     console.log('✓ ปุ่มสำรอง/เปิดไฟล์ .json อยู่ในเมนู “จัดการงาน”');
   }
 
+  // ===== UX รอบ 5: โลโก้ในไฟล์เดียว ชื่อโครงการยาวตัดบรรทัด หัวคอลัมน์ =====
+  {
+    assert.ok(/<img src="data:image\/png;base64,[A-Za-z0-9+/=]{1000,}"/.test(built), 'ux5: โลโก้ต้องฝังเป็น data URI ในไฟล์เดียว');
+    const h = boot(); await wait(100); const hd = h.document;
+    const logo = hd.querySelector('header.top .logo img');
+    assert.ok(logo && /CDD Strategy Toolkit/.test(logo.alt), 'ux5: หัวเว็บต้องมีโลโก้พร้อมข้อความแทนภาพ');
+    hd.querySelector('#loadSample').click(); await wait(150);
+    assert.ok(hd.querySelector('#list .item-head'), 'ux5: ต้องมีหัวคอลัมน์ของรายการโครงการ');
+    const nm = hd.querySelector('#list .item textarea[data-act=name]');
+    assert.ok(nm && nm.value.length > 0, 'ux5: ชื่อโครงการต้องเป็นช่องที่ตัดบรรทัดได้ (textarea)');
+    const ent = new h.KeyboardEvent('keydown', { key:'Enter', bubbles:true, cancelable:true }); nm.dispatchEvent(ent);
+    assert.ok(ent.defaultPrevented, 'ux5: กด Enter ในชื่อโครงการต้องไม่ขึ้นบรรทัดใหม่');
+    nm.value = 'ชื่อใหม่\nบรรทัดสอง'; fire(nm, 'input'); fire(nm);
+    const id = nm.closest('.item').dataset.id;
+    assert.strictEqual(J(h, `state.review[${JSON.stringify(id)}].name`), 'ชื่อใหม่ บรรทัดสอง', 'ux5: แก้ชื่อแล้วต้องบันทึกเป็นบรรทัดเดียว');
+    console.log('✓ โลโก้ หัวคอลัมน์ และชื่อโครงการยาวตัดบรรทัด');
+  }
+
   assert.deepStrictEqual(errs, [], 'ต้องไม่มี error ในหน้า');
   console.log('ผ่านทั้งหมด'); process.exit(0);
 })().catch(e => { console.error('✗', e.message); process.exit(1); });
