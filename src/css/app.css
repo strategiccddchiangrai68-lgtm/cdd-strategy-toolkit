@@ -331,3 +331,21 @@ table.mini th{ background:var(--brand-soft); }
 .pjsum b{ color:var(--ink); font-size:18px; font-variant-numeric:tabular-nums; }
 .pjsum .warnc{ color:var(--warn); font-weight:600; } .pjsum .badc{ color:var(--bad); font-weight:600; }
 .pj-top button[disabled]{ opacity:.35; }
+
+/* ===== UX รอบ 3: ร่าง SWOT แก้ไขได้ ===== */
+.badge[data-s="ai"]{ background:var(--info-soft); color:var(--info); border-color:var(--info); }
+.swbar{ display:flex; flex-wrap:wrap; gap:8px 14px; align-items:center; justify-content:space-between; padding:10px 12px; margin-bottom:8px; border:1px solid var(--rule); border-radius:10px; background:var(--surface); font-size:15px; }
+.swq{ background:var(--sunk); border:1px solid var(--rule); border-radius:10px; padding:12px 14px; }
+.swq-h{ display:flex; flex-wrap:wrap; gap:6px; align-items:center; justify-content:space-between; margin-bottom:8px; }
+.swq-h h3{ margin:0; font-size:17px; } .swq-h .meta{ font-weight:400; }
+.sw-item{ display:grid; gap:6px; }
+.sw-item[data-st="ok"]{ border-left:4px solid var(--ok); }
+.sw-top{ display:flex; flex-wrap:wrap; gap:6px; align-items:center; }
+.sw-top .sw-btns{ margin-left:auto; display:flex; gap:4px; }
+.sw-item textarea{ min-height:0; font-family:inherit; font-size:15.5px; line-height:1.5; padding:6px 8px; background:var(--surface); }
+.sw-ev{ display:flex; flex-wrap:wrap; gap:4px 8px; align-items:center; }
+.sw-ev label{ display:flex; gap:6px; align-items:center; font-size:13px; color:var(--muted); margin-left:auto; }
+.sw-ev input{ width:150px; padding:3px 6px; border:1px solid var(--rule); border-radius:6px; background:var(--surface); color:var(--ink); font-size:13.5px; }
+.sw-foot{ display:flex; flex-wrap:wrap; gap:8px; align-items:center; justify-content:space-between; }
+.sw-foot label{ display:flex; gap:6px; align-items:center; font-size:13.5px; color:var(--muted); }
+.sw-foot select{ padding:4px 6px; border:1px solid var(--rule); border-radius:6px; background:var(--surface); color:var(--ink); }

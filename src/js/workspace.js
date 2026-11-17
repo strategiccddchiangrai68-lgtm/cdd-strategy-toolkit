@@ -219,7 +219,7 @@ function wsFromLegacy(o){
     pdf: null,
     cur: { tis: c.tis ?? null, tisStats: c.tis_village_stats ?? null, base: c.baseline || {}, tisFile: c.tis_file ?? null, tisIsSample: !!c.tis_is_test_sample },
     ana: { comm: a.tis_community ?? null, commFile: a.tis_community_file ?? null, commIsSample: !!a.tis_community_is_test_sample, venue: (a.venue_notes || []).join('\n'),
-      answer: a.part2_draft ?? null, answerText: a.part2_draft ? JSON.stringify(a.part2_draft, null, 1) : '', validation: a.validation ?? null },
+      answer: a.part2_draft ?? null, answerText: a.part2_draft ? JSON.stringify(a.part2_draft, null, 1) : '', validation: a.validation ?? null, draft: a.swot_review ?? null },
     prj: { old, extra, ans2Text:'', ans2:null, seq, order: n.priority_3_1 || [] },
     bk: BK0() } };
 }

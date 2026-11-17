@@ -264,7 +264,9 @@ function exportData(){
       review: { status: r.status || null, reason: r.reason || null, decision: r.decision || null } }; }),
     flags: ai.flags || [],
     new_plan_projects: { items: orderedItems(planItems()).map(({flags, ...x}) => x), priority_3_1: orderedItems(planItems()).map(x => x.uid), ai_candidates_not_selected: prj.extra.filter(x => x.source==='ai' && !x.accepted).map(x => x.name) },
-    analysis: { tis_community_file: ana.commFile, tis_community_is_test_sample: ana.commIsSample, tis_community: ana.comm, venue_notes: (ana.venue||'').split('\n').map(s=>s.trim()).filter(Boolean), part2_draft: ana.answer, validation: ana.validation },
+    analysis: { tis_community_file: ana.commFile, tis_community_is_test_sample: ana.commIsSample, tis_community: ana.comm, venue_notes: (ana.venue||'').split('\n').map(s=>s.trim()).filter(Boolean), part2_draft: ana.answer, validation: ana.validation,
+      // ร่าง SWOT ที่เจ้าหน้าที่แก้แล้ว พร้อมสถานะรายข้อ (ai/review/ok) — เพิ่ม พ.ย. 2569
+      swot_review: ana.draft, part2_edited: effPart2() },
     current: { tis_file: cur.tisFile, tis_is_test_sample: cur.tisIsSample, tis: cur.tis, tis_village_stats: cur.tisStats, baseline: cur.base },
     // สถานะทำงานทั้งหมดของทุกขั้น ใช้เปิดไฟล์นี้กลับมาทำต่อได้ครบ (คีย์ด้านบนคงไว้เหมือนเดิม)
     workspace: wsSnapshot()

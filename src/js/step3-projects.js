@@ -23,7 +23,7 @@ function itemRef(uid){
   if (uid.startsWith('old:')){ const id = uid.slice(4); return prj.old[id] || (prj.old[id] = {}); }
   return prj.extra.find(x => x.uid === uid);
 }
-function part2Ctx(){ return { part2: ana.answer || {}, taxonomy: TAXONOMY }; }
+function part2Ctx(){ return { part2: effPart2() || {}, taxonomy: TAXONOMY }; }
 // ตัวค้นหา/กรองของรายการโครงการแผนใหม่ (อยู่ในหน้าจอเท่านั้น ไม่บันทึก)
 const pf = { q:'', strat:'', budget:'', show:'' };
 function pfMatch(it, fl){
@@ -51,7 +51,7 @@ function renderProjects(){
   facts($('#carryFacts'), cf);
   fillNewForm();
   const items = orderedItems(planItems());
-  $('#p2Box').value = buildPrompt2({ meta: state.ai?.meta || {}, part2: ana.answer || {}, carried: items.map(i => ({ name:i.name, budget:i.budget, dim:i.dim, method:i.method })),
+  $('#p2Box').value = buildPrompt2({ meta: state.ai?.meta || {}, part2: effPart2() || {}, carried: items.map(i => ({ name:i.name, budget:i.budget, dim:i.dim, method:i.method })),
     venue: (ana.venue || '').split('\n').map(s => s.trim()).filter(Boolean), taxonomy: TAXONOMY });
   // candidates
   const cands = prj.extra.filter(x => x.source === 'ai');

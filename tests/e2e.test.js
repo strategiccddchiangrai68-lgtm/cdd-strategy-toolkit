@@ -313,6 +313,78 @@ const file = p => { const b = fs.readFileSync(p); return { name: path.basename(p
     console.log('✓ ขั้นตอน AI 4 ข้อ ค้นหา/กรอง/เรียง รายการซ้ำ ตรวจงบ ผลนำเข้า Excel');
   }
 
+  // ===== รอบ UX 3: ร่าง SWOT แก้ไขได้ พร้อมสถานะ AI เสนอ / รอตรวจ / ยืนยันแล้ว =====
+  {
+    const h = boot(); await wait(100); const hd = h.document;
+    const ev3 = (el, type = 'change') => el.dispatchEvent(new h.Event(type, { bubbles: true }));
+    const item = (k, id) => hd.querySelector(`#result1 [data-k="${k}"][data-swid="${id}"]`);
+    const draft = () => JSON.parse(JSON.stringify(h.eval('ana.draft')));
+    hd.querySelector('#loadSample').click(); await wait(20);
+    h.location.hash = '#analysis'; await wait(30);
+    hd.querySelector('#loadCommSample').click(); await wait(20);
+    // คำตอบทดสอบ (ข้อความสมมติ ใช้รหัสหลักฐานที่มีจริงจากข้อมูลป่าแดด)
+    const A1 = { swot:{ S:[{id:'S1',text:'ป่าชุมชนสมบูรณ์',evidence:['CN1']},{id:'S2',text:'มีปราชญ์ชาวบ้าน',evidence:['CH1']}], W:[{id:'W1',text:'ขาดการจัดการผลิต',evidence:['PW2']}],
+      O:[{id:'O1',text:'ตลาดเกษตรอินทรีย์',evidence:['CR-P2-1.3']}], T:[{id:'T1',text:'ต้นทุนการเกษตรสูง',evidence:['PT5']}] },
+      tows:[{id:'SO1',type:'SO',pair:['S1','O1'],text:'x'}], direction:'ทิศทางทดสอบ', strategies:[{no:1,name:'เกษตร',from:['SO1']}] };
+    hd.querySelector('#ans1Box').value = JSON.stringify(A1); hd.querySelector('#check1').click(); await wait(20);
+    assert.strictEqual(hd.querySelectorAll('#result1 .sw-item').length, 5, 'swot: ต้องแสดงทุกข้อแบบแก้ไขได้');
+    assert.strictEqual(hd.querySelectorAll('#result1 .sw-item[data-st="ai"]').length, 5, 'swot: ข้อจาก AI ต้องมีสถานะ “ข้อเสนอจาก AI”');
+    assert.ok(/ยืนยันแล้ว 0/.test(hd.querySelector('.swbar').textContent), 'swot: ต้องสรุปสถานะร่าง');
+    // แก้ข้อความ → รอเจ้าหน้าที่ตรวจ
+    const t1 = item('S', 'S1').querySelector('textarea'); t1.value = 'ป่าชุมชนสมบูรณ์ 3,000 ไร่ (เวทียืนยัน)'; ev3(t1);
+    assert.strictEqual(item('S', 'S1').dataset.st, 'review', 'swot: ข้อที่แก้ต้องเป็น “รอเจ้าหน้าที่ตรวจ”');
+    // ยืนยัน
+    item('S', 'S1').querySelector('button[data-swact="ok"]').click();
+    assert.strictEqual(item('S', 'S1').dataset.st, 'ok', 'swot: กดยืนยันแล้วต้องเป็น “ยืนยันแล้ว”');
+    // ข้อความว่างไม่ได้
+    const t2 = item('S', 'S2').querySelector('textarea'); t2.value = '   '; ev3(t2);
+    assert.strictEqual(draft().S[1].text, 'มีปราชญ์ชาวบ้าน', 'swot: ข้อความว่างต้องไม่ถูกบันทึก');
+    // เพิ่ม ลบ เรียง
+    hd.querySelector('#result1 button[data-swact="add"][data-k="W"]').click();
+    assert.ok(draft().W.length === 2 && draft().W[1].src === 'staff' && draft().W[1].status === 'review', 'swot: เพิ่มข้อเองต้องเป็นของเจ้าหน้าที่และรอตรวจ');
+    const nw = item('W', 'W2').querySelector('textarea'); nw.value = 'ถนนเข้าหมู่บ้านชำรุดในฤดูฝน'; ev3(nw);
+    item('W', 'W2').querySelector('button[data-swact="up"]').click();
+    assert.deepStrictEqual(draft().W.map(x => x.id), ['W2', 'W1'], 'swot: เลื่อนลำดับได้');
+    item('T', 'T1').querySelector('button[data-swact="del"]').click();
+    assert.strictEqual(draft().T.length, 0, 'swot: ลบข้อได้ (หลังยืนยัน)');
+    // หลักฐานแก้ได้ และตรวจรหัสที่ไม่มีจริง
+    const e2 = item('S', 'S2').querySelector('input[data-sw="ev"]'); e2.value = 'ch1, ZZ9'; ev3(e2);
+    assert.ok(/อ้างรหัสที่ไม่มีอยู่จริง: ZZ9/.test(item('S', 'S2').textContent), 'swot: รหัสหลักฐานที่แก้ต้องถูกตรวจด้วย');
+    // คำตอบอ่านไม่ได้ต้องไม่ลบร่างเดิม
+    const before = draft();
+    hd.querySelector('#ans1Box').value = 'ขอโทษค่ะ ตอบไม่ได้'; hd.querySelector('#check1').click();
+    assert.deepStrictEqual(draft(), before, 'swot: วางคำตอบที่อ่านไม่ได้ต้องไม่ลบร่างเดิม');
+    assert.ok(/ร่างเดิม/.test(hd.querySelector('#ans1Facts').textContent), 'swot: ต้องบอกว่าร่างเดิมยังอยู่');
+    // คำตอบ AI รอบใหม่ต้องไม่เปลี่ยนข้อที่ยืนยันแล้วและข้อที่เพิ่มเอง
+    const A2 = JSON.parse(JSON.stringify(A1)); A2.swot.S = [{ id:'S1', text:'AI เขียนข้อ S1 ใหม่', evidence:['CN1'] }]; A2.swot.T = [{ id:'T1', text:'ภัยแล้ง', evidence:['PT5'] }]; A2.swot.O = [{ id:'O1', text:'ตลาดท่องเที่ยวชุมชน', evidence:['CR-P2-1.3'] }];
+    hd.querySelector('#ans1Box').value = JSON.stringify(A2); hd.querySelector('#check1').click(); await wait(20);
+    const d2 = draft();
+    const conf = d2.S.find(x => x.status === 'ok');
+    assert.ok(conf && conf.text === 'ป่าชุมชนสมบูรณ์ 3,000 ไร่ (เวทียืนยัน)', 'swot: ข้อที่ยืนยันแล้วต้องคงข้อความเดิม');
+    assert.notStrictEqual(conf.id, 'S1', 'swot: รหัสชนกับข้อใหม่ของ AI ต้องเปลี่ยนรหัสข้อที่ยืนยัน ไม่ใช่ทับ');
+    assert.ok(d2.S.some(x => x.id === 'S1' && x.status === 'ai' && x.text === 'AI เขียนข้อ S1 ใหม่'), 'swot: ข้อเสนอใหม่ของ AI เข้ามาเป็นข้อเสนอ');
+    assert.ok(!d2.O.some(x => x.text === 'ตลาดเกษตรอินทรีย์') && d2.O.some(x => x.text === 'ตลาดท่องเที่ยวชุมชน'), 'swot: ข้อเสนอเดิมของ AI ที่ไม่มีใครแตะถูกแทนด้วยคำตอบใหม่');
+    assert.ok(d2.S.some(x => x.text === 'มีปราชญ์ชาวบ้าน' && x.status === 'review'), 'swot: ข้อที่เจ้าหน้าที่แก้แล้ว (รอตรวจ) ต้องไม่ถูกทับ');
+    assert.ok(d2.W.some(x => x.src === 'staff' && x.text === 'ถนนเข้าหมู่บ้านชำรุดในฤดูฝน'), 'swot: ข้อที่เจ้าหน้าที่เพิ่มเองต้องอยู่');
+    assert.ok(/เวทียืนยันแล้ว/.test(h.eval('swotLockedText()')), 'swot: คำสั่งให้ AI แก้ต้องบอกข้อที่ยืนยันแล้ว');
+    // ข้อมูลที่แก้แล้วต้องไปถึงรูปเล่ม ขั้น ③ และไฟล์สำรอง
+    assert.ok(h.eval('bookData()').swot.S.some(x => x.text === 'ป่าชุมชนสมบูรณ์ 3,000 ไร่ (เวทียืนยัน)'), 'swot: รูปเล่มต้องใช้ข้อความที่แก้แล้ว');
+    const exA = JSON.parse(JSON.stringify(h.eval('exportData()').analysis));
+    assert.ok(exA.part2_draft && exA.swot_review && exA.part2_edited.swot.W.length === 2, 'swot: ไฟล์สำรองต้องมีทั้งคำตอบ AI เดิมและร่างที่แก้');
+    assert.ok(/SWOT ยังไม่ได้ยืนยัน/.test(h.eval('stepStatus("analysis").issues.map(x => x.text).join()')), 'swot: สถานะขั้น ② ต้องบอกข้อที่ยังไม่ยืนยัน');
+    // ยืนยันทุกข้อที่ไม่มีจุดผิด
+    hd.querySelector('#result1 button[data-swact="confirmAll"]').click();
+    const d3 = draft();
+    const notOk = ['S','W','O','T'].flatMap(k => d3[k]).filter(x => x.status !== 'ok');
+    assert.ok(notOk.length === 1 && /ZZ9/.test(notOk[0].evidence.join()), 'swot: ยืนยันทั้งหมดต้องข้ามเฉพาะข้อที่มีจุดผิด');
+    // ไฟล์รุ่นก่อนรอบ 3 (ไม่มี draft) ต้องสร้างร่างจากคำตอบ AI ได้
+    const w9 = boot(); await wait(100);
+    const old = JSON.parse(JSON.stringify(h.eval('exportData()'))); delete old.workspace; delete old.analysis.swot_review; delete old.analysis.part2_edited;
+    w9.eval('wsImport')(old, 'old.json'); w9.location.hash = '#analysis'; await wait(30);
+    assert.ok(w9.document.querySelectorAll('#result1 .sw-item').length > 0 && w9.document.querySelectorAll('#result1 .sw-item[data-st="ai"]').length === w9.document.querySelectorAll('#result1 .sw-item').length, 'swot: ไฟล์รุ่นก่อนต้องเปิดได้ ทุกข้อเป็นข้อเสนอจาก AI');
+    console.log('✓ ร่าง SWOT แก้ไขได้ พร้อมสถานะ และ AI รอบใหม่ไม่ทับข้อที่ยืนยัน');
+  }
+
   assert.deepStrictEqual(errs, [], 'ต้องไม่มี error ในหน้า');
   console.log('ผ่านทั้งหมด'); process.exit(0);
 })().catch(e => { console.error('✗', e.message); process.exit(1); });

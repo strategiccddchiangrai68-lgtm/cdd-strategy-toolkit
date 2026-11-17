@@ -51,6 +51,8 @@ function stepStatus(key){
       const e = ana.validation?.errors?.length || 0, w = ana.validation?.warns?.length || 0;
       if (e) bad(`ร่าง SWOT และยุทธศาสตร์มีจุดที่ผิด ${e} จุด`, 'a4');
       if (w) warn(`ร่าง SWOT และยุทธศาสตร์มีจุดที่ควรตรวจ ${w} จุด`, 'a4');
+      const c = swotCounts();
+      if (c.all > c.ok) warn(`SWOT ยังไม่ได้ยืนยัน ${c.all - c.ok} จาก ${c.all} ข้อ (ข้อเสนอจาก AI ${c.ai}, รอตรวจ ${c.review})`, 'a4');
     }
     return fin(started);
   }

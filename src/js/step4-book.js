@@ -21,7 +21,7 @@ function bookData(){
   if (ana.answer) sources.push('แผนพัฒนาจังหวัดเชียงราย 5 ปี (พ.ศ. 2571-2575)');
   return {
     tambon: m.tambon || cur.tis?.tambon || ana.comm?.tambon, amphoe: m.amphoe || cur.tis?.amphoe || ana.comm?.amphoe, changwat: m.changwat || 'เชียงราย',
-    year: bk.year, base: baseNow(), swot: ana.answer?.swot, direction: ana.answer?.direction, strategies: ana.answer?.strategies,
+    year: bk.year, base: baseNow(), swot: effPart2()?.swot, direction: ana.answer?.direction, strategies: ana.answer?.strategies,
     tisOrder: cur.tisStats?.order, tisN: cur.tisStats?.n, tisYear: cur.tis?.year,
     items: orderedItems(planItems()), review: { date: bk.rdate, round: bk.rround, resolution: bk.rres, attendees: bk.ratt },
     sources, reviewSummary: ps.length ? `จากทั้งหมด ${ps.length} โครงการ ทำแล้วจบโครงการ ${cnt('done')} โครงการ ทำแล้วและทำต่อ ${cnt('done_continue')} โครงการ ยังไม่ได้ทำ ${nd.length} โครงการ (ยกไปแผนใหม่ ${nd.filter(p => rv(p.id).decision==='carry').length} ตัดออก ${nd.filter(p => rv(p.id).decision==='drop').length})${ps.length - cnt('done') - cnt('done_continue') - nd.length ? ' ยังไม่ระบุสถานะ ' + (ps.length - cnt('done') - cnt('done_continue') - nd.length) + ' โครงการ' : ''}` : ''
