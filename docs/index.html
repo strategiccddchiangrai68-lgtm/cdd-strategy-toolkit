@@ -1,0 +1,1971 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CDD Strategy Toolkit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* app.css — สไตล์ทั้งหมดของแอป (สีรองรับโหมดมืด) */
+:root{
+  --bg:#EEF2EF; --surface:#FFFFFF; --sunk:#F6F8F6; --ink:#1B2A31; --muted:#56656C; --rule:#CFD8D2;
+  --ok:#17704A; --ok-soft:#E3F2EA; --bad:#B42318; --bad-soft:#FBE7E5; --warn:#94590A; --warn-soft:#FBF0DD;
+  --accent:#24476B; --accent-soft:#E4ECF4; --focus:#2F6FB3;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#121A1D; --surface:#19242A; --sunk:#141E22; --ink:#E4ECEA; --muted:#9AABAE; --rule:#2E3E44;
+    --ok:#5CC596; --ok-soft:#163327; --bad:#F2877C; --bad-soft:#3A1D1A; --warn:#E4B062; --warn-soft:#33281A;
+    --accent:#9CC0E6; --accent-soft:#1D2D3C; --focus:#7FB2EA; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#121A1D; --surface:#19242A; --sunk:#141E22; --ink:#E4ECEA; --muted:#9AABAE; --rule:#2E3E44;
+  --ok:#5CC596; --ok-soft:#163327; --bad:#F2877C; --bad-soft:#3A1D1A; --warn:#E4B062; --warn-soft:#33281A;
+  --accent:#9CC0E6; --accent-soft:#1D2D3C; --focus:#7FB2EA; color-scheme: dark;
+}
+:root{ box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px); }
+html{ scroll-padding-top:calc(env(safe-area-inset-top,0px) + 64px); }
+*,*::before,*::after{ box-sizing:inherit; }
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:"Sarabun","Noto Sans Thai","Leelawadee UI",Tahoma,sans-serif;
+  font-size:17px; line-height:1.6; -webkit-font-smoothing:antialiased;
+}
+body::before{ content:""; position:fixed; inset:0 0 auto; height:env(safe-area-inset-top,0px); z-index:10; background:var(--surface); }
+button,input,select,textarea{ font:inherit; color:inherit; }
+:focus-visible{ outline:3px solid var(--focus); outline-offset:2px; border-radius:6px; }
+.wrap{ max-width:1080px; margin:0 auto; padding:0 20px 80px; }
+
+header.top{ padding:36px 0 18px; }
+header.top h1{ font-size:clamp(28px,4.4vw,40px); line-height:1.2; margin:0 0 8px; font-weight:700; letter-spacing:-0.01em; }
+header.top p{ margin:0; color:var(--muted); max-width:66ch; }
+header.top .brand{ font-size:14px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--accent); margin-bottom:4px; }
+.wsbar{ display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-top:14px; padding:10px 12px; border:1px solid var(--rule); border-radius:10px; background:var(--sunk); }
+.wsbar label{ font-weight:600; font-size:15.5px; }
+.wsbar select{ flex:1 1 260px; min-width:0; max-width:100%; padding:6px 8px; border:1px solid var(--rule); border-radius:8px; background:var(--surface); }
+#wsFacts:empty{ display:none; }
+
+.tally{
+  position:sticky; top:env(safe-area-inset-top,0px); z-index:5; background:var(--surface);
+  border-bottom:1px solid var(--rule); margin:0 -20px; padding:10px 20px;
+  display:flex; gap:20px; flex-wrap:wrap; align-items:baseline; font-variant-numeric:tabular-nums;
+}
+.tally b{ font-size:20px; }
+.tally span{ color:var(--muted); font-size:15px; }
+.tally .t-bad b{ color:var(--bad); } .tally .t-ok b{ color:var(--ok); }
+
+section.step{ margin-top:34px; }
+.step-head{ display:flex; gap:14px; align-items:flex-start; margin-bottom:12px; }
+.step-no{
+  flex:none; width:34px; height:34px; border-radius:50%; border:2px solid var(--ink);
+  display:grid; place-items:center; font-weight:700; font-size:16px;
+}
+.step.done .step-no{ background:var(--ok); border-color:var(--ok); color:var(--surface); }
+.step-head h2{ margin:0; font-size:22px; line-height:1.35; }
+.step-head p{ margin:2px 0 0; color:var(--muted); font-size:15.5px; max-width:70ch; }
+.panel{ background:var(--surface); border:1px solid var(--rule); border-radius:10px; padding:18px; margin-left:48px; }
+@media (max-width:640px){ .panel{ margin-left:0; padding:14px; } }
+
+.btn{
+  display:inline-flex; align-items:center; gap:8px; border:1px solid var(--ink); background:var(--ink); color:var(--surface);
+  padding:9px 16px; border-radius:8px; cursor:pointer; font-weight:600; font-size:16px;
+}
+.btn.ghost{ background:transparent; color:var(--ink); border-color:var(--rule); }
+.btn.small{ padding:5px 10px; font-size:14.5px; font-weight:500; }
+.btn:disabled{ opacity:.45; cursor:not-allowed; }
+.row-actions{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+
+.drop{
+  border:2px dashed var(--rule); border-radius:10px; padding:22px; text-align:center; background:var(--sunk); cursor:pointer;
+}
+.drop.over{ border-color:var(--accent); background:var(--accent-soft); }
+.drop input{ position:absolute; width:1px; height:1px; opacity:0; }
+.drop strong{ display:block; font-size:18px; }
+.drop small{ color:var(--muted); }
+
+.facts{ list-style:none; margin:14px 0 0; padding:0; display:grid; gap:6px; }
+.facts li{ padding:8px 12px; border-radius:8px; border-left:4px solid var(--rule); background:var(--sunk); font-size:15.5px; }
+.facts li.ok{ border-color:var(--ok); background:var(--ok-soft); }
+.facts li.bad{ border-color:var(--bad); background:var(--bad-soft); }
+.facts li.warn{ border-color:var(--warn); background:var(--warn-soft); }
+.facts li.info{ border-color:var(--accent); background:var(--accent-soft); }
+
+textarea{
+  width:100%; min-height:150px; border:1px solid var(--rule); border-radius:8px; padding:10px 12px;
+  background:var(--sunk); font-size:14px; line-height:1.5; font-family:ui-monospace,Menlo,Consolas,monospace; resize:vertical;
+}
+.note{ font-size:14.5px; color:var(--muted); margin:10px 0 0; }
+.privacy{ margin-top:12px; padding:10px 12px; border-radius:8px; background:var(--warn-soft); font-size:15px; }
+details.prompt summary{ cursor:pointer; color:var(--accent); font-weight:600; margin-top:10px; }
+details.prompt textarea{ margin-top:8px; min-height:220px; }
+
+/* ledger */
+.ledger{ margin-left:48px; }
+@media (max-width:640px){ .ledger{ margin-left:0; } }
+.filters{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px; }
+.chip{ border:1px solid var(--rule); background:var(--surface); border-radius:999px; padding:4px 12px; cursor:pointer; font-size:14.5px; }
+.chip[aria-pressed="true"]{ background:var(--ink); color:var(--surface); border-color:var(--ink); }
+.item{
+  display:grid; grid-template-columns:44px minmax(0,1fr) 230px 220px; gap:14px; align-items:start;
+  background:var(--surface); border:1px solid var(--rule); border-radius:10px; padding:14px; margin-bottom:8px;
+}
+.item.flag-bad{ border-color:var(--bad); box-shadow:inset 4px 0 0 var(--bad); }
+.item.flag-warn{ box-shadow:inset 4px 0 0 var(--warn); }
+.item .no{ font-weight:700; font-size:20px; font-variant-numeric:tabular-nums; color:var(--muted); }
+.item .name input{
+  width:100%; border:1px solid transparent; background:transparent; padding:4px 6px; margin:-4px -6px; border-radius:6px; font-weight:600; font-size:16.5px;
+}
+.item .name input:hover,.item .name input:focus{ border-color:var(--rule); background:var(--sunk); }
+.meta{ font-size:14px; color:var(--muted); margin-top:4px; }
+.tag{ display:inline-block; font-size:13px; padding:1px 8px; border-radius:999px; background:var(--sunk); border:1px solid var(--rule); margin-right:4px; }
+
+.money{ font-variant-numeric:tabular-nums; }
+.money .pair{ display:grid; grid-template-columns:auto 1fr; gap:2px 10px; align-items:baseline; }
+.money .lbl{ font-size:13px; color:var(--muted); }
+.money .val{ font-size:18px; font-weight:600; text-align:right; letter-spacing:.01em; }
+.money .val mark{ background:var(--bad-soft); color:var(--bad); border-radius:3px; padding:0 1px; }
+.money .verdict{ margin-top:6px; font-size:14px; font-weight:600; }
+.money .verdict.ok{ color:var(--ok); } .money .verdict.bad{ color:var(--bad); } .money .verdict.warn{ color:var(--warn); }
+.money .fix{ display:flex; gap:6px; flex-wrap:wrap; margin-top:6px; }
+.money input[type=number]{ width:100%; border:1px solid var(--rule); border-radius:6px; padding:4px 8px; background:var(--sunk); text-align:right; }
+.money label.chk{ display:flex; gap:6px; align-items:center; font-size:14px; margin-top:6px; }
+
+.status select{ width:100%; border:1px solid var(--rule); border-radius:8px; padding:7px 8px; background:var(--surface); }
+.status .sub{ margin-top:6px; display:grid; gap:6px; }
+.status .sub[hidden]{ display:none; }
+
+@media (max-width:900px){
+  .item{ grid-template-columns:36px minmax(0,1fr); }
+  .item .money,.item .status{ grid-column:2 / -1; }
+}
+
+.summary{ margin-left:48px; display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:10px; }
+@media (max-width:640px){ .summary{ margin-left:0; } }
+.summary div{ background:var(--surface); border:1px solid var(--rule); border-radius:10px; padding:12px 14px; }
+.summary b{ display:block; font-size:24px; font-variant-numeric:tabular-nums; }
+.summary span{ color:var(--muted); font-size:14.5px; }
+.empty{ color:var(--muted); padding:18px; border:1px dashed var(--rule); border-radius:10px; text-align:center; }
+
+nav.tabs{ display:flex; gap:4px; border-bottom:2px solid var(--rule); margin-top:8px; }
+nav.tabs a{ padding:10px 16px; text-decoration:none; color:var(--muted); font-weight:600; border-bottom:3px solid transparent; margin-bottom:-2px; }
+nav.tabs a[aria-current="page"]{ color:var(--ink); border-color:var(--ink); }
+.heat{ width:100%; border-collapse:collapse; font-variant-numeric:tabular-nums; min-width:560px; }
+.heat th,.heat td{ padding:8px 10px; border-bottom:1px solid var(--rule); text-align:center; }
+.heat th:first-child,.heat td:first-child{ text-align:left; }
+.heat thead th{ font-size:14px; color:var(--muted); font-weight:600; }
+.heat td.c{ font-weight:600; }
+.scroll{ overflow-x:auto; }
+.grid2{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+@media (max-width:720px){ .grid2{ grid-template-columns:1fr; } }
+.order{ margin:0; padding-left:1.4em; }
+.order li{ padding:3px 0; }
+.order li.diff{ color:var(--bad); font-weight:600; }
+.scores{ width:100%; border-collapse:collapse; min-width:560px; }
+.scores th,.scores td{ padding:6px 6px; border-bottom:1px solid var(--rule); }
+.scores th{ font-size:14px; color:var(--muted); font-weight:600; text-align:center; }
+.scores td:first-child{ font-weight:600; }
+.scores input{ width:100%; min-width:64px; border:1px solid var(--rule); border-radius:6px; padding:4px 6px; background:var(--sunk); text-align:right; font-variant-numeric:tabular-nums; }
+.base{ display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:10px; }
+.base label{ display:grid; gap:4px; font-size:14.5px; color:var(--muted); }
+.base input{ border:1px solid var(--rule); border-radius:6px; padding:6px 8px; background:var(--sunk); color:var(--ink); font-size:16px; font-variant-numeric:tabular-nums; }
+h3.sub{ font-size:17px; margin:0 0 8px; }
+
+.quad{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+@media (max-width:720px){ .quad{ grid-template-columns:1fr; } }
+.quad > div{ background:var(--sunk); border:1px solid var(--rule); border-radius:10px; padding:12px 14px; }
+.quad h3{ margin:0 0 6px; font-size:17px; }
+.sw{ list-style:none; margin:0; padding:0; display:grid; gap:8px; }
+.sw li{ padding:8px 10px; background:var(--surface); border:1px solid var(--rule); border-radius:8px; }
+.sw li.warn{ border-left:4px solid var(--warn); } .sw li.bad{ border-left:4px solid var(--bad); }
+.sw .id{ font-weight:700; margin-right:6px; color:var(--muted); font-variant-numeric:tabular-nums; }
+.ev{ display:inline-block; font-size:12.5px; padding:0 7px; margin:4px 4px 0 0; border-radius:999px; border:1px solid var(--rule); background:var(--sunk); cursor:help; font-variant-numeric:tabular-nums; }
+.ev.x{ border-style:dashed; color:var(--warn); } .ev.ext{ border-color:var(--accent); color:var(--accent); } .ev.missing{ background:var(--bad-soft); color:var(--bad); border-color:var(--bad); }
+.flagline{ font-size:13.5px; margin-top:4px; } .flagline.warn{ color:var(--warn); } .flagline.bad{ color:var(--bad); }
+.dir{ font-size:20px; font-weight:600; line-height:1.45; padding:12px 14px; border-left:4px solid var(--ink); background:var(--sunk); border-radius:0 8px 8px 0; }
+.strat{ display:grid; gap:8px; margin:0; padding:0; list-style:none; }
+.strat li{ padding:10px 12px; border:1px solid var(--rule); border-radius:8px; background:var(--surface); }
+.strat b{ display:block; }
+details.evlist summary{ cursor:pointer; color:var(--accent); font-weight:600; }
+details.evlist .scroll{ max-height:360px; overflow:auto; margin-top:8px; border:1px solid var(--rule); border-radius:8px; }
+details.evlist table{ width:100%; border-collapse:collapse; font-size:14.5px; }
+details.evlist td{ padding:4px 8px; border-bottom:1px solid var(--rule); vertical-align:top; }
+details.evlist td:first-child{ font-weight:600; white-space:nowrap; font-variant-numeric:tabular-nums; }
+.capsum{ display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:8px; margin-top:12px; }
+.capsum div{ background:var(--sunk); border:1px solid var(--rule); border-radius:8px; padding:8px 10px; }
+.capsum b{ display:block; font-size:20px; font-variant-numeric:tabular-nums; }
+.capsum span{ color:var(--muted); font-size:14px; }
+
+nav.tabs{ overflow-x:auto; }
+nav.tabs a{ white-space:nowrap; }
+.pj{ background:var(--surface); border:1px solid var(--rule); border-radius:10px; padding:12px 14px; margin-bottom:8px; }
+.pj.bad{ box-shadow:inset 4px 0 0 var(--bad); } .pj.warn{ box-shadow:inset 4px 0 0 var(--warn); }
+.pj-top{ display:flex; gap:10px; align-items:center; }
+.pj-top .src{ font-size:13px; padding:1px 8px; border-radius:999px; border:1px solid var(--rule); color:var(--muted); white-space:nowrap; }
+.pj-top input[data-f=name]{ flex:1; min-width:0; font-weight:600; font-size:16.5px; border:1px solid transparent; background:transparent; padding:4px 6px; border-radius:6px; }
+.pj-top input[data-f=name]:hover,.pj-top input[data-f=name]:focus{ border-color:var(--rule); background:var(--sunk); }
+.pj-grid{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; margin-top:8px; }
+@media (max-width:860px){ .pj-grid{ grid-template-columns:repeat(2,minmax(0,1fr)); } }
+.pj-grid label{ display:grid; gap:2px; font-size:13px; color:var(--muted); }
+.pj-grid label.wide{ grid-column:span 2; }
+.pj-grid input,.pj-grid select{ border:1px solid var(--rule); border-radius:6px; padding:5px 8px; background:var(--sunk); color:var(--ink); font-size:15px; min-width:0; }
+.pj .flagline{ margin-top:6px; }
+.cand{ display:flex; gap:10px; align-items:flex-start; padding:10px 12px; border:1px solid var(--rule); border-radius:8px; background:var(--surface); margin-bottom:8px; }
+.cand input[type=checkbox]{ margin-top:6px; width:18px; height:18px; flex:none; }
+.cand b{ display:block; }
+.p31{ width:100%; border-collapse:collapse; min-width:620px; font-variant-numeric:tabular-nums; }
+.p31 th,.p31 td{ padding:6px 8px; border-bottom:1px solid var(--rule); text-align:left; vertical-align:top; }
+.p31 th{ font-size:14px; color:var(--muted); font-weight:600; }
+.p31 td.num{ text-align:right; }
+.toast{ position:fixed; left:50%; bottom:calc(20px + env(safe-area-inset-bottom,0px)); transform:translateX(-50%); background:var(--ink); color:var(--surface); padding:10px 16px; border-radius:8px; font-size:15px; z-index:20; }
+.toast[hidden]{ display:none; }
+@media (prefers-reduced-motion:no-preference){
+  .item.flash{ animation:flash 1.2s ease-out; }
+  @keyframes flash{ from{ background:var(--ok-soft); } to{ background:var(--surface); } }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">CDD Strategy Toolkit</div>
+    <h1>เตรียมข้อมูลแผนพัฒนาตำบล</h1>
+    <p>ทบทวนโครงการในเล่มแผนเดิม แล้วรวบรวมข้อมูลตำบลปัจจุบันจาก TIS ให้พร้อมก่อนเข้าเวที ข้อมูลทั้งหมดอยู่ในเครื่องนี้ ไม่ถูกส่งไปที่ใด</p>
+    <div class="wsbar">
+      <label for="wsSel">ตำบลที่ทำอยู่</label>
+      <select id="wsSel"></select>
+      <button class="btn ghost small" id="wsNew" type="button">เริ่มตำบลใหม่</button>
+      <button class="btn ghost small" id="wsOpen" type="button">เปิดไฟล์ .json ที่บันทึกไว้</button>
+      <input type="file" id="wsFile" accept=".json,application/json" hidden>
+    </div>
+    <ul class="facts" id="wsFacts"></ul>
+    <nav class="tabs" aria-label="ขั้นตอน">
+      <a href="#review" id="tabReview">⓪ ทบทวนแผนเดิม</a>
+      <a href="#current" id="tabCurrent">① ข้อมูลตำบลปัจจุบัน</a>
+      <a href="#analysis" id="tabAnalysis">② SWOT และยุทธศาสตร์</a>
+      <a href="#projects" id="tabProjects">③ โครงการ</a>
+      <a href="#book" id="tabBook">④ ส่งออกรูปเล่ม</a>
+    </nav>
+  </header>
+<main id="v-review">
+
+  <div class="tally" id="tally" aria-live="polite">
+    <div><b id="tProj">0</b> <span>โครงการ</span></div>
+    <div class="t-bad"><b id="tBad">0</b> <span>งบต้องตรวจ</span></div>
+    <div class="t-ok"><b id="tConf">0</b> <span>ยืนยันงบแล้ว</span></div>
+    <div><b id="tStat">0</b> <span>ระบุสถานะแล้ว</span></div>
+  </div>
+
+  <section class="step" id="s1">
+    <div class="step-head"><div class="step-no">1</div><div>
+      <h2>แนบไฟล์ PDF แผนเดิม</h2>
+      <p>แอปอ่านตัวเลขงบประมาณจากข้อความที่ฝังในไฟล์ ใช้เป็นตัวตรวจคำตอบของ AI ไฟล์ไม่ออกจากเครื่องนี้</p>
+    </div></div>
+    <div class="panel">
+      <label class="drop" id="drop">
+        <input type="file" id="pdfInput" accept="application/pdf,.pdf">
+        <strong id="dropTitle">เลือกไฟล์ หรือลากไฟล์มาวางที่นี่</strong>
+        <small>ไฟล์เดียวกับที่จะแนบให้ Gemini</small>
+      </label>
+      <ul class="facts" id="pdfFacts"></ul>
+    </div>
+  </section>
+
+  <section class="step" id="s2">
+    <div class="step-head"><div class="step-no">2</div><div>
+      <h2>ให้ Gemini สกัดโครงการ แล้ววางคำตอบกลับ</h2>
+      <p>คัดลอกคำสั่ง เปิด Gemini แนบไฟล์ PDF เดิม วางคำสั่ง แล้วคัดลอกคำตอบทั้งหมดมาวางในช่องด้านล่าง</p>
+    </div></div>
+    <div class="panel">
+      <div class="row-actions">
+        <button class="btn" id="copyPrompt" type="button">คัดลอกคำสั่งสำหรับ AI</button>
+        <a class="btn ghost" style="text-decoration:none" href="https://gemini.google.com/app" target="_blank" rel="noopener">เปิด Gemini</a>
+        <button class="btn ghost" id="loadSample" type="button">ลองด้วยคำตอบจริงของ Gemini (ป่าแดด)</button>
+      </div>
+      <details class="prompt"><summary>ดูคำสั่งทั้งหมด</summary><textarea id="promptBox" readonly></textarea></details>
+      <div class="privacy">เล่มแผนเดิมบางเล่มมีชื่อและเบอร์โทรศัพท์ของผู้นำหรือประธานกลุ่ม การแนบไฟล์ให้ AI คือการส่งข้อมูลเหล่านี้ออกไปด้วย ถ้าทำได้ ให้ใช้ไฟล์ที่ตัดหน้าเหล่านั้นออก</div>
+      <p class="note" id="sampleNote" hidden>กำลังใช้คำตอบจริงของ Gemini จากการทดสอบกับแผนตำบลป่าแดด (ตัดส่วน SWOT ออก) แนบไฟล์แผนป่าแดดในขั้นที่ 1 เพื่อดูการเทียบงบ</p>
+      <label for="aiBox" style="display:block;margin:14px 0 6px;font-weight:600">คำตอบจาก AI</label>
+      <textarea id="aiBox" placeholder="วางคำตอบ JSON ทั้งหมดจาก Gemini ที่นี่"></textarea>
+      <div class="row-actions" style="margin-top:10px"><button class="btn" id="checkBtn" type="button">ตรวจคำตอบ</button></div>
+      <ul class="facts" id="aiFacts"></ul>
+    </div>
+  </section>
+
+  <section class="step" id="s3">
+    <div class="step-head"><div class="step-no">3</div><div>
+      <h2>ตรวจงบและระบุสถานะทีละโครงการ</h2>
+      <p>แถวขอบแดงคืองบที่ AI อ่านไม่ตรงกับไฟล์ ให้เปิดเล่มจริงดูแล้วเลือกค่าที่ถูก สถานะโครงการต้องได้จากเวทีหรือผู้รู้ในพื้นที่ แอปเดาให้ไม่ได้</p>
+    </div></div>
+    <div class="ledger">
+      <div class="filters" role="group" aria-label="กรองรายการ">
+        <button class="chip" data-f="all" aria-pressed="true" type="button">ทั้งหมด</button>
+        <button class="chip" data-f="check" aria-pressed="false" type="button">งบต้องตรวจ</button>
+        <button class="chip" data-f="nostatus" aria-pressed="false" type="button">ยังไม่ระบุสถานะ</button>
+      </div>
+      <div id="list"><div class="empty">วางคำตอบจาก AI ในขั้นที่ 2 แล้วรายการโครงการจะขึ้นที่นี่</div></div>
+    </div>
+  </section>
+
+  <section class="step" id="s4">
+    <div class="step-head"><div class="step-no">4</div><div>
+      <h2>สรุปผลทบทวน</h2>
+      <p>ใช้เปิดเวทีทบทวน และบันทึกเป็นไฟล์เพื่อนำเข้าขั้นจัดทำแผนใหม่</p>
+    </div></div>
+    <div class="summary" id="summary"></div>
+    <div class="panel" style="margin-top:12px">
+      <div class="row-actions">
+        <button class="btn" id="saveBtn" type="button">บันทึกผลทบทวน (.json)</button>
+        <button class="btn ghost" id="resetBtn" type="button">ล้างข้อมูลในเครื่องนี้</button>
+      </div>
+      <p class="note" id="saveNote"></p>
+      <textarea id="exportBox" readonly hidden></textarea>
+    </div>
+  </section>
+</main>
+
+<main id="v-current" hidden>
+  <section class="step" id="c1">
+    <div class="step-head"><div class="step-no">1</div><div>
+      <h2>นำเข้ารายงานผลการวิเคราะห์ TIS</h2>
+      <p>ในระบบ TIS เปิดรายงานผลการวิเคราะห์ของตำบล กดส่งออกเป็น Excel แล้วนำไฟล์มาใส่ที่นี่ แอปจะสรุปว่าแต่ละหมู่บ้านจัดลำดับปัญหาอย่างไร</p>
+    </div></div>
+    <div class="panel">
+      <label class="drop" id="drop2">
+        <input type="file" id="xlsInput" accept=".xlsx,.xls">
+        <strong id="drop2Title">เลือกไฟล์ Excel จาก TIS</strong>
+        <small>ไฟล์ชื่อประมาณ “รายงานผลการวิเคราะห์ TIS.xlsx”</small>
+      </label>
+      <div class="row-actions" style="margin-top:10px"><button class="btn ghost" id="loadTisSample" type="button">ลองด้วยรายงาน TIS จริงของป่าแดด</button></div>
+      <ul class="facts" id="tisFacts"></ul>
+    </div>
+  </section>
+
+  <section class="step" id="c2">
+    <div class="step-head"><div class="step-no">2</div><div>
+      <h2>หมู่บ้านเห็นตรงกันแค่ไหน</h2>
+      <p>ตัวเลขในตารางคือจำนวนหมู่บ้านที่จัดแต่ละด้านไว้ในอันดับนั้น สีเข้มคือหมู่บ้านส่วนใหญ่เห็นตรงกัน ใช้เปิดเวทีได้ทันที</p>
+    </div></div>
+    <div class="panel"><div class="scroll" id="heatWrap"><div class="empty">นำเข้ารายงาน TIS ก่อน</div></div><ul class="facts" id="heatFacts"></ul></div>
+  </section>
+
+  <section class="step" id="c4">
+    <div class="step-head"><div class="step-no">3</div><div>
+      <h2>ข้อมูลพื้นฐานของตำบล</h2>
+      <p>ตัวเลขตั้งต้นดึงจากแผนเดิม (ขั้น ⓪) ให้แก้เป็นข้อมูลปีล่าสุด และระบุปีของข้อมูลทุกครั้ง</p>
+    </div></div>
+    <div class="panel">
+      <div class="base" id="baseForm"></div>
+      <ul class="facts" id="baseFacts"></ul>
+      <div id="oldProblems" style="margin-top:14px"></div>
+      <div class="row-actions" style="margin-top:14px"><button class="btn" id="saveBtn2" type="button">บันทึกข้อมูลทั้งหมด (.json)</button></div>
+      <p class="note" id="saveNote2"></p>
+    </div>
+  </section>
+</main>
+
+<main id="v-analysis" hidden>
+  <section class="step" id="a1">
+    <div class="step-head"><div class="step-no">1</div><div>
+      <h2>นำเข้ารายงานผลการวิเคราะห์ข้อมูลชุมชนจาก TIS</h2>
+      <p>รายงานที่มีคอลัมน์ทุนชุมชนและ SWOT ทุนชุมชนใช้เป็นหลักฐานได้ ส่วน SWOT ของ TIS ใช้เป็นข้อมูลประกอบที่ต้องตรวจเท่านั้น</p>
+    </div></div>
+    <div class="panel">
+      <label class="drop" id="drop3">
+        <input type="file" id="commInput" accept=".xlsx,.xls">
+        <strong id="drop3Title">เลือกไฟล์ Excel “ผลการวิเคราะห์ข้อมูลชุมชน”</strong>
+        <small>จากเมนูรายงานใน TIS</small>
+      </label>
+      <div class="row-actions" style="margin-top:10px"><button class="btn ghost" id="loadCommSample" type="button">ลองด้วยรายงานจริงของป่าแดด</button></div>
+      <ul class="facts" id="commFacts"></ul>
+      <div class="capsum" id="capSum"></div>
+    </div>
+  </section>
+
+  <section class="step" id="a2">
+    <div class="step-head"><div class="step-no">2</div><div>
+      <h2>รวมหลักฐานและเสียงจากเวที</h2>
+      <p>แอปรวมหลักฐานจากขั้น ⓪ ① และรายงาน TIS ให้เป็นรหัสอ้างอิง ใส่สิ่งที่เวทีประชาคมพูดเพิ่มได้ บรรทัดละหนึ่งประเด็น ข้อมูลจากเวทีได้น้ำหนักสูงสุด</p>
+    </div></div>
+    <div class="panel">
+      <label for="venueBox" style="display:block;margin-bottom:6px;font-weight:600">ข้อมูลจากเวทีประชาคม</label>
+      <textarea id="venueBox" style="font-family:inherit;font-size:16px;min-height:110px" placeholder="เช่น ชาวบ้านหลายหมู่ขายข้าวเปลือกให้พ่อค้าคนกลางราคาต่ำ"></textarea>
+      <ul class="facts" id="evFacts"></ul>
+      <details class="evlist" style="margin-top:10px"><summary>ดูหลักฐานทั้งหมด</summary><div class="scroll"><table id="evTable"></table></div></details>
+    </div>
+  </section>
+
+  <section class="step" id="a3">
+    <div class="step-head"><div class="step-no">3</div><div>
+      <h2>ให้ Gemini ร่าง SWOT, TOWS และยุทธศาสตร์</h2>
+      <p>คัดลอกคำสั่ง วางใน Gemini (ไม่ต้องแนบไฟล์) แล้วคัดลอกคำตอบทั้งหมดกลับมาวาง</p>
+    </div></div>
+    <div class="panel">
+      <div class="row-actions"><button class="btn" id="copyP1" type="button">คัดลอกคำสั่งสำหรับ AI</button><a class="btn ghost" style="text-decoration:none" href="https://gemini.google.com/app" target="_blank" rel="noopener">เปิด Gemini</a></div>
+      <details class="prompt"><summary>ดูคำสั่งทั้งหมด</summary><textarea id="p1Box" readonly></textarea></details>
+      <label for="ans1Box" style="display:block;margin:14px 0 6px;font-weight:600">คำตอบจาก AI</label>
+      <textarea id="ans1Box" placeholder="วางคำตอบ JSON ทั้งหมดจาก Gemini ที่นี่"></textarea>
+      <div class="row-actions" style="margin-top:10px"><button class="btn" id="check1" type="button">ตรวจคำตอบ</button><button class="btn ghost" id="fixP1" type="button" hidden>คัดลอกคำสั่งให้ AI แก้จุดที่ผิด</button></div>
+      <textarea id="fixBox" readonly hidden style="margin-top:10px;min-height:120px"></textarea>
+      <ul class="facts" id="ans1Facts"></ul>
+    </div>
+  </section>
+
+  <section class="step" id="a4">
+    <div class="step-head"><div class="step-no">4</div><div>
+      <h2>ร่างส่วนที่ 2 สำหรับเวทีพิจารณา</h2>
+      <p>ชี้ที่รหัสเพื่อดูหลักฐาน รหัสเส้นประคือ SWOT จาก TIS รหัสสีแดงคือรหัสที่ไม่มีอยู่จริง ข้อที่ขอบเหลืองหรือแดงต้องให้เวทียืนยันก่อนใช้</p>
+    </div></div>
+    <div class="ledger" id="result1"><div class="empty">ตรวจคำตอบในขั้นที่ 3 แล้วร่างจะขึ้นที่นี่</div></div>
+    <div class="panel" style="margin-top:12px"><div class="row-actions"><button class="btn" id="saveBtn3" type="button">บันทึกข้อมูลทั้งหมด (.json)</button></div><p class="note" id="saveNote3"></p></div>
+  </section>
+</main>
+
+<main id="v-projects" hidden>
+  <section class="step" id="p1">
+    <div class="step-head"><div class="step-no">1</div><div>
+      <h2>โครงการจากแผนเดิมที่เข้าแผนใหม่</h2>
+      <p>มาจากขั้น ⓪ โดยอัตโนมัติ คือโครงการที่ทำแล้วและทำต่อ กับโครงการที่ยังไม่ได้ทำแต่เวทีตัดสินใจยกไป</p>
+    </div></div>
+    <div class="panel"><ul class="facts" id="carryFacts"></ul></div>
+  </section>
+
+  <section class="step" id="p2">
+    <div class="step-head"><div class="step-no">2</div><div>
+      <h2>ให้ Gemini เสนอโครงการใหม่ให้เวทีเลือก</h2>
+      <p>คำสั่งสร้างจากร่างส่วนที่ 2 ในขั้น ② AI จะเสนอเฉพาะยุทธศาสตร์ที่ยังขาดโครงการ และไม่กำหนดงบประมาณให้ เวทีเป็นผู้กำหนดเอง</p>
+    </div></div>
+    <div class="panel">
+      <div class="row-actions"><button class="btn" id="copyP2" type="button">คัดลอกคำสั่งสำหรับ AI</button><a class="btn ghost" style="text-decoration:none" href="https://gemini.google.com/app" target="_blank" rel="noopener">เปิด Gemini</a></div>
+      <details class="prompt"><summary>ดูคำสั่งทั้งหมด</summary><textarea id="p2Box" readonly></textarea></details>
+      <label for="ans2Box" style="display:block;margin:14px 0 6px;font-weight:600">คำตอบจาก AI</label>
+      <textarea id="ans2Box" placeholder="วางคำตอบ JSON ทั้งหมดจาก Gemini ที่นี่"></textarea>
+      <div class="row-actions" style="margin-top:10px"><button class="btn" id="check2" type="button">ตรวจคำตอบ</button></div>
+      <ul class="facts" id="ans2Facts"></ul>
+      <div id="cands" style="margin-top:12px"></div>
+    </div>
+  </section>
+
+  <section class="step" id="p3">
+    <div class="step-head"><div class="step-no">3</div><div>
+      <h2>รายการโครงการของแผนใหม่</h2>
+      <p>กรอกงบประมาณ เป้าหมาย ระยะเวลา ด้าน วิธีดำเนินการ และยุทธศาสตร์ที่รองรับ</p>
+    </div></div>
+    <div class="ledger">
+      <div class="pj" id="newPj" style="border-style:dashed;border-width:2px;margin-bottom:14px">
+        <h3 class="sub">เพิ่มโครงการใหม่</h3>
+        <input id="nName" placeholder="ชื่อโครงการ" aria-label="ชื่อโครงการใหม่" style="width:100%;border:1px solid var(--rule);border-radius:6px;padding:7px 10px;background:var(--sunk);color:var(--ink);font-size:16.5px;font-weight:600">
+        <div class="pj-grid">
+          <label>งบประมาณ (บาท)<input type="number" min="0" id="nBudget"></label>
+          <label>เป้าหมาย<input id="nTarget" placeholder="เช่น ทุกหมู่บ้าน"></label>
+          <label>ระยะเวลา<input id="nPeriod" placeholder="เช่น 2571"></label>
+          <label>ด้าน (แบบฟอร์ม 3.2)<select id="nDim"></select></label>
+          <label>วิธีดำเนินการ<select id="nMethod"></select></label>
+          <label>ยุทธศาสตร์ที่รองรับ (2.5)<select id="nStrat"></select></label>
+        </div>
+        <div class="row-actions" style="margin-top:10px"><button class="btn" id="addPj" type="button">เพิ่มเข้ารายการ</button><span class="note" id="nMsg" style="margin:0"></span></div>
+      </div>
+      <div id="pjList"></div>
+    </div>
+  </section>
+
+  <section class="step" id="p4">
+    <div class="step-head"><div class="step-no">4</div><div>
+      <h2>ตรวจความครบถ้วนและลำดับความสำคัญ (3.1)</h2>
+      <p>ลำดับในข้อ 3.1 เป็นไปตามลำดับรายการในข้อ 3 ใช้ปุ่ม ▲ ▼ ที่บัตรโครงการจัดลำดับตามมติเวที</p>
+    </div></div>
+    <div class="panel">
+      <ul class="facts" id="planFacts" style="margin-top:0"></ul>
+      <div class="summary" id="dimSum" style="margin:14px 0 0"></div>
+      <div class="scroll" style="margin-top:14px"><table class="p31" id="p31"></table></div>
+      <datalist id="crList"></datalist>
+      <div class="row-actions" style="margin-top:14px"><button class="btn" id="saveBtn4" type="button">บันทึกข้อมูลทั้งหมด (.json)</button></div>
+      <p class="note" id="saveNote4"></p>
+    </div>
+  </section>
+</main>
+
+<main id="v-book" hidden>
+  <section class="step" id="b1">
+    <div class="step-head"><div class="step-no">1</div><div>
+      <h2>ข้อมูลประจำเล่ม</h2>
+      <p>ใช้บนปกและในส่วนที่ 4 การทบทวนแผน ช่องที่เว้นว่างจะขึ้นเป็นแถบเหลือง “ต้องเติม” ในไฟล์ Word</p>
+    </div></div>
+    <div class="panel"><div class="base" id="bookForm"></div></div>
+  </section>
+  <section class="step" id="b2">
+    <div class="step-head"><div class="step-no">2</div><div>
+      <h2>ความพร้อมของแต่ละส่วน</h2>
+      <p>ตรวจจากข้อมูลในขั้น ⓪ ถึง ③ ส่วนที่ยังไม่พร้อมยังส่งออกได้ แต่จะเป็นแถบเหลืองให้เติมใน Word</p>
+    </div></div>
+    <div class="panel"><ul class="facts" id="bookFacts" style="margin-top:0"></ul></div>
+  </section>
+  <section class="step" id="b3">
+    <div class="step-head"><div class="step-no">3</div><div>
+      <h2>ดาวน์โหลดรูปเล่มแผนพัฒนาตำบล</h2>
+      <p>ไฟล์ Word ตามแบบฟอร์มรูปเล่มแผนพัฒนาตำบล ส่วนที่ 3 เป็นหน้าแนวนอน ตั้งฟอนต์ TH SarabunPSK ขนาด 16</p>
+    </div></div>
+    <div class="panel">
+      <div class="row-actions"><button class="btn" id="dlBook" type="button">ดาวน์โหลดรูปเล่ม (.docx)</button><button class="btn ghost" id="saveBtn5" type="button">บันทึกข้อมูลทั้งหมด (.json)</button></div>
+      <p class="note" id="bookNote"></p>
+    </div>
+  </section>
+</main>
+</div>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js"></script>
+<script>
+// core-pdf.js — อ่านข้อความและตัวเลขงบจาก text layer ของ PDF (ไม่แตะ DOM)
+// ---- shared core (also embedded in the HTML) ----
+const TH_DIGITS = '๐๑๒๓๔๕๖๗๘๙';
+function normText(s){
+  return String(s)
+    .replace(/[๐-๙]/g, d => String(TH_DIGITS.indexOf(d)))
+    .replace(/๛/g, ',').replace(/๚/g, '.')
+    .replace(/\s+/g, ' ').trim();
+}
+async function extractLines(pdf){
+  const lines = [];
+  for (let p = 1; p <= pdf.numPages; p++){
+    const page = await pdf.getPage(p);
+    const tc = await page.getTextContent();
+    const rows = [];
+    for (const it of tc.items){
+      if (!it.str || !it.str.trim()) continue;
+      const x = it.transform[4], y = it.transform[5];
+      let row = rows.find(r => Math.abs(r.y - y) < 3);
+      if (!row){ row = { y, items: [] }; rows.push(row); }
+      row.items.push({ x, w: it.width || 0, s: it.str });
+    }
+    rows.sort((a,b) => b.y - a.y);
+    for (const r of rows){
+      r.items.sort((a,b) => a.x - b.x);
+      let s = '', end = null;
+      for (const i of r.items){
+        if (end !== null && i.x - end > 1.5) s += ' ';
+        s += i.s; end = i.x + i.w;
+      }
+      lines.push({ page: p, text: normText(s) });
+    }
+  }
+  return lines;
+}
+const MONEY = /(?<![\d,])\d{1,3}(?:,\d{3})+(?![\d,])/;
+function analyzePlanText(lines){
+  const out = { hasText: false, s31: null, s32: null, rows: {}, problemRows: [] };
+  const thaiChars = lines.reduce((n,l) => n + (l.text.match(/[ก-๙]/g)||[]).length, 0);
+  out.hasText = thaiChars > 200;
+  // ข้ามสารบัญ: ใช้หัวข้อ 3.1 ตัวสุดท้ายในเอกสาร
+  let i31 = -1;
+  lines.forEach((l,i) => { if (/3\s*\.\s*1\s*แผนงาน/.test(l.text)) i31 = i; });
+  let i32 = lines.findIndex((l,i) => i > i31 && /3\s*\.\s*2\s*แผนงาน/.test(l.text));
+  if (i31 < 0) return out;
+  if (i32 < 0) i32 = lines.length;
+  out.s31 = lines[i31].page; out.s32 = i32 < lines.length ? lines[i32].page : null;
+  for (let i = i31 + 1; i < i32; i++){
+    const m = lines[i].text.match(/^(\d{1,3})\s+(.*)$/);
+    if (!m) continue;
+    const no = +m[1]; if (out.rows[no]) continue;
+    const mm = m[2].match(MONEY);
+    const nobudget = /ไม่ใช้งบ/.test(m[2]);
+    out.rows[no] = { page: lines[i].page, budget: mm ? +mm[0].replace(/,/g,'') : null, nobudget, raw: lines[i].text };
+  }
+  let i26 = -1;
+  lines.forEach((l,i) => { if (i < i31 && /2\s*\.\s*6\s/.test(l.text)) i26 = i; });
+  if (i26 >= 0){
+    const seen = new Set();
+    for (let i = i26; i < i31; i++){
+      const m = lines[i].text.match(/^(\d)\s+ด\s*้\s*าน/);
+      if (m) seen.add(+m[1]);
+    }
+    out.problemRows = [...seen].sort((a,b)=>a-b);
+  }
+  return out;
+}
+
+
+// data/prompt0.js — คำสั่ง Prompt #0 สำหรับให้ AI สกัดแผนเดิม
+const PROMPT = "คุณคือผู้ช่วยสกัดข้อมูลจากเอกสาร \"แผนพัฒนาตำบล\" ของกรมการพัฒนาชุมชน ตามแบบฟอร์มรูปเล่มแผนพัฒนาตำบล (ส่วนที่ 1–5 และภาคผนวก)\n\n## กติกาบังคับ\n1. **อ่านจากภาพหน้าเอกสารเท่านั้น** ข้อความที่ฝังในไฟล์อาจเพี้ยนจากปัญหาฟอนต์ไทย (เช่น \"ต฻าบล\", \"ปึ\", \"ชูอ\") ห้ามใช้ข้อความที่เพี้ยนแบบนี้\n2. **ห้ามเดาหรือเติมข้อมูลที่ไม่มีในเอกสาร** ถ้าไม่พบ ให้ใส่ null ถ้าอ่านไม่ชัด ให้ใส่ค่าที่อ่านได้และเพิ่มรายการใน flags ประเภท \"uncertain\" พร้อมเลขหน้า\n3. **แปลงเลขไทยเป็นเลขอารบิก** งบประมาณเป็นตัวเลขล้วน ไม่มีจุลภาค ถ้าเอกสารเขียน \"ไม่ใช้งบประมาณ\" ให้ใส่ 0 และใส่ budget_note\n4. **ห้ามสกัดข้อมูลส่วนบุคคล** ได้แก่ ชื่อ-นามสกุลบุคคล เบอร์โทรศัพท์ ที่อยู่ รายชื่อผู้สูงอายุ/คนพิการ/ครัวเรือนยากจน ถ้าพบ ให้เพิ่ม flags ประเภท \"personal_data_present\" พร้อมเลขหน้าเท่านั้น\n5. **ตรวจความสอดคล้องและแจ้งใน flags** ได้แก่ โครงการชื่อซ้ำ (duplicate), ตัวเลขที่บวกกันไม่ตรง เช่น ชาย+หญิง≠รวม (data_error), หัวข้อที่ไม่ตรงแบบฟอร์ม (form_mismatch)\n6. ถ้าไฟล์ไม่ใช่แผนพัฒนาตำบลฉบับเต็ม (เช่น เป็นเล่มข้อมูลพื้นฐานอย่างเดียว) ให้ตอบ file_check.is_full_plan = false และระบุว่าขาดส่วนใด\n7. **ตอบเป็น JSON อย่างเดียว** ไม่มีคำอธิบาย ไม่มี ```\n8. **ระวังเลขไทยที่หน้าตาคล้ายกัน** ได้แก่ ๓/๘, ๔/๕, ๕/๘, ๒/๖ ให้ตรวจซ้ำทุกตัวเลขงบประมาณและเลขหมู่ ถ้าไม่แน่ใจแม้แต่หลักเดียว ให้ใส่ flags ประเภท \"uncertain\"\n9. **คัดลอกชื่อโครงการตามต้นฉบับทุกตัวอักษร** ห้ามปรับคำให้เป็นภาษากลางหรือแก้คำ (เช่น \"กาดนัด\" ห้ามเปลี่ยนเป็น \"ตลาดนัด\")\n10. sections_missing ให้เทียบกับแบบฟอร์มทางการครบทุกส่วน ได้แก่ ส่วนที่ 1–5 และภาคผนวก (รวมส่วนที่ 5 เรื่องอื่น ๆ)\n\n## โครงสร้าง JSON ที่ต้องตอบ\n{\n \"meta\": {\"tambon\": \"\", \"amphoe\": \"\", \"changwat\": \"\", \"plan_year\": 0,\n          \"file_check\": {\"is_full_plan\": true, \"pages\": 0, \"sections_found\": [], \"sections_missing\": []}},\n \"part1\": {\"villages\": 0, \"population\": {\"total\": 0, \"male\": 0, \"female\": 0},\n           \"households\": 0, \"data_source\": \"\", \"avg_income_per_person_year\": 0, \"main_occupation_note\": \"\"},\n \"part2\": {\"strengths\": [], \"weaknesses\": [], \"opportunities\": [], \"threats\": [],\n           \"direction\": \"\", \"strategies\": [],\n           \"problems\": [{\"rank\": 0, \"name\": \"\", \"cause\": \"\", \"indicator\": \"\", \"solution\": \"\"}]},\n \"part3\": {\"projects\": [{\"id\": \"\", \"priority_no\": 0, \"name\": \"\", \"budget\": 0, \"target\": \"\",\n            \"form_dimension\": \"เศรษฐกิจ|สังคม|ทรัพยากรธรรมชาติและสิ่งแวดล้อม|ความมั่นคง|บริหารจัดการ\",\n            \"method\": \"ทำเอง|ทำร่วม|หน่วยงานอื่นทำให้\", \"source_page_printed\": 0}]},\n \"part4\": {\"reviews\": [{\"date\": \"\", \"round\": 0, \"resolution\": \"\", \"attendees\": 0}]},\n \"flags\": [{\"type\": \"uncertain|duplicate|data_error|form_mismatch|personal_data_present\", \"detail\": \"\", \"page_printed\": 0}]\n}\n\n## หมายเหตุเรื่องโครงการ\n- ใช้ตาราง 3.1 (เรียงตามลำดับความสำคัญ) เป็นหลัก ถ้าไม่มี 3.1 ให้รวมจาก 3.2 ทุกด้าน\n- id ให้ใช้รูปแบบ ตัวย่อตำบล + ปีแผน 2 หลัก + ลำดับ เช่น \"PD69-01\"\n- ห้ามระบุสถานะว่าโครงการทำแล้วหรือยัง เพราะแผนไม่ได้บันทึกไว้";
+// data/sample-padaet.js — ข้อมูลตัวอย่างจริงของตำบลป่าแดด (คำตอบ Gemini, รายงาน TIS 2 รายงาน) ใช้กับปุ่ม “ลองด้วย…” เท่านั้น
+const SAMPLE = {"meta": {"tambon": "ป่าแดด", "amphoe": "แม่สรวย", "changwat": "เชียงราย", "plan_year": 2569, "file_check": {"is_full_plan": true, "pages": 36, "sections_found": ["ส่วนที่ 1 ข้อมูลทั่วไปของตำบล", "ส่วนที่ 2 การวิเคราะห์ข้อมูล", "ส่วนที่ 3 แผนงาน/โครงการ/กิจกรรม แผนพัฒนาตำบล", "ส่วนที่ 4 การทบทวนแผนพัฒนาตำบล", "ภาคผนวก"], "sections_missing": []}}, "part1": {"villages": 22, "population": {"total": 7947, "male": 3895, "female": 4052}, "households": 2734, "data_source": "ข้อมูลการจัดเก็บ จปฐ.ปี 2564", "avg_income_per_person_year": 67130, "main_occupation_note": "การทำนา ปีละ 2 ครั้ง อาชีพเสริม คือ การทำสวน ทำไร่ และการการค้าขาย"}, "part2": {"direction": "ตำบลป่าแดด เมืองแห่งความสุขและการท่องเที่ยวสร้างสรรค์", "strategies": ["การพัฒนาด้านการเกษตรและการท่องเที่ยว", "การดูแลรักษาและฟื้นฟูทรัพยากรธรรมชาติอย่างยั่งยืน", "การพัฒนาและยกระดับคุณภาพชีวิตของประชาชนอย่างยั่งยืน"], "problems": [{"rank": 1, "name": "ด้านเศรษฐกิจ ช่องทางการตลาดการจำหน่ายสินค้าชุมชน และรูปแบบผลิตภัณฑ์ยังเป็นแบบดั้งเดิม"}, {"rank": 2, "name": "ด้านสังคม วัฒนธรรม อาชีพ มีปัญหายาเสพติดในบางพื้นที่"}, {"rank": 3, "name": "ด้านการศึกษาและการเรียนรู้"}, {"rank": 4, "name": "ด้านสิ่งแวดล้อมและสาธารณสุข การจัดการขยะในชุมชนยังไม่เป็นระบบ"}], "strengths": ["เส้นทางการคมนาคมสะดวก แม่สรวย-ฝาง มีรถวิ่งผ่านตลอด ส่งผล 2 ข้างทางเป็นทาง", "มีทรัพยากรการท่องเที่ยวที่สามารถพัฒนาเป็นแหล่งท่องเที่ยวเฉพาะกลุ่มได้ เช่น ผจญภัย (ดอยวง ดอยเวียง การท่องเที่ยวเชิงสุขภาพ (โป่งน้ำร้อน) ป่าสมุนไพร", "ป่าชุมชนที่สมบูรณ์ (ขายคาร์บอนเครดิต)", "พื้นที่เกษตรสมบูรณ์ สามารถทำนาได้ 2 ครั้ง พื้นที่ปลูกหญ้าเป็นอาหารสัตว์", "มีกลุ่ม Young Smart Farmer เกษตรกรรุ่นใหม่ ด้านการเกษตร สามารถทดแทนเกษตรกรผู้สูงอายุ (อ้ายจุ้ย) ฟาร์มโคนม ต่างๆ", "มีปราชญ์ชาวบ้านหลายด้าน สามารถเป็นต้นแบบและถ่ายทอดได้", "มีสถานที่บริการด้านสุขภาพที่มีมาตรฐาน (แพทย์แผนไทย) รพ.สต.ป่าแดด", "ประชาชนชาติพันธุ์ ไตยเงี้ยว ไตใหญ่ อาข่า มูเซอ หลายหลายวัฒนธรรม การอยู่ การกิน มีผลต่อการท่องเที่ยวเชิงวัฒนธรรม", "ประชาชนมีการรวมกลุ่มในกิจกรรมด้านสังคมวัฒนธรรม ศาสนาและประเพณีท้องถิ่น ด้านการแสดง อาหาร การแต่งกาย การละเล่น", "ลักษณะของคนเป็นมิตร ยิ้มแย้มแจ่มใส มีเอกลักษณ์ด้านภาษาและการแต่งกาย ซึ่งเป็นเสน่ห์ให้กับนักท่องเที่ยว ท่องเที่ยว", "มีลักษณะภูมิอากาศที่เย็นสบายเหมาะกับการเป็นเมืองน่าอยู่และเมืองสำหรับการ", "เป็นพื้นที่กำลังสร้างอ่างแม่ตาช้าง มีลำน้ำที่ใสสะอาด สามารถทดสอบโปรแกรมการท่องเที่ยวทางน้ำ เป็นทางเลือกใหม่", "มีผู้นำชุมชน ที่มีวิสัยทัศน์ กล้าคิด กล้าทำ นำการเปลี่ยนแปลง ทำเร็ว ผู้นำทำก่อนและใช้ระบบประชาธิปไตยในการบริหารองค์กรระดับหมู่บ้าน ตำบล", "เป็นพื้นที่ทรงงาน โครงการพระราชดำริ “บ้านเล็กในป่าใหญ่”", "มีกิจกรรม/โครงการต้นแบบ สามารถเป็นสถานที่ศึกษาดูงานได้ เช่น หมู่บ้านเศรษฐกิจพอเพียงต้นแบบ (ม.6) หมู่บ้านนวัติวิถี (ม.22) กองทุนแม่ของแผ่น กลุ่มออมทรัพย์เพื่อการผลิตดีเด่น เป็น 1 ใน 18 ของประเทศ ศูนย์จัดการกองทุนชุมชน เป็น 1 ใน 4 ของประเทศ", "มีศูนย์ประสานงานชมรมกำนัน-ผู้ใหญ่บ้านตำบลป่าแดด ที่มีการบริหารจัดการองค์กรแบบครบวงจรครบทุกมิติ ทั้งด้านเศรษฐกิจ สังคม สิ่งแวดล้อม และวัฒนธรรมองค์กร เป็นองค์เข้มแข็ง ที่ไม่ใช้งบประมาณจากรัฐ"], "weaknesses": ["ทรัพยากรดินเริ่มเสื่อมจากการใช้สารเคมีจากระบบการเกษตรบนพื้นที่สูง การเผาก่อนและหลังการเก็บเกี่ยว ส่งผลต่อปัญหาหมอกควัน ปัญหาการปนเปื้อนทางสารเคมี", "เกษตรกร ทำการการเกษตรแบบขาดการบริหารจัดการด้านการผลิต", "ผู้ประกอบการชุมชน มีศักยภาพไม่เพียงพอในการเชื่อมโยงด้านการผลิต การค้าขาย การตลาด", "แหล่งท่องเที่ยวเชิงธรรมชาติมีข้อจำกัดไม่สามารถเที่ยวได้ตลอดปี ทำให้การท่องเที่ยวไม่ต่อเนื่อง", "ปัญหาสิ่งแวดล้อมในชุมชน เช่น ปัญหาขยะ ไม่มีที่ทิ้ง ไม่คัดแยกขยะ", "พื้นที่ติดต่อเป็นพื้นที่สูง เป็นภูเขา ส่งผลถึง ปัญหายาเสพติดและการลักลอบเข้าพื้นที่ (บุคคลไร้สถานะทางทะเบียน) ทำให้การเข้าถึงยาเสพติดได้ง่ายและมีผลถึงความมั่นคง ความปลอดภัยในชีวิต และทรัพย์สิน", "คุณภาพสินค้าทางการเกษตรยังไม่มีคุณภาพ", "สินค้าชุมชนที่ผลิตเพื่อจำหน่ายยังไม่มีคุณภาพและมาตรฐานรองรับ", "สถานที่ท่องเที่ยวขาดดูแล การพัฒนา ขาดการบริหารจัดการอย่างเป็นระบบและขาดการเชื่อมโยงกิจกรรม ให้มีความพร้อมในการเป็นแหล่งท่องเที่ยว", "ทรัพยากรธรรมชาติถูกทำลาย"], "opportunities": ["รัฐบาลมีนโยบายสนับสนุนการพัฒนาที่ยั่งยืน เช่น การประยุกต์ใช้ปรัชญาของเศรษฐกิจพอเพียง", "กระแสนิยมของผู้บริโภค เน้นอาหารเพื่อสุขภาพ การดูแลสุขภาพ", "รัฐบาลส่งเสริมการท่องเที่ยวชุมชน", "รัฐบาลมีนโยบายด้านความมั่นคง ด้านการป้องกันและปรามปรามการแก้ไขปัญหายาเสพติด ปัญหาการลักลอบหลบหนีเข้าเมือง และการจัดระเบียบสังคม", "กรมชลประทานสนับสนุนงบประมาณในการก่อสร้างอ่างแม่ตาช้าง จำนวนหลายพันล้านบาทและเป็นระยะเวลาต่อเนื่อง ส่งผลถึงการพัฒนาคุณภาพชีวิตทุกมิติ", "แพเปียก อำเภอแม่สรวย มีนักท่องเที่ยวเข้าอำเภอแม่สรวย ประชาชนตำบลป่าแดด ผลิตสินค้าไปจำหน่าย และเป็นแรงงานในการกิจกรรมแพเปียก ทำให้มีอาชีพ มีรายได้ มีคุณภาพชีวิตที่ดีขึ้น", "หน่วยงานราชการให้ความสำคัญในการจัดสรรงบประมาณ"], "threats": ["ปัญหาสังคมและความมั่นคงที่เกิดจากประเทศเพื่อนบ้าน (พื้นที่ติดอำเภอฝาง จังหวัดเชียงใหม่) ปัญหายาเสพติด แรงงานต่างด้าว การลักลอบเข้าเมืองของคนไร้สถานะทางทะเบียน ส่งผลถึงโรคอุบัติใหม่ ความปลอดภัยด้านอาหาร ด้านสุขภาพ", "ปัญหาภาวะโลกร้อน ส่งผลให้เกิดภัยธรรมชาติ เช่น น้ำหลาก ดินถล่ม ภัยหนาว หมอก ควันไฟป่า", "ผลกระทบจากประเทศเพื่อนบ้าน ทำให้ไม่สามารถควบคุมปัญหามลพิษได้ เช่น ปัญหาหมอกควันข้ามแดน บรรจุภัณฑ์สินค้าเกษตร ขยะอิเล็กทรอนิกส์ จากจีน", "การเปลี่ยนแปลงสภาพภูมิอากาศ ภัยธรรมชาติ ปัญหาภัยแล้ง เกิดขึ้นต่อเนื่อง และมีแนวโน้มรุนแรงและบ่อยขึ้น ส่งผลกระทบถึงทรัพยากรธรรมชาติและสิ่งแวดล้อมให้เกิดความเสียหาย", "ต้นทุนทางการเกษตรมีราคาสูงส่งผลถึงรายจ่ายและปัญหาหนี้สินตามมา"]}, "part3": {"projects": [{"id": "PD69-01", "priority_no": 1, "name": "โครงการ ตลาดนัดคนไทยยิ้มได้ (กาดนัดหน้าวัดบ้านโป่ง)", "budget": 8000, "target": "ทุกหมู่บ้าน", "form_dimension": "เศรษฐกิจ", "method": "ทำเอง", "source_page_printed": 20}, {"id": "PD69-02", "priority_no": 2, "name": "วันเดียวเที่ยวป่าแดด หมู่ 1 - หมู่ 22", "budget": 1000000, "target": "ทุกหมู่บ้าน", "form_dimension": "เศรษฐกิจ", "method": "ทำร่วม", "source_page_printed": 20}, {"id": "PD69-03", "priority_no": 3, "name": "ส่งเสริมการท่องเที่ยววิ่งเทลชุมชนคนป่าแดด", "budget": 500000, "target": "ทุกหมู่บ้าน", "form_dimension": "เศรษฐกิจ", "method": "ทำร่วม", "source_page_printed": 20}, {"id": "PD69-04", "priority_no": 4, "name": "พัฒนาแหล่งท่องเที่ยวเชิงวัฒนธรรมบ้านเหล่าพัฒนา", "budget": 2000000, "target": "ทุกหมู่บ้าน", "form_dimension": "เศรษฐกิจ", "method": "ทำร่วม", "source_page_printed": 20}, {"id": "PD69-05", "priority_no": 5, "name": "พัฒนาแหล่งท่องเที่ยวปรับปรุงเส้นทางชุมชนการท่องเที่ยว ม.4, ม.22", "budget": 2000000, "target": "ม.4, ม.22", "form_dimension": "เศรษฐกิจ", "method": "ทำร่วม", "source_page_printed": 20}, {"id": "PD69-06", "priority_no": 6, "name": "พัฒนาพื้นที่ต้นแบบการท่องเที่ยวเชิงสร้างสรรค์ตำบลป่าแดด", "budget": 1000000, "target": "ทุกหมู่บ้าน", "form_dimension": "เศรษฐกิจ", "method": "ทำร่วม", "source_page_printed": 20}, {"id": "PD69-07", "priority_no": 7, "name": "การพัฒนาปรับปรุงโครงสร้างพื้นฐานและสิ่งอำนวยความสะดวกเพื่อรองรับการท่องเที่ยวเชิงสุขภาพ", "budget": 5000000, "target": "ทุกหมู่บ้าน", "form_dimension": "เศรษฐกิจ", "method": "ทำร่วม", "source_page_printed": 20}, {"id": "PD69-08", "priority_no": 8, "name": "การพัฒนาแหล่งท่องเที่ยวหนองน้ำสามสีบ้านเหล่าพัฒนา", "budget": 1000000, "target": "ม.22", "form_dimension": "เศรษฐกิจ", "method": "ทำร่วม", "source_page_printed": 20}, {"id": "PD69-09", "priority_no": 9, "name": "การพัฒนาแหล่งท่องเที่ยวบ่อน้ำร้อนบ้านหัวฝายและพื้นที่โดยรอบ", "budget": 2000000, "target": "ม.4", "form_dimension": "เศรษฐกิจ", "method": "ทำร่วม", "source_page_printed": 20}, {"id": "PD69-10", "priority_no": 10, "name": "โครงการส่งเสริมและพัฒนาผลิตภัณฑ์ชุมชนเพิ่มมูลค่าและสร้างรายได้", "budget": 20000, "target": "ทุกหมู่บ้าน", "form_dimension": "เศรษฐกิจ", "method": "ทำร่วม", "source_page_printed": 20}, {"id": "PD69-11", "priority_no": 11, "name": "ส่งเสริมการท่องเที่ยววิ่งเทรลชุมชนคนป่าแดด", "budget": 500000, "target": "ทุกหมู่บ้าน", "form_dimension": "เศรษฐกิจ", "method": "ทำร่วม", "source_page_printed": 21}, {"id": "PD69-12", "priority_no": 12, "name": "โครงการอบรมการจัดทำแผนพัฒนาหมู่บ้าน", "budget": 5000, "target": "ทุกหมู่บ้าน", "form_dimension": "บริหารจัดการ", "method": "ทำร่วม", "source_page_printed": 21}, {"id": "PD69-13", "priority_no": 13, "name": "โครงการหมู่บ้านนำร่องในการจัดการขยะในครัวเรือน", "budget": 80000, "target": "ทุกหมู่บ้าน", "form_dimension": "บริหารจัดการ", "method": "ทำร่วม", "source_page_printed": 21}, {"id": "PD69-14", "priority_no": 14, "name": "โครงการพัฒนาผู้นำการเปลี่ยนแปลง มีการศึกษาดูงาน", "budget": 300000, "target": "ทุกหมู่บ้าน", "form_dimension": "บริหารจัดการ", "method": "ทำร่วม", "source_page_printed": 21}, {"id": "PD69-15", "priority_no": 15, "name": "โครงการปรับปรุงอาคารศูนย์ประสานงานชมรมกำนัน-ผู้ใหญ่บ้าน เพื่อรองรับการศึกษาดูงาน การบริหารจัดการองค์กรสู่ธรรมาภิบาล", "budget": 1000000, "target": "ทุกหมู่บ้าน", "form_dimension": "บริหารจัดการ", "method": "ทำร่วม", "source_page_printed": 21}, {"id": "PD69-16", "priority_no": 16, "name": "โครงการปรับภูมิทัศน์หน้าวัดบ้านโป่ง เพื่อทำตลาดนัดชุมชน", "budget": 500000, "target": "ทุกหมู่บ้าน", "form_dimension": "ทรัพยากรธรรมชาติและสิ่งแวดล้อม", "method": "ทำร่วม", "source_page_printed": 21}, {"id": "PD69-17", "priority_no": 17, "name": "โครงการท้องถิ่นอาสาปลูกป่าเฉลิมพระเกียรติจิตอาสาสร้างป่ารักษ์น้ำ", "budget": 200000, "target": "ทุกหมู่บ้าน", "form_dimension": "ทรัพยากรธรรมชาติและสิ่งแวดล้อม", "method": "ทำร่วม", "source_page_printed": 21}, {"id": "PD69-18", "priority_no": 18, "name": "โครงการก่อสร้างฝายต้นน้ำ", "budget": 50000, "target": "ทุกหมู่บ้าน", "form_dimension": "ทรัพยากรธรรมชาติและสิ่งแวดล้อม", "method": "ทำร่วม", "source_page_printed": 21}, {"id": "PD69-19", "priority_no": 19, "name": "โครงการลานวัด อิ่มใจ อิ่มท้อง", "budget": 0, "target": "ทุกหมู่บ้าน", "form_dimension": "สังคม", "method": "ทำร่วม", "source_page_printed": 21}, {"id": "PD69-20", "priority_no": 20, "name": "เบี้ยยังชีพผู้สูงอายุ", "budget": 18800000, "target": "ทุกหมู่บ้าน", "form_dimension": "สังคม", "method": "ทำร่วม", "source_page_printed": 21}, {"id": "PD69-21", "priority_no": 21, "name": "เบี้ยยังชีพผู้พิการ", "budget": 5200000, "target": "ทุกหมู่บ้าน", "form_dimension": "สังคม", "method": "ทำร่วม", "source_page_printed": 21}, {"id": "PD69-22", "priority_no": 22, "name": "เบี้ยยังชีพผู้ป่วยเอดส์", "budget": 350000, "target": "ทุกหมู่บ้าน", "form_dimension": "สังคม", "method": "ทำร่วม", "source_page_printed": 22}, {"id": "PD69-23", "priority_no": 23, "name": "โครงการผู้สูงอายุสุขภาพดีโดยวิถีภูมิปัญญาท้องถิ่น", "budget": 90000, "target": "ทุกหมู่บ้าน", "form_dimension": "สังคม", "method": "ทำร่วม", "source_page_printed": 22}, {"id": "PD69-24", "priority_no": 24, "name": "โครงการประเพณีหล่อเทียนและแห่เทียนพรรษา", "budget": 20000, "target": "ทุกหมู่บ้าน", "form_dimension": "สังคม", "method": "ทำร่วม", "source_page_printed": 22}, {"id": "PD69-25", "priority_no": 25, "name": "สืบสานประเพณีลอยกระทง", "budget": 10000, "target": "ทุกหมู่บ้าน", "form_dimension": "สังคม", "method": "ทำร่วม", "source_page_printed": 22}, {"id": "PD69-26", "priority_no": 26, "name": "ส่งเสริมอนุรักษ์ศิลปวัฒนธรรมประเพณีพื้นถิ่นถนนคนเดินหน้าวัดบ้านโป่ง", "budget": 1000000, "target": "ทุกหมู่บ้าน", "form_dimension": "สังคม", "method": "ทำร่วม", "source_page_printed": 22}, {"id": "PD69-27", "priority_no": 27, "name": "โครงการอบรมสืบสานพิธีกรรมล้านนาภูมิปัญญาท้องถิ่นเด็กและเยาวชนตำบลป่าแดด", "budget": 30000, "target": "ทุกหมู่บ้าน", "form_dimension": "สังคม", "method": "ทำร่วม", "source_page_printed": 22}, {"id": "PD69-28", "priority_no": 28, "name": "โครงการอุ้ยสอนหลาน ส่งเสริมความสัมพันธ์ในครอบครัว มีการฝึกอาชีพทุกอาทิตย์ ณ.ศูนย์ประสานงานชมรม กำนัน-ผู้ใหญ่บ้าน ตำบลป่าแดด", "budget": 500000, "target": "ทุกหมู่บ้าน", "form_dimension": "สังคม", "method": "ทำร่วม", "source_page_printed": 22}, {"id": "PD69-29", "priority_no": 29, "name": "โครงการธรรมสัญจร", "budget": 100000, "target": "ทุกหมู่บ้าน", "form_dimension": "สังคม", "method": "ทำร่วม", "source_page_printed": 22}, {"id": "PD69-30", "priority_no": 30, "name": "โครงการแห่ต้นเกี๊ยะหลวง (ยี่เป็ง) วันลอยกระทง", "budget": 100000, "target": "ทุกหมู่บ้าน", "form_dimension": "สังคม", "method": "ทำร่วม", "source_page_printed": 22}, {"id": "PD69-31", "priority_no": 31, "name": "กิจกรรม การพัฒนาหมู่บ้านคู่แฝด", "budget": 5000, "target": "ทุกหมู่บ้าน", "form_dimension": "ความมั่นคง", "method": "ทำร่วม", "source_page_printed": 22}, {"id": "PD69-32", "priority_no": 32, "name": "โครงการรณรงค์ป้องกันและแก้ไขปัญหายาเสพติดตำบลป่าแดด", "budget": 50000, "target": "ทุกหมู่บ้าน", "form_dimension": "ความมั่นคง", "method": "ทำร่วม", "source_page_printed": 22}, {"id": "PD69-33", "priority_no": 33, "name": "โครงการ แข่งขันกีฬาต้านภัยยาเสพติดตำบลป่าแดด", "budget": 70000, "target": "ทุกหมู่บ้าน", "form_dimension": "ความมั่นคง", "method": "ทำร่วม", "source_page_printed": 22}], "review_status": "ไม่มีในไฟล์ ต้องกรอกในขั้น ⓪"}, "part4": {"reviews": [{"date": "18 ก.พ.69", "round": 1, "resolution": "เห็นชอบ", "attendees": 20}]}, "flags": [{"type": "personal_data_present", "detail": "มีการปรากฏชื่อ-นามสกุลบุคคล และเบอร์โทรศัพท์ของผู้ใหญ่บ้าน ประธานกลุ่ม และคณะทำงานต่างๆ ในเอกสารส่วนที่ 1", "page_printed": 6}, {"type": "personal_data_present", "detail": "มีการปรากฏชื่อ-นามสกุล และเบอร์โทรศัพท์ของประธานกลุ่มองค์กรต่างๆ", "page_printed": 12}, {"type": "personal_data_present", "detail": "มีการปรากฏชื่อ-นามสกุล และเบอร์โทรศัพท์ของประธานกลุ่มอาชีพ", "page_printed": 13}, {"type": "duplicate", "detail": "โครงการส่งเสริมการท่องเที่ยววิ่งเทล/เทรลชุมชนคนป่าแดด ปรากฏซ้ำในตาราง 3.1 (หน้า 20 และหน้า 21)", "page_printed": 20}]};
+const TIS_SAMPLE = {"title": "รายงานผลการวิเคราะห์ TIS ประจำปีงบประมาณ 2569", "province": "เชียงราย", "amphoe": "แม่สรวย", "tambon": "ป่าแดด", "year": 2569, "villages": [[1, "บ้าน ห้วยอ้อ", "ด้านเศรษฐกิจและอาชีพ", "ด้านการจัดการข้อมูล", "ด้านสิ่งแวดล้อมและสาธารณสุข", "ด้านการศึกษาและการเรียนรู้", "ด้านสังคม วัฒนธรรม"], [2, "บ้าน ไร่", "ด้านเศรษฐกิจและอาชีพ", "ด้านสิ่งแวดล้อมและสาธารณสุข", "ด้านการศึกษาและการเรียนรู้", "ด้านสังคม วัฒนธรรม", "ด้านการจัดการข้อมูล"], [3, "บ้าน ป่าแดด", "ด้านการจัดการข้อมูล", "ด้านเศรษฐกิจและอาชีพ", "ด้านสิ่งแวดล้อมและสาธารณสุข", "ด้านการศึกษาและการเรียนรู้", "ด้านสังคม วัฒนธรรม"], [4, "บ้าน ป่ากว๋าว", "ด้านเศรษฐกิจและอาชีพ", "ด้านสิ่งแวดล้อมและสาธารณสุข", "ด้านการศึกษาและการเรียนรู้", "ด้านการจัดการข้อมูล", "ด้านสังคม วัฒนธรรม"], [5, "บ้าน ท้าวแก่นจันทร์", "ด้านเศรษฐกิจและอาชีพ", "ด้านการจัดการข้อมูล", "ด้านสังคม วัฒนธรรม", "ด้านการศึกษาและการเรียนรู้", "ด้านสิ่งแวดล้อมและสาธารณสุข"], [6, "บ้าน โป่ง", "ด้านเศรษฐกิจและอาชีพ", "ด้านการศึกษาและการเรียนรู้", "ด้านสังคม วัฒนธรรม", "ด้านการจัดการข้อมูล", "ด้านสิ่งแวดล้อมและสาธารณสุข"], [7, "บ้าน ดอนสลี", "ด้านเศรษฐกิจและอาชีพ", "ด้านสิ่งแวดล้อมและสาธารณสุข", "ด้านการจัดการข้อมูล", "ด้านสังคม วัฒนธรรม", "ด้านการศึกษาและการเรียนรู้"], [8, "บ้าน หัวฝาย", "ด้านเศรษฐกิจและอาชีพ", "ด้านสิ่งแวดล้อมและสาธารณสุข", "ด้านสังคม วัฒนธรรม", "ด้านการศึกษาและการเรียนรู้", "ด้านการจัดการข้อมูล"], [9, "บ้าน ห้วยหญ้าไช", "ด้านเศรษฐกิจและอาชีพ", "ด้านการจัดการข้อมูล", "ด้านสิ่งแวดล้อมและสาธารณสุข", "ด้านการศึกษาและการเรียนรู้", "ด้านสังคม วัฒนธรรม"], [10, "บ้าน เหล่า", "ด้านเศรษฐกิจและอาชีพ", "ด้านสิ่งแวดล้อมและสาธารณสุข", "ด้านการจัดการข้อมูล", "ด้านสังคม วัฒนธรรม", "ด้านการศึกษาและการเรียนรู้"], [11, "บ้าน จะหา", "ด้านเศรษฐกิจและอาชีพ", "ด้านการจัดการข้อมูล", "ด้านสิ่งแวดล้อมและสาธารณสุข", "ด้านสังคม วัฒนธรรม", "ด้านการศึกษาและการเรียนรู้"], [12, "บ้าน สันโค้ง", "ด้านเศรษฐกิจและอาชีพ", "ด้านสิ่งแวดล้อมและสาธารณสุข", "ด้านสังคม วัฒนธรรม", "ด้านการจัดการข้อมูล", "ด้านการศึกษาและการเรียนรู้"], [13, "บ้าน สันกลาง", "ด้านเศรษฐกิจและอาชีพ", "ด้านการจัดการข้อมูล", "ด้านการศึกษาและการเรียนรู้", "ด้านสังคม วัฒนธรรม", "ด้านสิ่งแวดล้อมและสาธารณสุข"], [14, "บ้าน ใหม่เจริญ", "ด้านเศรษฐกิจและอาชีพ", "ด้านการจัดการข้อมูล", "ด้านการศึกษาและการเรียนรู้", "ด้านสิ่งแวดล้อมและสาธารณสุข", "ด้านสังคม วัฒนธรรม"], [15, "บ้าน ทุ่งรวงทอง", "ด้านเศรษฐกิจและอาชีพ", "ด้านการจัดการข้อมูล", "ด้านสิ่งแวดล้อมและสาธารณสุข", "ด้านการศึกษาและการเรียนรู้", "ด้านสังคม วัฒนธรรม"], [16, "บ้าน หนองบัว", "ด้านเศรษฐกิจและอาชีพ", "ด้านการจัดการข้อมูล", "ด้านสิ่งแวดล้อมและสาธารณสุข", "ด้านการศึกษาและการเรียนรู้", "ด้านสังคม วัฒนธรรม"], [17, "บ้าน สันโค้งใต้", "ด้านเศรษฐกิจและอาชีพ", "ด้านการจัดการข้อมูล", "ด้านสิ่งแวดล้อมและสาธารณสุข", "ด้านสังคม วัฒนธรรม", "ด้านการศึกษาและการเรียนรู้"], [18, "บ้าน แม่ตาช้าง", "ด้านเศรษฐกิจและอาชีพ", "ด้านสิ่งแวดล้อมและสาธารณสุข", "ด้านการศึกษาและการเรียนรู้", "ด้านสังคม วัฒนธรรม", "ด้านการจัดการข้อมูล"], [19, "บ้าน ศรีดอนมูล", "ด้านเศรษฐกิจและอาชีพ", "ด้านการจัดการข้อมูล", "ด้านสิ่งแวดล้อมและสาธารณสุข", "ด้านการศึกษาและการเรียนรู้", "ด้านสังคม วัฒนธรรม"], [20, "บ้าน ห้วยมะแกง", "ด้านเศรษฐกิจและอาชีพ", "ด้านสิ่งแวดล้อมและสาธารณสุข", "ด้านการจัดการข้อมูล", "ด้านสังคม วัฒนธรรม", "ด้านการศึกษาและการเรียนรู้"], [21, "บ้าน ห้วยสลัก", "ด้านเศรษฐกิจและอาชีพ", "ด้านการจัดการข้อมูล", "ด้านการศึกษาและการเรียนรู้", "ด้านสังคม วัฒนธรรม", "ด้านสิ่งแวดล้อมและสาธารณสุข"], [22, "บ้าน เหล่าพัฒนา", "ด้านเศรษฐกิจและอาชีพ", "ด้านสิ่งแวดล้อมและสาธารณสุข", "ด้านการจัดการข้อมูล", "ด้านการศึกษาและการเรียนรู้", "ด้านสังคม วัฒนธรรม"]]};
+const COMM_SAMPLE_ROWS = [["ผลการวิเคราะห์ข้อมูลชุมชน สารสนเทศตำบลต้นแบบเพื่อพัฒนาคุณภาพชีวิต ประจำปีงบประมาณ  2569", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], [" จังหวัด เชียงราย อำเภอ แม่สรวย ตำบล ป่าแดด", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["ทุนชุมชน", "ข้อมูลทั่วไป", "ผลการวิเคราะห์ SWOT", "", "", "", "จำนวนประชากร", "", "ประเด็นการพัฒนาคุณภาพชีวิต และจัดลำดับความสำคัญของปัญหา", "แผนงานโครงการ / กิจกรรม", "กลุ่มเป้าหมาย", "งบประมาณ", "ระยะเวลา ดำเนินการ", "ภาคี", "ผลที่คาดว่าจะได้รับ", "ผลลัพธ์", "", ""], ["", "", "จุดแข็ง", "จุดอ่อน", "โอกาส", "อุปสรรค", "ชาย", "หญิง", "", "", "", "", "", "", "", "", "", ""], ["1) ทุนมนุษย์\n-มีช่างทอผ้า\n-มีปราชญ์ชุมชน ประชาชนได้รับการศึกษา\n-ปราชญ์การบริหารจัดการชุมชน ปราช์ญผู้เลี้ยงโคเนื้อ โคนม กระบือ\n-มีปราชญ์ชุมชนที่มีความรู้ ทักษะความชำนาญ ในการประกอบอาชีพ\n-มีผู้นำเข้มแข็ง ปราชญ์ชุมชน\n-การบริหารจัดการชุมชน การปักผ้าชนเผ่า จักสานไม้ไผ่\n-มีปราชญ์ชุมชนที่มีความรู้ ทักษะ ความชำนาญ ในการประกอบอาชีพ\n-มีปราชญ์ชุมชนที่มีความรู้ ทักษะ ความชำนาญ\n-มีปราชญ์ชุมชนที่มีความรู้ ความชำนาญ ในการประกอบอาชีพ\n-ภูมิปัญญาชาติพันธ์\n-มีปราชญ์ชุมชน\n-เป็นชุมชนที่มีกลุ่มชาติพันธ์ุดำเนินชีวิตเรียบง่าย มีปราชญ์\n-ปราชญ์ชุมชน มีผู้นำที่มีวิสัยทัศน์ ประชาชนได้รับการศึกษา\n-ปราญช์ทอผ้า\n-มีปราชญ์ชุมชน ที่มีความรู้ ทักษะความชำนาญ ในการประกอบอาชีพ\n-ภูมิปัญญาชาติพันธ์ จักสาน\n-ปราชญ์การบริหารจัดการกลุ่มออมทรัพย์เพื่อการผลิต ปราช์ญทำไม้กวาด ปราชญ์จักสาน\n-ภูมิปัญญาชาติพันธุ์\n-มีปราชญ์ชุมชน กลุ่มแม่บ้านเข้มแข็ง\n-ภูมิปัญญาจักสานไม้ไผ่\n2) ทุนสังคม\n-มีประเพณีวัฒนธรรม\n-ชุมชนมีการแบ่งปัน เอื้ออาทร ช่วยเหลือเกื้อกูลซึ่งกันละกัน\n-ความเื้ออาทร แบ่งปัน\n-มีวัฒนธรรมดั้งเดิม\n-การแบ่งปัน เื้ออาทร\n-การเื้ออาทร การแบ่งปัน\n-ชุมชนมีความเอื้ออาทร ช่วยเหลือซึ่งกันและกัน\n-มีประเพณีวัฒนธรรมที่สืบทอดกันมา\n-มีสังคมที่ช่วยเหลือเกื้อกูล\n-มีประเพณีวัฒนธรรมที่หล่อหลอมประชาชนเข้าด้วยกัน\n-การแบ่งปัน ความเื้ออาทร\n-ชุมชนมีการเอื้ออาทร ช่วยเหลือซึ่งกันและกัน\n-การเอื้ออาทร การแบ่งปัน\n-การช่วยเหลือ แบ่งปัน ความเื้ออาทร\n-วัฒนาธรรมล้านนา\n-ประชาชนมีส่วนร่วมในกิจกรรมต่างๆ\n-กลุ่มแม่บ้าน กลุ่มอสม.\n-ชุมชนมีการช่วยเหลือ เกื้อกูลซึ่งกันและกัน\n-เป็นสังคมที่มีการเกื้อกูลแบ่งปัน ม\n-ชุมชนมีการแบ่งปันเอื้ออาทร ช่วยเหลือเกื้อกูลซึ่งกันและกัน\n-วัฒนธรรมชนเผ่า\n3) ทุนเงิน\n-กองทุนหมู่บ้าน กลุ่มออมทรัพย์เพื่อการผลิต กองทุน กข.คจ.\n-ชุมชนมีกองทุนในการบริหารจัดการชุมชนอย่างเป็นระบบ\n-ในชุมชนมีกองทุนต่างๆในการบริหารจัดการชุมชน\n-ชุมชนมีการบริหารจัดการกองทุนที่มีในอยู่ชุมชนอย่างเป็นระบบ\n-กองทุนหมู่บ้าน กลุ่มออมทรัพย์เพื่อการผลิต กข.คจ.\n-กองทุนหมู่บ้าน\n-กลุ่มออมทรัพย์เพื่อการผลิต กองทุนหมู่บ้าน ศูนย์จัดการกองทุนชุมชน\n-กองทุนหมู่บ้าน กลุ่มออมทรัพย์ มีกองทุนแม่ของแผ่นดิน\n-กองทุนหมู่บ้าน กลุ่มออมทรัพย์เพื่อการผลิต\n-กลุ่มออมทรัพย์เพื่อการผลิต กองทุนหมู่บ้าน\n-ชุมชนมีการบริหารจัดการกองทุนชุมชนอย่างเป็นระบบ\n-มีกลุ่มออมทรัพย์เพื่อการผลิต โครงการแก้ไขปัญหาความยากจน  กองทุนหมู่บ้าน\n-กองทุนหมุ่บ้าน\n-ชุมชนมีการบริหารจัดการเงินทุน อย่างเป็นระบบ\n-มีโครงการ กข.คจ. กลุ่มออมทรัพย์เพื่อการผลิต กองทุนหมู่บ้าน\n-ชุมชนมีการบริหารจัดการเงินทุนอย่างระบบ\n4) ทุนกายภาพ\n-มอาคารศูนย์เรียนรู้และเป็นหมู่บ้านโอทอปนวัตวิถี\n-มีอาคารเอนกประสงค์ใช้ประชุม\n-มีอาคารที่มั่นคง แข็งแรง ที่อำนวยความสะดวกในชุมชน\n-มีอาคารที่มั่นคง แข็งแรง เหมาะกับการใช้ประโยชน์ในชุมชน\n-มีศาสนสถาน โรงเรียน อาคารเอนกประสงค์\n-โรงเรียน อาคารเอนกประสงค์\n-มีอาคารที่มั่นคง แข็งแรง และอำนวยความสะดวกในชุมชน\n-มีอาคารเอนกประสงค์ของหมู่บ้าน\n-มีอาคารเอนกประสงค์หมู่บ้าน มีอ่างเก็บน้ำห้วยอ้อ\n-มีอาคารเอนกประสงค์ มีประปาหมู่บ้าน\n-มีอาคารสิ่งก่อสร้างที่อำนวยความสะดวกในชุมชน\n-อาคารเอนกประสงค์ ศูนย์พัฒนาหมูบ้าน\n-มีอาคารอเนกประสงค์ ประปาหมุ่บ้าน\n-อาคารเอนกประสงค์ โดมลานจัดกิจกรรมหมู่บ้าน โรงเรียน วัด\n-อาคารเอนกประสงค์ โรงเรียน\n-มีอาคารสิ่งปลูกสร้างที่มีความมั่งคง แข็งแรง เอื้อต่อการใช้ประโยชน์ในชุมชน\n-อาคารเอนกประสงค์ ทีตั้งองค์การบริหารส่วนตำบลป่าแดด\n-มีอาคารสิ่งปลูกสร้างที่มั่นคง แข็งแรง เหมาะกับการให้ประชาชนในชุมชนได้ใช้ประโยชน์\n-มีอาคารที่ทำการ ประชาหมู่บ้าน\n-มีอาคารอเนกประสงค์ของหมู่บ้าน มีถนนเชื่อมหมู่บ้าน\n-อาคารเอนกประสงค์ อาคารที่ทำการกองทุนชุมชน\n5) ทุนธรรมชาติ\n-ภูเขา ลำน้ำแม่ตาช้าง ป่าชุมชน\n-ภูเขา ลำห้วย\n-มีน้ำแม่ตาช้างไหลผ่าน มีป่าชุมชน\n-มีป่าชุมชน\n-ป่าชุมชน\n-มีป่าชุมชน ภูเขา\n-มีน้ำพุร้อน ป่าชุมชน ลำน้ำที่น้ำแม่ตาช้างไหลผ่าน\n-ภูเขา ลำห้วย ป่าชุมชน\n-ภูเขา ป่าไม้ ต้นน้ำแม่ตาช้าง\n-มีป่าธรรมชาติ\n-มีป่าชุมชน และมีแหล่งน้ำที่เพียงพอต่อการอุปโภค บริโภค ในชุมชน\n-มีลำน้ำที่มาจากน้ำแม่ตาช้าง\n-ภูเขา ดินดี น้ำดี\n-มีอ่างเก็บน้ำ ป่าชุมชน\n-มีป่าชุมชน และมีแหล่งน้ำที่เพียงพอต่อการเกษตร\n-ดินมีความอุดมสมบูรณ์\n-ลำน้ำแม่ตาช้าง น้ำพุร้อน ป่าชุมชน ภูเขา\n-มีป่าชุมชน และมีแหล่งน้ำที่อุดมสมบูรณ์\n-มีป่าชุมชนที่อุดมสมบูรณ์\n-ภูเขา ลำน้ำ ป่าชุมชนชุน\n-มีแม่น้ำลาวไหลผ่าน ดินดีเพาะปลูกได้ตลอดปี\n", "- สภาพทั่วไป (เพิ่มเติม รายละเอียด)", "1) มีการให้บริการด้านการศึกษาและฝึกอบรมด้านต่างๆ\n2) มีการเข้าถึงบริการสาธารณสุขที่ดี และมีการดูแลสุขภาพที่เหมาะสม\n3) ชุมชนมีการดูแลผู้สูงอายุและผู้พิการอย่างดีจากครอบครัว ชุมชน ภาครัฐ หรือภาคเอกชน\n4) ครัวเรือนมีการจัดบ้านเรือนและได้รับบริการจัดเก็บขยะมูลฝอยที่ถูกสุขลักษณะ ซึ่งสะท้อนให้เห็นถึงการดูแลสิ่งแวดล้อมที่ดี\n5) มีการมีส่วนร่วมของชุมชนในการพัฒนาพื้นที่", "1) มีการใช้ทรัพยากรธรรมชาติในระดับที่ไม่เหมาะสมในบางด้าน\n2) คุณภาพน้ำยังคงเป็นปัญหา\n3) ไม่มีร้านอาหารและร้านค้า\n4) ไม่มีการทำนา ทำไร่ และทำสวน\n5) การติดต่อสื่อสารยังคงมีปัญหา", "1) มีโอกาสในการพัฒนาการท่องเที่ยวในพื้นที่\n2) มีโอกาสในการพัฒนาการผลิตและจำหน่ายสินค้าเกษตร\n3) มีโอกาสในการพัฒนาการเกษตรในพื้นที่\n4) ชุมชนสามารถพัฒนาการให้บริการด้านการศึกษาและฝึกอบรม\n5) มีโอกาสในการพัฒนาการใช้ทรัพยากรธรรมชาติและดูแลสิ่งแวดล้อม", "1) มีความเสี่ยงจากภัยพิบัติทางธรรมชาติ\n2) มีความเสี่ยงจากการขาดแคลนทรัพยากรธรรมชาติ\n3) ชุมชนอาจเผชิญกับปัญหาการขาดแคลนทรัพยากรธรรมชาติ\n4) ไม่มีร้านอาหารและร้านค้า\n5) ไม่มีการทำนา ทำไร่ และทำสวน", 30979, 32759, "ด้านเศรษฐกิจและอาชีพ", "ตลาดนัดคนไทยยิ้มได้", "ผู้ผลิตสินค้าชุมชน จำนวน 30 คน", 8000, "1 เม.ย. 2569-1 เม.ย. 2570", "ชมรมกำนันผู้ใหญ่บ้าน ต.ป่าแดด", "เพิ่มช่องทางการจำหน่ายสินค้าOTOP ผลิตภัณฑ์ชุมชน\nผู้ประกอบการตลาดนัดคนไทยยิ้มได้มีรายได้จากการจำหน่ายสินค้าเพิ่มขึ้น\n ตลาดนัดคนไทยยิ้มได้ เกิดการพัฒนาอย่างต่อเนื่อง\n", "1. เกิดพื้นที่จำหน่ายสินค้าสำหรับคนในตำบล\n2. ผู้ประกอบการรายย่อยและผู้มีรายได้น้อย มีรายได้จากการจำหน่ายผลผลิตทางการเกษตรและของฝากชุมชนเพิ่มขึ้นโดยตรง \n3. เชื่อมโยงสู่การท่องเที่ยว", "", ""], ["", "- สาธารณูปโภค (เพิ่มเติม รายละเอียด)", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "- สภาพทั่วไป (เพิ่มเติม รายละเอียด)", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "- ผลิตภัณฑ์ (เพิ่มเติม รายละเอียด)", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "- อาชีพ (เพิ่มเติม รายละเอียด)", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""]];
+// data/taxonomy.js — รหัสแผนพัฒนาจังหวัดเชียงราย 2571–2575 (⚠️ ยังไม่ตรวจเทียบตารางที่ 36 ต้นฉบับ)
+const TAXONOMY = [{"code": "P1-1.1", "issue": "การสร้างมูลค่าเพิ่มด้านการท่องเที่ยวเชิงสร้างสรรค์บนฐานอัตลักษณ์พื้นถิ่นร่วมสมัย", "name": "พัฒนาเส้นทางท่องเที่ยวเชื่อมโยงธรรมชาติ วัฒนธรรม และชุมชน"}, {"code": "P1-1.2", "issue": "การสร้างมูลค่าเพิ่มด้านการท่องเที่ยวเชิงสร้างสรรค์บนฐานอัตลักษณ์พื้นถิ่นร่วมสมัย", "name": "พัฒนาและฟื้นฟูแหล่งท่องเที่ยวบนฐานศิลปวัฒนธรรม วิถีชีวิต และอัตลักษณ์ท้องถิ่น"}, {"code": "P1-2.1", "issue": "การสร้างมูลค่าเพิ่มด้านการท่องเที่ยวเชิงสร้างสรรค์บนฐานอัตลักษณ์พื้นถิ่นร่วมสมัย", "name": "พัฒนาคุณภาพและยกระดับมาตรฐาน ความปลอดภัยการท่องเที่ยว และสร้างมูลค่าเพิ่มสินค้า ผลิตภัณฑ์ และบริการ"}, {"code": "P1-2.2", "issue": "การสร้างมูลค่าเพิ่มด้านการท่องเที่ยวเชิงสร้างสรรค์บนฐานอัตลักษณ์พื้นถิ่นร่วมสมัย", "name": "การพัฒนาเชียงรายสู่เมือง Wellness City"}, {"code": "P1-2.3", "issue": "การสร้างมูลค่าเพิ่มด้านการท่องเที่ยวเชิงสร้างสรรค์บนฐานอัตลักษณ์พื้นถิ่นร่วมสมัย", "name": "ยกระดับและพัฒนาเมืองสู่การเป็นเมือง Creative City of Design"}, {"code": "P1-3.1", "issue": "การสร้างมูลค่าเพิ่มด้านการท่องเที่ยวเชิงสร้างสรรค์บนฐานอัตลักษณ์พื้นถิ่นร่วมสมัย", "name": "พัฒนาทักษะและยกระดับสมรรถนะบุคลากร ผู้ประกอบการ และชุมชนด้านการท่องเที่ยว"}, {"code": "P1-3.2", "issue": "การสร้างมูลค่าเพิ่มด้านการท่องเที่ยวเชิงสร้างสรรค์บนฐานอัตลักษณ์พื้นถิ่นร่วมสมัย", "name": "การส่งเสริมตลาดการท่องเที่ยวเชื่อมโยงเครือข่าย"}, {"code": "P1-4.1", "issue": "การสร้างมูลค่าเพิ่มด้านการท่องเที่ยวเชิงสร้างสรรค์บนฐานอัตลักษณ์พื้นถิ่นร่วมสมัย", "name": "ประชาสัมพันธ์ส่งเสริมกิจกรรมการท่องเที่ยวชุมชน เชียงรายเที่ยวได้ตลอดปี"}, {"code": "P1-4.2", "issue": "การสร้างมูลค่าเพิ่มด้านการท่องเที่ยวเชิงสร้างสรรค์บนฐานอัตลักษณ์พื้นถิ่นร่วมสมัย", "name": "การพัฒนาเมืองเชิงกีฬา (Sport Tourism)"}, {"code": "P2-1.1", "issue": "การส่งเสริมการผลิตและพัฒนานวัตกรรมเพื่อยกระดับสินค้าเกษตรเชิงสร้างสรรค์", "name": "การพัฒนาโครงสร้างพื้นฐานเพื่อสนับสนุนการทำเกษตรยั่งยืน"}, {"code": "P2-1.2", "issue": "การส่งเสริมการผลิตและพัฒนานวัตกรรมเพื่อยกระดับสินค้าเกษตรเชิงสร้างสรรค์", "name": "ส่งเสริมและพัฒนากระบวนการผลิตสินค้าการเกษตรด้านปศุสัตว์"}, {"code": "P2-1.3", "issue": "การส่งเสริมการผลิตและพัฒนานวัตกรรมเพื่อยกระดับสินค้าเกษตรเชิงสร้างสรรค์", "name": "สนับสนุนการผลิตสินค้าเกษตรปลอดภัย เกษตรอินทรีย์"}, {"code": "P2-2.1", "issue": "การส่งเสริมการผลิตและพัฒนานวัตกรรมเพื่อยกระดับสินค้าเกษตรเชิงสร้างสรรค์", "name": "การพัฒนาและยกระดับสินค้าเกษตรชาและกาแฟมูลค่าสูง"}, {"code": "P2-2.2", "issue": "การส่งเสริมการผลิตและพัฒนานวัตกรรมเพื่อยกระดับสินค้าเกษตรเชิงสร้างสรรค์", "name": "การพัฒนาและยกระดับสินค้าเกษตรลิ้นจี่มูลค่าสูง"}, {"code": "P2-2.3", "issue": "การส่งเสริมการผลิตและพัฒนานวัตกรรมเพื่อยกระดับสินค้าเกษตรเชิงสร้างสรรค์", "name": "การพัฒนาและยกระดับการแปรรูปสินค้าเกษตรเชิงสร้างสรรค์ และผลิตภัณฑ์ชุมชนให้มีมาตรฐาน"}, {"code": "P2-3.1", "issue": "การส่งเสริมการผลิตและพัฒนานวัตกรรมเพื่อยกระดับสินค้าเกษตรเชิงสร้างสรรค์", "name": "การพัฒนาเครือข่ายเกษตรกร วิสาหกิจชุมชน และผู้ประกอบการฐานรากด้วยเทคโนโลยีและนวัตกรรม"}, {"code": "P2-3.2", "issue": "การส่งเสริมการผลิตและพัฒนานวัตกรรมเพื่อยกระดับสินค้าเกษตรเชิงสร้างสรรค์", "name": "การส่งเสริมการตลาดและเชื่อมโยงห่วงโซ่คุณค่าสินค้าเกษตรสู่ตลาดสมัยใหม่"}, {"code": "P3-1.1", "issue": "การพัฒนาเศรษฐกิจสร้างสรรค์ ด้านการค้า การลงทุน และโลจิสติกส์", "name": "การพัฒนายกระดับโครงสร้างพื้นฐานและระบบโลจิสติกส์รองรับการเป็นพื้นที่เศรษฐกิจ"}, {"code": "P3-1.2", "issue": "การพัฒนาเศรษฐกิจสร้างสรรค์ ด้านการค้า การลงทุน และโลจิสติกส์", "name": "การพัฒนาเมืองและพื้นที่เศรษฐกิจเชิงสร้างสรรค์"}, {"code": "P3-2.1", "issue": "การพัฒนาเศรษฐกิจสร้างสรรค์ ด้านการค้า การลงทุน และโลจิสติกส์", "name": "การพัฒนาศักยภาพผู้ประกอบการ วิสาหกิจชุมชน และผู้ประกอบการรุ่นใหม่เพื่อเพิ่มโอกาสในการแข่งขัน"}, {"code": "P3-2.2", "issue": "การพัฒนาเศรษฐกิจสร้างสรรค์ ด้านการค้า การลงทุน และโลจิสติกส์", "name": "การยกระดับมาตรฐานและสร้างมูลค่าเพิ่มของผลิตภัณฑ์จังหวัดเชียงราย"}, {"code": "P3-3.1", "issue": "การพัฒนาเศรษฐกิจสร้างสรรค์ ด้านการค้า การลงทุน และโลจิสติกส์", "name": "การขับเคลื่อนการพัฒนาเขตเศรษฐกิจพิเศษและระเบียงเศรษฐกิจ"}, {"code": "P3-3.2", "issue": "การพัฒนาเศรษฐกิจสร้างสรรค์ ด้านการค้า การลงทุน และโลจิสติกส์", "name": "ยกระดับผู้ประกอบการให้มีขีดความสามารถทางการแข่งขันสู่การเป็นผู้ส่งออก"}, {"code": "P3-3.3", "issue": "การพัฒนาเศรษฐกิจสร้างสรรค์ ด้านการค้า การลงทุน และโลจิสติกส์", "name": "การประชาสัมพันธ์เชื่อมโยงเครือข่ายการตลาดเพื่อดึงดูดการค้าการลงทุน"}, {"code": "P4-1.1", "issue": "การจัดการทรัพยากรธรรมชาติและสิ่งแวดล้อมให้ดำรงความสมบูรณ์และยั่งยืน", "name": "การอนุรักษ์ฟื้นฟูป่าต้นน้ำและเพิ่มพื้นที่สีเขียว"}, {"code": "P4-1.2", "issue": "การจัดการทรัพยากรธรรมชาติและสิ่งแวดล้อมให้ดำรงความสมบูรณ์และยั่งยืน", "name": "การพัฒนาพื้นที่เศรษฐกิจสีเขียว"}, {"code": "P4-1.3", "issue": "การจัดการทรัพยากรธรรมชาติและสิ่งแวดล้อมให้ดำรงความสมบูรณ์และยั่งยืน", "name": "การเสริมสร้างเครือข่ายชุมชนในการเฝ้าระวังและบริหารจัดการทรัพยากรแบบมีส่วนร่วม"}, {"code": "P4-2.1", "issue": "การจัดการทรัพยากรธรรมชาติและสิ่งแวดล้อมให้ดำรงความสมบูรณ์และยั่งยืน", "name": "การบริหารจัดการทรัพยากรน้ำ"}, {"code": "P4-2.2", "issue": "การจัดการทรัพยากรธรรมชาติและสิ่งแวดล้อมให้ดำรงความสมบูรณ์และยั่งยืน", "name": "การยกระดับการเตรียมความพร้อมในการป้องกันและรับมือภัยพิบัติ"}, {"code": "P4-2.3", "issue": "การจัดการทรัพยากรธรรมชาติและสิ่งแวดล้อมให้ดำรงความสมบูรณ์และยั่งยืน", "name": "การแก้ไขและป้องกันไฟป่าหมอกควัน (PM 2.5)"}, {"code": "P4-3.1", "issue": "การจัดการทรัพยากรธรรมชาติและสิ่งแวดล้อมให้ดำรงความสมบูรณ์และยั่งยืน", "name": "การส่งเสริมการใช้พลังงานทดแทนและนวัตกรรมที่เป็นมิตรต่อสิ่งแวดล้อม"}, {"code": "P4-3.2", "issue": "การจัดการทรัพยากรธรรมชาติและสิ่งแวดล้อมให้ดำรงความสมบูรณ์และยั่งยืน", "name": "การพัฒนานวัตกรรมสีเขียว เศรษฐกิจหมุนเวียน และการใช้ทรัพยากรอย่างคุ้มค่า"}, {"code": "P5-1.1", "issue": "การพัฒนาคุณภาพชีวิต และความมั่นคงเพื่อส่งเสริมสังคมสร้างสรรค์", "name": "การพัฒนาโครงสร้างพื้นฐานด้านคมนาคม"}, {"code": "P5-1.2", "issue": "การพัฒนาคุณภาพชีวิต และความมั่นคงเพื่อส่งเสริมสังคมสร้างสรรค์", "name": "การพัฒนาโครงสร้างพื้นฐานด้านสาธารณูปโภค"}, {"code": "P5-1.3", "issue": "การพัฒนาคุณภาพชีวิต และความมั่นคงเพื่อส่งเสริมสังคมสร้างสรรค์", "name": "การพัฒนานวัตกรรมและระบบสารสนเทศเพื่อส่งเสริมสังคมสร้างสรรค์"}, {"code": "P5-1.4", "issue": "การพัฒนาคุณภาพชีวิต และความมั่นคงเพื่อส่งเสริมสังคมสร้างสรรค์", "name": "การส่งเสริมการเรียนรู้และทักษะเพื่อสร้างสังคมแห่งการเรียนรู้ตลอดชีวิต"}, {"code": "P5-1.5", "issue": "การพัฒนาคุณภาพชีวิต และความมั่นคงเพื่อส่งเสริมสังคมสร้างสรรค์", "name": "การพัฒนาทักษะอาชีพเสริมสร้างความมั่นคงครัวเรือน"}, {"code": "P5-2.1", "issue": "การพัฒนาคุณภาพชีวิต และความมั่นคงเพื่อส่งเสริมสังคมสร้างสรรค์", "name": "การป้องกันและแก้ไขปัญหายาเสพติด ภัยคุกคามทางสังคม"}, {"code": "P5-2.2", "issue": "การพัฒนาคุณภาพชีวิต และความมั่นคงเพื่อส่งเสริมสังคมสร้างสรรค์", "name": "การเสริมสร้างเมืองมั่นคงปลอดภัยและความมั่นคงตามแนวชายแดน"}, {"code": "P5-3.1", "issue": "การพัฒนาคุณภาพชีวิต และความมั่นคงเพื่อส่งเสริมสังคมสร้างสรรค์", "name": "การพัฒนาคุณภาพชีวิตประชาชนเพื่อยกระดับเศรษฐกิจฐานราก"}, {"code": "P5-3.2", "issue": "การพัฒนาคุณภาพชีวิต และความมั่นคงเพื่อส่งเสริมสังคมสร้างสรรค์", "name": "การขับเคลื่อนและขยายผลโครงการอันเนื่องมาจากพระราชดำริและหลักปรัชญาเศรษฐกิจพอเพียง"}];
+// common.js — ตัวช่วยที่ทุกขั้นใช้ ($, fmt, esc, toast) และ state ของขั้น ⓪
+const $ = s => document.querySelector(s);
+const fmt = n => (n === null || n === undefined || isNaN(n)) ? '–' : Number(n).toLocaleString('en-US');
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const STATUS = { done:'ทำแล้ว จบโครงการ', done_continue:'ทำแล้ว และทำต่อในแผนใหม่', not_done:'ยังไม่ได้ทำ' };
+function migrate(rev){ Object.values(rev||{}).forEach(r => { if (r && r.status === 'continue') r.status = 'done_continue'; }); return rev || {}; }
+const REASONS = ['ไม่ได้รับงบประมาณ','ชุมชนยังไม่พร้อม','ปัญหาเปลี่ยนไปแล้ว','อื่น ๆ'];
+
+const state = { pdfName:null, pdf:null, ai:null, usingSample:false, review:{}, filter:'all' };
+
+function toast(msg){ const t=$('#toast'); t.textContent=msg; t.hidden=false; clearTimeout(toast._t); toast._t=setTimeout(()=>t.hidden=true,2600); }
+// การบันทึกทุกขั้นไปรวมที่ชุดข้อมูลของตำบล (ดู wsSave ด้านล่าง)
+function persist(){ wsSave(); }
+
+// step0-review.js — ⓪ ทบทวนแผนเดิม: แนบ PDF, ตรวจคำตอบ AI, ตรวจงบ/สถานะ, บันทึก .json
+/* ---------- step 1: PDF ---------- */
+function facts(el, items){ el.innerHTML = items.map(([cls,txt]) => `<li class="${cls}">${txt}</li>`).join(''); }
+async function readPdf(file){
+  facts($('#pdfFacts'), [['info','กำลังอ่านไฟล์…']]);
+  $('#dropTitle').textContent = file.name;
+  if (!window.pdfjsLib){ facts($('#pdfFacts'), [['bad','โหลดตัวอ่าน PDF ไม่สำเร็จ ตรวจการเชื่อมต่ออินเทอร์เน็ตแล้วเปิดหน้านี้ใหม่']]); return; }
+  try{
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    const buf = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data:new Uint8Array(buf), isEvalSupported:false }).promise;
+    const lines = await extractLines(pdf);
+    const a = analyzePlanText(lines);
+    a.pages = pdf.numPages;
+    state.pdfName = file.name; state.pdf = a;
+    const rows = Object.keys(a.rows).length;
+    const out = [['ok', `อ่านไฟล์ได้ ${a.pages} หน้า`]];
+    if (!a.hasText) out.push(['warn','ไฟล์นี้แทบไม่มีข้อความฝังอยู่ (อาจเป็นไฟล์สแกน) ต้องยืนยันงบทุกบรรทัดด้วยตา']);
+    else if (a.s31 === null) out.push(['warn','ไม่พบหัวข้อ 3.1 ในข้อความของไฟล์ (อาจใช้แบบฟอร์มอื่น) ต้องยืนยันงบทุกบรรทัดด้วยตา']);
+    else out.push(['ok', `พบตาราง 3.1 เริ่มหน้า ${a.s31} มี ${rows} แถว อ่านงบได้ ${Object.values(a.rows).filter(r=>r.budget!==null||r.nobudget).length} แถว`]);
+    if (a.problemRows.length) out.push(['info', `ตารางวิเคราะห์ปัญหา (2.6) มี ${a.problemRows.length} แถว`]);
+    facts($('#pdfFacts'), out);
+    $('#s1').classList.add('done');
+    if (state.ai) runChecks();
+  }catch(e){
+    facts($('#pdfFacts'), [['bad','เปิดไฟล์นี้ไม่ได้ ตรวจว่าเป็น PDF ที่ไม่ได้ใส่รหัสผ่าน แล้วลองใหม่']]);
+  }
+}
+const drop = $('#drop');
+$('#pdfInput').addEventListener('change', e => { const f=e.target.files[0]; if(f) readPdf(f); });
+['dragenter','dragover'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('over'); }));
+['dragleave','drop'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('over'); }));
+drop.addEventListener('drop', e => { const f=e.dataTransfer.files[0]; if(f) readPdf(f); });
+
+/* ---------- step 2: AI answer ---------- */
+$('#promptBox').value = PROMPT;
+$('#copyPrompt').addEventListener('click', async () => {
+  try{ await navigator.clipboard.writeText(PROMPT); toast('คัดลอกคำสั่งแล้ว'); }
+  catch(e){ const d=document.querySelector('details.prompt'); d.open=true; const b=$('#promptBox'); b.focus(); b.select(); toast('คัดลอกอัตโนมัติไม่ได้ เลือกข้อความไว้ให้แล้ว กดคัดลอกเอง'); }
+});
+$('#loadSample').addEventListener('click', () => { $('#aiBox').value = JSON.stringify(SAMPLE, null, 1); state.usingSample = true; $('#sampleNote').hidden=false; ingest(); });
+$('#checkBtn').addEventListener('click', () => { state.usingSample = false; $('#sampleNote').hidden=true; ingest(); });
+
+function parseAI(text){
+  let t = text.trim().replace(/^```(?:json)?/i,'').replace(/```$/,'').trim();
+  const a = t.indexOf('{'), b = t.lastIndexOf('}');
+  if (a < 0 || b < a) throw new Error('nojson');
+  return JSON.parse(t.slice(a, b+1));
+}
+function ingest(){
+  let ai;
+  try{ ai = parseAI($('#aiBox').value); }
+  catch(e){ facts($('#aiFacts'), [['bad','อ่านคำตอบไม่ได้ ต้องเป็น JSON ทั้งก้อน ตรวจว่าคัดลอกมาครบตั้งแต่ { ตัวแรกถึง } ตัวสุดท้าย']]); return; }
+  if (!ai?.part3?.projects?.length){ facts($('#aiFacts'), [['bad','ในคำตอบไม่มีรายการโครงการ (part3.projects) ให้ส่งคำสั่งให้ AI ใหม่อีกครั้ง']]); return; }
+  ai.part3.projects.forEach((p,i) => { if(!p.id) p.id = 'P'+String(i+1).padStart(2,'0'); if(!p.priority_no) p.priority_no = i+1; });
+  if (!wsAdoptAi(ai)) return;
+  $('#s2').classList.add('done');
+  runChecks();
+}
+
+function sim(a,b){
+  a=String(a).replace(/\s/g,''); b=String(b).replace(/\s/g,'');
+  if(!a||!b) return 0; const m=a.length,n=b.length; const d=Array.from({length:m+1},(_,i)=>[i]);
+  for(let j=1;j<=n;j++) d[0][j]=j;
+  for(let i=1;i<=m;i++) for(let j=1;j<=n;j++) d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(a[i-1]===b[j-1]?0:1));
+  return 1 - d[m][n]/Math.max(m,n);
+}
+function budgetCheck(p){
+  if (!state.pdf) return { kind:'nopdf' };
+  if (!state.pdf.hasText || state.pdf.s31 === null) return { kind:'notext' };
+  const r = state.pdf.rows[p.priority_no];
+  if (!r) return { kind:'notfound' };
+  if (r.nobudget && (!p.budget)) return { kind:'match', pdf:0 };
+  if (r.budget === null) return { kind:'notfound' };
+  return r.budget === Number(p.budget) ? { kind:'match', pdf:r.budget } : { kind:'mismatch', pdf:r.budget };
+}
+function runChecks(){
+  const ai = state.ai, out = [];
+  const projects = ai.part3.projects;
+  const blob = JSON.stringify(ai);
+  if (/[฻๚๛]/.test(blob)) out.push(['bad','พบตัวอักษรเพี้ยน (฻ ๚ ๛) ในคำตอบ แปลว่า AI อ่านข้อความที่ฝังในไฟล์แทนการอ่านจากภาพ ให้ลองใหม่โดยส่งภาพหน้าจอหน้าตาราง 3.1 แทนไฟล์ PDF']);
+  else out.push(['ok','ไม่พบตัวอักษรเพี้ยน AI อ่านจากภาพหน้าเอกสาร']);
+  out.push(['info', `ตำบล${esc(ai.meta?.tambon||'?')} อำเภอ${esc(ai.meta?.amphoe||'?')} แผนปี ${esc(ai.meta?.plan_year||'?')} มี ${projects.length} โครงการ`]);
+  if (state.pdf && state.pdf.s31 !== null){
+    const pdfRows = Object.keys(state.pdf.rows).length;
+    if (pdfRows !== projects.length) out.push(['bad', `จำนวนโครงการไม่ตรงกัน ไฟล์มี ${pdfRows} แถว แต่ AI ส่งมา ${projects.length} โครงการ`]);
+    const mis = projects.filter(p => budgetCheck(p).kind==='mismatch').length;
+    out.push([mis? 'bad':'ok', mis ? `งบประมาณที่ AI อ่านไม่ตรงกับไฟล์ ${mis} โครงการ ต้องตรวจกับเล่มจริงในขั้นที่ 3` : 'งบประมาณทุกโครงการตรงกับตัวเลขในไฟล์']);
+    const pr = ai.part2?.problems?.length || 0;
+    if (state.pdf.problemRows.length && pr !== state.pdf.problemRows.length) out.push(['warn', `ตารางวิเคราะห์ปัญหาในไฟล์มี ${state.pdf.problemRows.length} แถว แต่ AI ส่งมา ${pr} แถว`]);
+  } else if (!state.pdf) out.push(['warn','ยังไม่ได้แนบ PDF ในขั้นที่ 1 จึงยังเทียบงบกับต้นฉบับไม่ได้']);
+  else out.push(['warn','ไฟล์ไม่มีข้อความให้เทียบ ต้องยืนยันงบทุกบรรทัดด้วยตา']);
+  const pop = ai.part1?.population;
+  if (pop && pop.total && pop.male + pop.female !== pop.total) out.push(['warn', `ประชากรชายรวมหญิง (${fmt(pop.male+pop.female)}) ไม่เท่ากับยอดรวม (${fmt(pop.total)})`]);
+  const dups = [];
+  for (let i=0;i<projects.length;i++) for (let j=i+1;j<projects.length;j++)
+    if (sim(projects[i].name, projects[j].name) >= .9) dups.push(`ลำดับ ${projects[i].priority_no} กับ ${projects[j].priority_no}`);
+  if (dups.length) out.push(['warn', 'ชื่อโครงการซ้ำหรือเกือบซ้ำ: ' + dups.join(', ')]);
+  const found = (ai.meta?.file_check?.sections_found || []).join(' ');
+  if (found && !/ส่วนที่\s*5/.test(found)) out.push(['warn','ไม่พบส่วนที่ 5 เรื่องอื่น ๆ ตามแบบฟอร์ม']);
+  const pd = (ai.flags||[]).filter(f => f.type==='personal_data_present');
+  if (pd.length) out.push(['warn', `AI แจ้งว่าพบข้อมูลส่วนบุคคล ${pd.length} จุดในเล่ม (หน้า ${pd.map(f=>esc(f.page_printed)).join(', ')}) ข้อมูลเหล่านี้ไม่ถูกนำเข้าแอป`]);
+  facts($('#aiFacts'), out);
+  render();
+}
+
+/* ---------- step 3: ledger ---------- */
+function diffMark(a, b){
+  const A = fmt(a), B = fmt(b);
+  if (A.length !== B.length) return `<mark>${esc(A)}</mark>`;
+  return [...A].map((c,i) => c===B[i] ? esc(c) : `<mark>${esc(c)}</mark>`).join('');
+}
+function rv(id){ return state.review[id] || (state.review[id] = {}); }
+function needsCheck(p){ const k=budgetCheck(p).kind; return k!=='match' && !rv(p.id).budgetConfirmed; }
+
+function moneyHTML(p){
+  const c = budgetCheck(p), r = rv(p.id);
+  if (c.kind === 'match') return `<div class="pair"><span class="lbl">งบ</span><span class="val">${fmt(c.pdf)}</span></div><div class="verdict ok">ตรงกับไฟล์</div>`;
+  if (c.kind === 'mismatch'){
+    const head = `<div class="pair"><span class="lbl">AI อ่าน</span><span class="val">${diffMark(p.budget, c.pdf)}</span><span class="lbl">ในไฟล์</span><span class="val">${fmt(c.pdf)}</span></div>`;
+    if (r.budgetConfirmed) return head + `<div class="verdict ok">ยืนยันแล้ว ${fmt(r.budgetFinal)} บาท</div><div class="fix"><button class="btn ghost small" data-act="unconfirm" type="button">แก้ไข</button></div>`;
+    return head + `<div class="verdict bad">ไม่ตรงกัน เปิดเล่มจริงดูแล้วเลือก</div><div class="fix"><button class="btn small" data-act="usePdf" type="button">ใช้ ${fmt(c.pdf)}</button><button class="btn ghost small" data-act="useAi" type="button">ใช้ ${fmt(p.budget)}</button></div>`;
+  }
+  const why = { nopdf:'ยังไม่ได้แนบ PDF', notext:'ไฟล์ไม่มีข้อความให้เทียบ', notfound:'หาแถวนี้ในไฟล์ไม่พบ' }[c.kind];
+  const v = r.budgetFinal ?? p.budget;
+  return `<div class="pair"><span class="lbl">AI อ่าน</span><span class="val">${fmt(p.budget)}</span></div>
+    <div class="verdict warn">${why}</div>
+    <input type="number" min="0" step="1" value="${esc(v ?? '')}" data-act="manual" aria-label="งบประมาณที่ตรวจแล้ว">
+    <label class="chk"><input type="checkbox" data-act="manualOk" ${r.budgetConfirmed?'checked':''}> ตรวจกับเล่มจริงแล้ว</label>`;
+}
+function statusHTML(p){
+  const r = rv(p.id);
+  const opts = ['<option value="">ระบุสถานะ…</option>'].concat(Object.entries(STATUS).map(([k,v]) => `<option value="${k}" ${r.status===k?'selected':''}>${v}</option>`)).join('');
+  const rs = ['<option value="">เพราะอะไร…</option>'].concat(REASONS.map(x => `<option ${r.reason===x?'selected':''}>${x}</option>`)).join('');
+  return `<select data-act="status" aria-label="สถานะโครงการ">${opts}</select>
+    <div class="sub" ${r.status==='not_done'?'':'hidden'}>
+      <select data-act="reason" aria-label="เหตุผลที่ยังไม่ได้ทำ">${rs}</select>
+      <select data-act="decision" aria-label="การตัดสินใจ">
+        <option value="">แผนใหม่จะ…</option>
+        <option value="carry" ${r.decision==='carry'?'selected':''}>ยกไปแผนใหม่</option>
+        <option value="drop" ${r.decision==='drop'?'selected':''}>ตัดออก</option>
+      </select>
+    </div>`;
+}
+function render(){
+  const ai = state.ai, list = $('#list');
+  if (!ai){ list.innerHTML = '<div class="empty">วางคำตอบจาก AI ในขั้นที่ 2 แล้วรายการโครงการจะขึ้นที่นี่</div>'; tally(); summary(); return; }
+  const ps = ai.part3.projects.filter(p => state.filter==='all' || (state.filter==='check' && needsCheck(p)) || (state.filter==='nostatus' && !rv(p.id).status));
+  if (!ps.length){ list.innerHTML = '<div class="empty">ไม่มีรายการในตัวกรองนี้</div>'; }
+  else list.innerHTML = ps.map(p => {
+    const k = budgetCheck(p).kind, r = rv(p.id);
+    const cls = (k==='mismatch' && !r.budgetConfirmed) ? 'flag-bad' : (k!=='match' && !r.budgetConfirmed ? 'flag-warn' : '');
+    return `<article class="item ${cls}" data-id="${esc(p.id)}">
+      <div class="no">${esc(p.priority_no)}</div>
+      <div class="name"><input value="${esc(r.name ?? p.name)}" data-act="name" aria-label="ชื่อโครงการ ลำดับ ${esc(p.priority_no)}">
+        <div class="meta"><span class="tag">${esc(p.form_dimension||'ไม่ระบุด้าน')}</span><span class="tag">${esc(p.method||'ไม่ระบุวิธี')}</span>เป้าหมาย ${esc(p.target||'–')}</div></div>
+      <div class="money">${moneyHTML(p)}</div>
+      <div class="status">${statusHTML(p)}</div>
+    </article>`;
+  }).join('');
+  tally(); summary(); persist();
+}
+$('#list').addEventListener('click', e => {
+  const b = e.target.closest('button[data-act]'); if (!b) return;
+  const art = b.closest('.item'); const p = state.ai.part3.projects.find(x => x.id===art.dataset.id); const r = rv(p.id);
+  const c = budgetCheck(p);
+  if (b.dataset.act==='usePdf'){ r.budgetFinal=c.pdf; r.budgetConfirmed=true; }
+  if (b.dataset.act==='useAi'){ r.budgetFinal=Number(p.budget); r.budgetConfirmed=true; }
+  if (b.dataset.act==='unconfirm'){ r.budgetConfirmed=false; }
+  render(); const n=document.querySelector(`.item[data-id="${CSS.escape(p.id)}"]`); if(n){ n.classList.add('flash'); }
+});
+$('#list').addEventListener('change', e => {
+  const el = e.target, art = el.closest('.item'); if (!art) return;
+  const p = state.ai.part3.projects.find(x => x.id===art.dataset.id); const r = rv(p.id);
+  const a = el.dataset.act;
+  if (a==='status'){ r.status = el.value || undefined; if (r.status!=='not_done'){ delete r.reason; delete r.decision; } render(); return; }
+  if (a==='reason') r.reason = el.value || undefined;
+  if (a==='decision') r.decision = el.value || undefined;
+  if (a==='name') r.name = el.value.trim() || undefined;
+  if (a==='manual') r.budgetFinal = el.value==='' ? null : Number(el.value);
+  if (a==='manualOk'){ if (r.budgetFinal===undefined) r.budgetFinal = Number(p.budget); r.budgetConfirmed = el.checked; render(); return; }
+  tally(); summary(); persist();
+});
+document.querySelectorAll('.chip').forEach(ch => ch.addEventListener('click', () => {
+  state.filter = ch.dataset.f; document.querySelectorAll('.chip').forEach(c => c.setAttribute('aria-pressed', String(c===ch))); render();
+}));
+
+function finalBudget(p){ const c=budgetCheck(p), r=rv(p.id); if (r.budgetConfirmed && r.budgetFinal!==undefined && r.budgetFinal!==null) return r.budgetFinal; if (c.kind==='match') return c.pdf; return null; }
+function tally(){
+  const ps = state.ai?.part3?.projects || [];
+  $('#tProj').textContent = ps.length;
+  $('#tBad').textContent = ps.filter(needsCheck).length;
+  $('#tConf').textContent = ps.filter(p => budgetCheck(p).kind==='match' || rv(p.id).budgetConfirmed).length;
+  $('#tStat').textContent = ps.filter(p => rv(p.id).status).length;
+}
+function summary(){
+  const ps = state.ai?.part3?.projects || [];
+  if (!ps.length){ $('#summary').innerHTML=''; return; }
+  const st = p => rv(p.id).status;
+  const by = k => ps.filter(p => st(p)===k);
+  const nd = by('not_done');
+  const carry = ps.filter(p => st(p)==='done_continue' || (st(p)==='not_done' && rv(p.id).decision==='carry'));
+  const sum = arr => arr.reduce((s,p) => s + (finalBudget(p) ?? 0), 0);
+  const unknown = carry.filter(p => finalBudget(p)===null).length;
+  $('#summary').innerHTML = `
+    <div><b>${by('done').length}</b><span>ทำแล้ว จบโครงการ</span></div>
+    <div><b>${by('done_continue').length}</b><span>ทำแล้ว และทำต่อในแผนใหม่</span></div>
+    <div><b>${nd.length}</b><span>ยังไม่ได้ทำ (ยกไป ${nd.filter(p=>rv(p.id).decision==='carry').length} ตัดออก ${nd.filter(p=>rv(p.id).decision==='drop').length})</span></div>
+    <div><b>${carry.length}</b><span>โครงการที่เข้าแผนใหม่</span></div>
+    <div><b>${fmt(sum(carry))}</b><span>งบของโครงการที่เข้าแผนใหม่ (บาท)${unknown?` ยังไม่ยืนยันงบ ${unknown} รายการ`:''}</span></div>`;
+}
+
+/* ---------- step 4: save ---------- */
+function exportData(){
+  const ai = state.ai;
+  return {
+    type:'tambon-plan-review', version:1, generated_at:new Date().toISOString(),
+    source:{ pdf_file: state.pdfName, ai_answer_is_test_sample: state.usingSample },
+    meta: ai.meta, part1: ai.part1, part2: ai.part2, part4: ai.part4,
+    projects: ai.part3.projects.map(p => { const r=rv(p.id), c=budgetCheck(p); return {
+      ...p, name: r.name ?? p.name, budget_ai: p.budget, budget_pdf: c.pdf ?? null, budget_final: finalBudget(p),
+      budget_check: c.kind, budget_confirmed: c.kind==='match' || !!r.budgetConfirmed,
+      review: { status: r.status || null, reason: r.reason || null, decision: r.decision || null } }; }),
+    flags: ai.flags || [],
+    new_plan_projects: { items: orderedItems(planItems()).map(({flags, ...x}) => x), priority_3_1: orderedItems(planItems()).map(x => x.uid), ai_candidates_not_selected: prj.extra.filter(x => x.source==='ai' && !x.accepted).map(x => x.name) },
+    analysis: { tis_community_file: ana.commFile, tis_community_is_test_sample: ana.commIsSample, tis_community: ana.comm, venue_notes: (ana.venue||'').split('\n').map(s=>s.trim()).filter(Boolean), part2_draft: ana.answer, validation: ana.validation },
+    current: { tis_file: cur.tisFile, tis_is_test_sample: cur.tisIsSample, tis: cur.tis, tis_village_stats: cur.tisStats, baseline: cur.base },
+    // สถานะทำงานทั้งหมดของทุกขั้น ใช้เปิดไฟล์นี้กลับมาทำต่อได้ครบ (คีย์ด้านบนคงไว้เหมือนเดิม)
+    workspace: wsSnapshot()
+  };
+}
+$('#saveBtn').addEventListener('click', async () => {
+  if (!state.ai){ toast('ทำขั้น ⓪ ทบทวนแผนเดิมก่อน แล้วค่อยบันทึก'); return; }
+  const ps = state.ai.part3.projects;
+  const pend = ps.filter(needsCheck).length, nost = ps.filter(p=>!rv(p.id).status).length;
+  $('#bookNote').textContent = $('#saveNote4').textContent = $('#saveNote3').textContent = $('#saveNote2').textContent = $('#saveNote').textContent = (pend||nost) ? `ยังเหลืองบที่ต้องตรวจ ${pend} รายการ และยังไม่ระบุสถานะ ${nost} รายการ ไฟล์ที่บันทึกจะติดสถานะ “ยังไม่ครบ” ไว้` : 'ตรวจครบทุกรายการแล้ว';
+  const data = JSON.stringify(exportData(), null, 1);
+  const name = `ทบทวนแผน_${state.ai.meta?.tambon||'ตำบล'}_${state.ai.meta?.plan_year||''}.json`;
+  let dl = null; try{ dl = await window.claude?.use?.('downloads'); }catch(e){}
+  if (dl){
+    try{ await dl.save({ filename:name, data }); toast('บันทึกไฟล์แล้ว'); return; }
+    catch(e){ if (e?.code==='declined') { toast('ยกเลิกการบันทึก'); return; } }
+  }
+  const box=$('#exportBox'); box.hidden=false; box.value=data; box.focus(); box.select();
+  toast('บันทึกไฟล์จากหน้านี้ไม่ได้ คัดลอกข้อความในกล่องไปเก็บแทน');
+});
+$('#resetBtn').addEventListener('click', () => {
+  if (!state.ai) return;
+  if (!confirm('ล้างผลตรวจและสถานะของตำบลนี้ในเครื่องนี้ทั้งหมด?')) return;
+  state.review = {}; render(); toast('ล้างข้อมูลแล้ว');
+});
+// step1-current.js — ① ข้อมูลตำบลปัจจุบัน: อ่าน TIS รายหมู่บ้าน, heatmap, ข้อมูลพื้นฐาน
+// ---- TIS core ----
+const TIS_DIMS = ['ด้านเศรษฐกิจและอาชีพ','ด้านการจัดการข้อมูล','ด้านการศึกษาและการเรียนรู้','ด้านสิ่งแวดล้อมและสาธารณสุข','ด้านสังคม วัฒนธรรม'];
+function normDim(s){
+  const t = String(s||'').replace(/\s+/g,' ').trim();
+  const k = t.replace(/\s/g,'');
+  return TIS_DIMS.find(d => d.replace(/\s/g,'') === k) || t;
+}
+function parseTisRows(rows){
+  const flat = r => r.map(c => String(c ?? '')).join(' ');
+  const out = { year:null, province:null, amphoe:null, tambon:null, villages:[], warnings:[] };
+  for (const r of rows.slice(0,6)){
+    const s = flat(r);
+    const y = s.match(/ปีงบประมาณ\s*(\d{4})/); if (y) out.year = +y[1];
+    const l = s.match(/จังหวัด\s*(\S+)\s*อำเภอ\s*(\S+)\s*ตำบล\s*(\S+)/); if (l){ out.province=l[1]; out.amphoe=l[2]; out.tambon=l[3]; }
+  }
+  const hi = rows.findIndex(r => r.some(c => /อันดับที่\s*1/.test(c)) && r.some(c => /หมู่ที่/.test(c)));
+  if (hi < 0){ out.warnings.push('ไม่พบหัวตาราง “หมู่ที่” และ “อันดับที่ 1” ไฟล์นี้อาจไม่ใช่รายงานผลการวิเคราะห์ TIS'); return out; }
+  const H = rows[hi].map(c => String(c ?? ''));
+  const cMoo = H.findIndex(c => /หมู่ที่/.test(c));
+  const cName = H.findIndex(c => /^\s*หมู่บ้าน\s*$/.test(c));
+  const cRank = [1,2,3,4,5].map(k => H.findIndex(c => new RegExp('อันดับที่\\s*'+k+'(?!\\d)').test(c)));
+  for (let i = hi+1; i < rows.length; i++){
+    const r = rows[i];
+    if (flat(r).includes('ประเด็นการพัฒนา')) break;
+    const moo = parseInt(r[cMoo], 10);
+    const ranks = cRank.map(c => c >= 0 ? normDim(r[c]) : '');
+    if (!moo || !ranks[0]) continue;
+    const name = String(cName >= 0 ? r[cName] : '').replace(/^บ้าน\s+/, 'บ้าน').trim();
+    const bad = ranks.filter(d => !TIS_DIMS.includes(d));
+    if (bad.length || new Set(ranks).size !== 5) out.warnings.push(`หมู่ ${moo} จัดอันดับไม่ครบ 5 ด้าน หรือมีชื่อด้านที่ไม่รู้จัก`);
+    out.villages.push({ moo, name, ranks });
+  }
+  if (!out.villages.length) out.warnings.push('ไม่พบข้อมูลรายหมู่บ้านในไฟล์');
+  return out;
+}
+function tisStats(villages){
+  const n = villages.length;
+  const s = TIS_DIMS.map(d => {
+    const counts = [0,0,0,0,0]; let sum = 0, m = 0;
+    villages.forEach(v => { const k = v.ranks.indexOf(d); if (k >= 0){ counts[k]++; sum += k+1; m++; } });
+    return { dim:d, counts, avg: m ? sum/m : null };
+  });
+  const order = [...s].sort((a,b) => a.avg - b.avg);
+  const top = order[0];
+  const outliers = villages.filter(v => v.ranks[0] !== top.dim).map(v => ({ moo:v.moo, name:v.name, first:v.ranks[0] }));
+  return { n, stats:s, order, outliers };
+}
+
+
+const CUR0 = () => ({ tis:null, tisStats:null, base:{}, tisFile:null, tisIsSample:false });
+const cur = CUR0();
+function curPersist(){ wsSave(); }
+
+function showView(){
+  const h = location.hash === '#current' ? 'current' : location.hash === '#analysis' ? 'analysis' : location.hash === '#projects' ? 'projects' : location.hash === '#book' ? 'book' : 'review';
+  $('#v-review').hidden = h !== 'review'; $('#v-current').hidden = h !== 'current';
+  $('#tabReview').setAttribute('aria-current', h==='review' ? 'page' : 'false');
+  $('#tabCurrent').setAttribute('aria-current', h==='current' ? 'page' : 'false');
+  $('#v-book').hidden = h !== 'book'; $('#tabBook').setAttribute('aria-current', h==='book' ? 'page' : 'false');
+  if (h === 'book') renderBook();
+  $('#v-projects').hidden = h !== 'projects'; $('#tabProjects').setAttribute('aria-current', h==='projects' ? 'page' : 'false');
+  if (h === 'projects') renderProjects();
+  $('#v-analysis').hidden = h !== 'analysis'; $('#tabAnalysis').setAttribute('aria-current', h==='analysis' ? 'page' : 'false');
+  if (h === 'current') renderCurrent();
+  if (h === 'analysis') renderAnalysis();
+}
+window.addEventListener('hashchange', showView);
+
+function ingestTis(t, fileName, isSample){
+  cur.tis = t; cur.tisStats = tisStats(t.villages); cur.tisFile = fileName; cur.tisIsSample = !!isSample;
+  $('#drop2Title').textContent = fileName;
+  $('#c1').classList.add('done');
+  curPersist(); renderCurrent();
+}
+async function readXls(file){
+  facts($('#tisFacts'), [['info','กำลังอ่านไฟล์…']]);
+  if (!window.XLSX){ facts($('#tisFacts'), [['bad','โหลดตัวอ่าน Excel ไม่สำเร็จ ตรวจการเชื่อมต่ออินเทอร์เน็ตแล้วเปิดหน้านี้ใหม่']]); return; }
+  try{
+    const wb = XLSX.read(await file.arrayBuffer(), { type:'array' });
+    const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header:1, defval:'' });
+    ingestTis(parseTisRows(rows), file.name, false);
+  }catch(e){ facts($('#tisFacts'), [['bad','เปิดไฟล์นี้ไม่ได้ ตรวจว่าเป็นไฟล์ Excel ที่ส่งออกจาก TIS']]); }
+}
+$('#xlsInput').addEventListener('change', e => { const f = e.target.files[0]; if (f) readXls(f); });
+const drop2 = $('#drop2');
+['dragenter','dragover'].forEach(ev => drop2.addEventListener(ev, e => { e.preventDefault(); drop2.classList.add('over'); }));
+['dragleave','drop'].forEach(ev => drop2.addEventListener(ev, e => { e.preventDefault(); drop2.classList.remove('over'); }));
+drop2.addEventListener('drop', e => { const f = e.dataTransfer.files[0]; if (f) readXls(f); });
+$('#loadTisSample').addEventListener('click', () => {
+  const s = TIS_SAMPLE;
+  ingestTis({ year:s.year, province:s.province, amphoe:s.amphoe, tambon:s.tambon, warnings:[],
+    villages: s.villages.map(v => ({ moo:v[0], name:String(v[1]).replace(/^บ้าน\s+/,'บ้าน'), ranks:v.slice(2) })) }, 'ตัวอย่างจริง: รายงาน TIS ป่าแดด', true);
+});
+
+const short = d => d.replace(/^ด้าน/,'');
+function renderCurrent(){
+  const t = cur.tis, S = cur.tisStats, m = state.ai?.meta;
+  // facts
+  if (t){
+    const out = [['ok', `ตำบล${esc(t.tambon||'?')} อำเภอ${esc(t.amphoe||'?')} ข้อมูล ${t.villages.length} หมู่บ้าน${cur.tisIsSample?' (ตัวอย่างจริงจากป่าแดด)':''}`]];
+    if (t.year) out.push([t.year < 2570 ? 'warn' : 'ok', `ข้อมูล TIS ปีงบประมาณ ${t.year}${t.year < 2570 ? ' ตรวจว่า TIS มีข้อมูลรอบใหม่หรือยัง ถ้ายังไม่มี ให้ระบุปีของข้อมูลในเล่มแผนให้ชัด' : ''}`]);
+    if (m?.tambon && t.tambon && m.tambon !== t.tambon) out.push(['bad', `ตำบลไม่ตรงกัน แผนเดิมเป็นตำบล${esc(m.tambon)} แต่รายงาน TIS เป็นตำบล${esc(t.tambon)}`]);
+    (t.warnings||[]).forEach(w => out.push(['warn', esc(w)]));
+    facts($('#tisFacts'), out);
+  }
+  // heat
+  if (S){
+    const n = S.n;
+    const head = '<thead><tr><th>ด้าน</th>' + [1,2,3,4,5].map(k => `<th>อันดับ ${k}</th>`).join('') + '<th>อันดับเฉลี่ย</th></tr></thead>';
+    const body = S.order.map(o => '<tr><td>' + esc(short(o.dim)) + '</td>' + o.counts.map(c => {
+      const pct = Math.round(c / n * 70);
+      return `<td class="c" style="background:color-mix(in srgb, var(--accent) ${pct}%, var(--surface));${pct>40?'color:var(--surface)':''}">${c || '·'}</td>`;
+    }).join('') + `<td class="c">${o.avg.toFixed(2)}</td></tr>`).join('');
+    $('#heatWrap').innerHTML = `<table class="heat">${head}<tbody>${body}</tbody></table>`;
+    const top = S.order[0], topN = top.counts[0];
+    const hf = [[topN / n >= .75 ? 'ok' : 'info', `${topN} จาก ${n} หมู่บ้านจัด${esc(short(top.dim))}เป็นอันดับ 1${topN / n >= .75 ? ' เป็นปัญหาร่วมของทั้งตำบล' : ''}`]];
+    if (S.outliers.length) hf.push(['info', 'หมู่บ้านที่จัดอันดับ 1 ต่างจากส่วนใหญ่: ' + S.outliers.map(o => `หมู่ ${o.moo} ${esc(o.name)} (${esc(short(o.first))})`).join(', ') + ' ควรฟังเหตุผลของหมู่บ้านเหล่านี้ในเวที']);
+    facts($('#heatFacts'), hf);
+  }
+  // baseline
+  const p1 = state.ai?.part1 || {};
+  const defs = [['villages','จำนวนหมู่บ้าน', p1.villages],['households','จำนวนครัวเรือน', p1.households],['total','ประชากรรวม', p1.population?.total],['male','ชาย', p1.population?.male],['female','หญิง', p1.population?.female],['income','รายได้เฉลี่ยต่อคนต่อปี (บาท)', p1.avg_income_per_person_year],['year','ปีของข้อมูล (เช่น จปฐ. 2570)', '']];
+  const b = cur.base;
+  $('#baseForm').innerHTML = defs.map(([k,l,dv]) => `<label>${l}<input data-base="${k}" ${k==='year'?'type="text"':'type="number" min="0"'} value="${esc(b[k] ?? dv ?? '')}"></label>`).join('');
+  const val = k => { const v = b[k] ?? defs.find(d => d[0]===k)[2]; return v === '' || v === undefined || v === null ? null : Number(v); };
+  const bf = [];
+  if (val('male') !== null && val('female') !== null && val('total') !== null && val('male') + val('female') !== val('total')) bf.push(['bad', `ชายรวมหญิง ${fmt(val('male')+val('female'))} ไม่เท่ากับประชากรรวม ${fmt(val('total'))}`]);
+  if (t && val('villages') !== null && val('villages') !== t.villages.length) bf.push(['warn', `จำนวนหมู่บ้าน (${val('villages')}) ไม่ตรงกับใน TIS (${t.villages.length})`]);
+  if (!b.year) bf.push(['warn','ยังไม่ระบุปีของข้อมูล']);
+  if (!state.ai) bf.push(['info','ยังไม่มีข้อมูลจากแผนเดิม ทำขั้น ⓪ ก่อนจะได้ตัวเลขตั้งต้นอัตโนมัติ']);
+  facts($('#baseFacts'), bf);
+  const probs = state.ai?.part2?.problems || [];
+  $('#oldProblems').innerHTML = probs.length ? `<h3 class="sub">ลำดับปัญหาในแผนเดิม (จาก AI ยังไม่ได้ตรวจกับเล่ม)</h3><ol class="order">${probs.map(p => `<li>${esc(p.name)}</li>`).join('')}</ol>` : '';
+}
+
+$('#baseForm').addEventListener('change', e => {
+  const el = e.target; if (!el.dataset.base) return;
+  cur.base[el.dataset.base] = el.value === '' ? null : (el.dataset.base === 'year' ? el.value : Number(el.value));
+  curPersist(); renderCurrent();
+});
+$('#saveBtn2').addEventListener('click', () => $('#saveBtn').click());
+
+// step2-core.js — ② ตรรกะล้วน: อ่านรายงานทุนชุมชน, ตรวจ SWOT ของ TIS, รหัสหลักฐาน, Prompt #1 และการตรวจคำตอบ
+// ---- step 2 core ----
+const CAP_TYPES = [['CH','ทุนมนุษย์'],['CS','ทุนสังคม'],['CF','ทุนเงิน'],['CP','ทุนกายภาพ'],['CN','ทุนธรรมชาติ']];
+function cleanThai(s){ return String(s||'').replace(/เื้อ/g,'เอื้อ').replace(/หมุ่/g,'หมู่').replace(/\s+/g,' ').trim(); }
+function splitNumbered(s){ return String(s||'').split(/\n?\s*\d+\)\s*/).map(x => cleanThai(x)).filter(Boolean); }
+function parseCommunityRows(rows){
+  const flat = r => r.map(c => String(c ?? '')).join(' ');
+  const out = { year:null, tambon:null, amphoe:null, capitals:{}, tisSwot:{S:[],W:[],O:[],T:[]}, population:null, projects:[], warnings:[] };
+  for (const r of rows.slice(0,4)){
+    const s = flat(r);
+    const y = s.match(/ปีงบประมาณ\s*(\d{4})/); if (y) out.year = +y[1];
+    const l = s.match(/อำเภอ\s*(\S+)\s*ตำบล\s*(\S+)/); if (l){ out.amphoe = l[1]; out.tambon = l[2]; }
+  }
+  const hi = rows.findIndex(r => r.some(c => /^\s*ทุนชุมชน\s*$/.test(String(c))) && r.some(c => /SWOT/.test(String(c))));
+  if (hi < 0){ out.warnings.push('ไม่พบหัวตาราง “ทุนชุมชน” และ “SWOT” ไฟล์นี้อาจไม่ใช่รายงานผลการวิเคราะห์ข้อมูลชุมชน'); return out; }
+  const H = rows[hi].map(c => String(c ?? '')), H2 = (rows[hi+1]||[]).map(c => String(c ?? ''));
+  const col = (arr, re) => arr.findIndex(c => re.test(c));
+  const cCap = col(H, /^\s*ทุนชุมชน\s*$/), cS = col(H2,/จุดแข็ง/), cW = col(H2,/จุดอ่อน/), cO = col(H2,/โอกาส/), cT = col(H2,/อุปสรรค/);
+  const cM = col(H2,/^\s*ชาย\s*$/), cF = col(H2,/^\s*หญิง\s*$/), cP = col(H,/แผนงานโครงการ/), cB = col(H,/งบประมาณ/);
+  const data = rows.slice(hi+2);
+  const r0 = data.find(r => String(r[cCap] ?? '').trim()) || [];
+  const capText = String(r0[cCap] ?? '');
+  const blocks = capText.split(/\n?\s*\d\)\s*(?=ทุน)/).filter(b => b.trim());
+  for (const b of blocks){
+    const [head, ...rest] = b.split('\n');
+    const type = CAP_TYPES.find(t => cleanThai(head).startsWith(t[1]));
+    if (!type) continue;
+    const seen = new Map();
+    rest.map(x => x.trim()).filter(x => x.startsWith('-')).map(x => cleanThai(x.replace(/^-+/,''))).filter(Boolean)
+      .forEach(x => seen.set(x, (seen.get(x)||0) + 1));
+    out.capitals[type[0]] = [...seen.entries()].map(([text,n]) => ({ text, n }));
+  }
+  if (!Object.keys(out.capitals).length) out.warnings.push('อ่านทุนชุมชนไม่ได้');
+  out.tisSwot = { S: splitNumbered(r0[cS]), W: splitNumbered(r0[cW]), O: splitNumbered(r0[cO]), T: splitNumbered(r0[cT]) };
+  if (cM >= 0 && cF >= 0 && r0[cM] !== '') out.population = { male: Number(r0[cM]), female: Number(r0[cF]) };
+  data.forEach(r => { if (cP >= 0 && String(r[cP] ?? '').trim()) out.projects.push({ name: cleanThai(r[cP]), budget: Number(r[cB]) || null }); });
+  return out;
+}
+function tisSwotIssues(ts, ctx){
+  const iss = [];
+  const norm = s => s.replace(/\s/g,'');
+  ts.T.forEach((t,i) => { const j = ts.W.findIndex(w => norm(w) === norm(t)); if (j >= 0) iss.push(`อุปสรรค ${i+1} เป็นข้อความเดียวกับจุดอ่อน ${j+1} (ปัจจัยภายในถูกใส่เป็นอุปสรรค)`); });
+  const internalO = ts.O.filter(o => /^มีโอกาสใน|^ชุมชนสามารถ/.test(o)).length;
+  if (internalO) iss.push(`โอกาส ${internalO} ข้อเป็นสิ่งที่ชุมชนอยากทำ ไม่ใช่ปัจจัยภายนอก`);
+  const occ = ctx.occupation || '';
+  if (ts.W.some(w => /ไม่มีการทำนา/.test(w)) && /นา|เกษตร/.test(occ)) iss.push('จุดอ่อน “ไม่มีการทำนา ทำไร่ และทำสวน” ขัดกับแผนเดิมที่ระบุว่าทำนาและเกษตรเป็นอาชีพหลัก');
+  if (ctx.popTotal && ctx.tisPop){ const r = (ctx.tisPop.male + ctx.tisPop.female) / ctx.popTotal; if (r > 1.5 || r < 0.67) iss.push(`ประชากรใน TIS (${(ctx.tisPop.male+ctx.tisPop.female).toLocaleString('en-US')}) ต่างจากข้อมูลพื้นฐาน (${ctx.popTotal.toLocaleString('en-US')}) ประมาณ ${r.toFixed(1)} เท่า อย่าใช้ตัวเลขนี้จนกว่าจะสอบถามทีม TIS`); }
+  return iss;
+}
+function buildEvidence(ctx){
+  // ctx: {community, plan:{S,W,O,T,problems}, ranking:{stats,n}, projects:[{no,name,budget,status,reason,decision}], venue:[...], taxonomy:[{code,issue,name}]}
+  const ev = [];
+  const add = (code, group, text, extra) => ev.push(Object.assign({ code, group, text }, extra||{}));
+  const c = ctx.community;
+  if (c){
+    CAP_TYPES.forEach(([k,label]) => (c.capitals[k]||[]).forEach((x,i) => add(`${k}${i+1}`, label, x.text)));
+    [['S','จุดแข็ง'],['W','จุดอ่อน'],['O','โอกาส'],['T','อุปสรรค']].forEach(([k,l]) => (c.tisSwot[k]||[]).forEach((x,i) => add(`X${k}${i+1}`, `SWOT จาก TIS (${l}) ต้องตรวจ`, x, { weak:true })));
+  }
+  const p = ctx.plan || {};
+  [['S','strengths','จุดแข็ง'],['W','weaknesses','จุดอ่อน'],['O','opportunities','โอกาส'],['T','threats','อุปสรรค']].forEach(([k,f,l]) => (p[f]||[]).forEach((x,i) => add(`P${k}${i+1}`, `SWOT แผนเดิม (${l})`, cleanThai(x))));
+  (p.problems||[]).forEach((x,i) => add(`PP${i+1}`, 'ปัญหาในแผนเดิม', cleanThai(x.name)));
+  if (ctx.ranking){
+    ctx.ranking.order.forEach((o,i) => add(`R${i+1}`, 'การจัดลำดับของหมู่บ้านใน TIS', `${o.dim}: อันดับ 1 จาก ${o.counts[0]} หมู่บ้าน อันดับเฉลี่ย ${o.avg.toFixed(2)} (จาก ${ctx.ranking.n} หมู่บ้าน)`));
+  }
+  (ctx.projects||[]).forEach(pj => add(`PJ${String(pj.no).padStart(2,'0')}`, 'ผลทบทวนโครงการแผนเดิม', `${pj.name} งบ ${pj.budget ?? '?'} บาท สถานะ: ${pj.status || 'ยังไม่ระบุ'}${pj.reason ? ' เหตุผล: '+pj.reason : ''}`));
+  (ctx.venue||[]).forEach((v,i) => add(`V${i+1}`, 'ข้อมูลจากเวทีประชาคม', v, { external:true }));
+  (ctx.taxonomy||[]).forEach(t => add(`CR-${t.code}`, 'แผนพัฒนาจังหวัดเชียงราย 2571-2575', `${t.issue} / ${t.name}`, { external:true }));
+  return ev;
+}
+const EXTERNAL = code => /^(CR-|V)/.test(code);
+function validateAnswer1(ans, ev){
+  const codes = new Set(ev.map(e => e.code));
+  const res = { errors:[], warns:[], infos:[], items:{} };
+  if (/[฻๚๛]/.test(JSON.stringify(ans))) res.errors.push('พบตัวอักษรเพี้ยนในคำตอบ');
+  const sw = ans?.swot || {};
+  const ids = new Map();
+  ['S','W','O','T'].forEach(k => {
+    const arr = sw[k] || [];
+    if (arr.length < 3 || arr.length > 10) res.warns.push(`${k} มี ${arr.length} ข้อ (ควรอยู่ระหว่าง 3 ถึง 10 ข้อ)`);
+    arr.forEach((it, i) => {
+      const id = it.id || `${k}${i+1}`; ids.set(id, k);
+      const evs = Array.isArray(it.evidence) ? it.evidence : [];
+      const bad = evs.filter(c => !codes.has(c));
+      const flags = [];
+      if (!evs.length) flags.push(['warn','ไม่มีหลักฐาน ต้องหาหลักฐานก่อนใช้']);
+      if (bad.length) flags.push(['bad','อ้างรหัสที่ไม่มีอยู่จริง: ' + bad.join(', ')]);
+      const good = evs.filter(c => codes.has(c));
+      if (good.length && good.every(c => /^X/.test(c))) flags.push(['warn','อ้าง SWOT จาก TIS อย่างเดียว ต้องมีหลักฐานอื่นยืนยัน']);
+      if ((k==='O'||k==='T') && !good.some(EXTERNAL) && !good.some(c => /^P[OT]/.test(c))) flags.push(['warn','ปัจจัยภายนอกที่ยังไม่มีแหล่งภายนอกยืนยัน']);
+      res.items[id] = { k, text: it.text, evidence: evs, flags };
+      if (bad.length) res.errors.push(`${id} อ้างรหัสที่ไม่มีอยู่จริง (${bad.join(', ')})`);
+    });
+  });
+  const tows = ans?.tows || [];
+  const towsIds = new Set();
+  tows.forEach(t => {
+    towsIds.add(t.id);
+    const type = String(t.type || '').toUpperCase();
+    const pair = t.pair || [];
+    const kinds = pair.map(p => ids.get(p));
+    if (pair.some(p => !ids.has(p))) res.errors.push(`${t.id} อ้างข้อ SWOT ที่ไม่มี (${pair.filter(p=>!ids.has(p)).join(', ')})`);
+    else if (type.length === 2 && !(kinds.includes(type[0]) && kinds.includes(type[1]))) res.errors.push(`${t.id} เป็นกลยุทธ์ ${type} แต่จับคู่ ${pair.join('+')}`);
+  });
+  ['SO','WO','ST','WT'].forEach(q => { if (!tows.some(t => String(t.type).toUpperCase() === q)) res.warns.push(`ยังไม่มีกลยุทธ์ ${q}`); });
+  const used = new Set();
+  (ans?.strategies || []).forEach(s => { (s.from||[]).forEach(f => { used.add(f); if (!towsIds.has(f)) res.errors.push(`ยุทธศาสตร์ “${s.name}” อ้างกลยุทธ์ ${f} ที่ไม่มีใน TOWS`); }); if (!(s.from||[]).length) res.warns.push(`ยุทธศาสตร์ “${s.name}” ไม่ได้อ้างกลยุทธ์ TOWS`); });
+  const unused = [...towsIds].filter(t => !used.has(t));
+  if (unused.length) res.infos.push('กลยุทธ์ที่ยังไม่ถูกใช้ในข้อ 2.5: ' + unused.join(', '));
+  if (!ans?.direction) res.warns.push('ยังไม่มีทิศทาง/เป้าหมายการพัฒนา (2.4)');
+  const noEv = Object.values(res.items).filter(i => !i.evidence.length).length;
+  const weakOnly = Object.values(res.items).filter(i => i.flags.some(f => f[1].startsWith('อ้าง SWOT จาก TIS'))).length;
+  if (noEv) res.warns.push(`${noEv} ข้อไม่มีหลักฐาน`);
+  if (weakOnly) res.warns.push(`${weakOnly} ข้ออ้าง SWOT จาก TIS อย่างเดียว`);
+  return res;
+}
+function buildPrompt1(ev, meta){
+  const groups = {};
+  ev.forEach(e => { (groups[e.group] = groups[e.group] || []).push(`${e.code}: ${e.text}`); });
+  const evText = Object.entries(groups).map(([g, l]) => `### ${g}\n` + l.join('\n')).join('\n\n');
+  return `คุณคือนักวิเคราะห์ยุทธศาสตร์การพัฒนาชุมชน ช่วยร่าง “ส่วนที่ 2 การวิเคราะห์ข้อมูล” ของแผนพัฒนาตำบล${meta.tambon||''} อำเภอ${meta.amphoe||''} จังหวัด${meta.changwat||'เชียงราย'} ตามแบบฟอร์มรูปเล่มแผนพัฒนาตำบล (ข้อ 2.1, 2.2, 2.4, 2.5) โดยใช้เฉพาะหลักฐานด้านล่าง
+
+## กติกาบังคับ
+1. ทุกข้อ SWOT ต้องอ้างรหัสหลักฐานจากรายการด้านล่างอย่างน้อย 1 รหัส ห้ามแต่งรหัสหรือข้อเท็จจริงที่ไม่มีในหลักฐาน ถ้าคิดว่าควรมีข้อใดแต่ไม่มีหลักฐาน ให้ใส่ evidence เป็น [] (ระบบจะติดป้าย “ต้องหาหลักฐาน”)
+2. รหัสที่ขึ้นต้นด้วย X เป็น SWOT ที่ระบบ TIS สร้าง ความน่าเชื่อถือต่ำ บางข้อขัดกับข้อมูลจริง ห้ามใช้เป็นหลักฐานเพียงอย่างเดียว และห้ามคัดลอกข้อที่ขัดกับหลักฐานอื่น
+3. จุดแข็งและจุดอ่อน (ข้อ 2.1) เป็นปัจจัยภายในตำบล ส่วนโอกาสและอุปสรรค (ข้อ 2.2) ต้องเป็นปัจจัยภายนอกที่ตำบลควบคุมไม่ได้ เช่น นโยบาย แผนจังหวัด (รหัส CR-) ตลาด สภาพอากาศ ห้ามนำสิ่งที่ชุมชนอยากทำมาใส่เป็นโอกาส
+4. ให้น้ำหนักกับหลักฐานที่หลายหมู่บ้านพูดตรงกัน (ทุนชุมชน C และการจัดลำดับ R) และข้อมูลจากเวที (V) มากกว่าข้อความในแผนเดิม
+5. แต่ละด้านของ SWOT มี 4 ถึง 8 ข้อ เขียนกระชับ เจาะจงพื้นที่ ไม่ใช้คำกว้าง ๆ ที่ใช้ได้กับทุกตำบล
+6. TOWS: สร้างกลยุทธ์ SO, WO, ST, WT ประเภทละ 2 ถึง 3 ข้อ แต่ละข้อระบุคู่ SWOT ที่ใช้ (pair) ให้ตรงประเภท เช่น SO ต้องมี S และ O
+7. ข้อ 2.4 ทิศทาง/เป้าหมายการพัฒนาตำบล 1 ข้อความ และข้อ 2.5 ยุทธศาสตร์ 3 ถึง 5 ข้อ แต่ละข้อระบุว่ามาจากกลยุทธ์ TOWS ใด (from)
+8. ยังไม่ต้องเสนอโครงการ
+9. ตอบเป็น JSON อย่างเดียว ไม่มีคำอธิบาย ไม่มี \`\`\`
+
+## โครงสร้าง JSON
+{"swot":{"S":[{"id":"S1","text":"","evidence":["CN1"]}],"W":[],"O":[],"T":[]},
+ "tows":[{"id":"SO1","type":"SO","pair":["S1","O1"],"text":""}],
+ "direction":"",
+ "strategies":[{"no":1,"name":"","detail":"","from":["SO1","WO1"]}]}
+
+## หลักฐาน
+${evText}`;
+}
+
+
+// step2-analysis.js — ② หน้าจอ SWOT และยุทธศาสตร์
+const ANA0 = () => ({ comm:null, commFile:null, commIsSample:false, venue:'', answerText:'', answer:null, validation:null });
+const ana = ANA0();
+function anaPersist(){ wsSave(); }
+function ingestComm(rows, name, sample){
+  ana.comm = parseCommunityRows(rows); ana.commFile = name; ana.commIsSample = !!sample;
+  $('#drop3Title').textContent = name; anaPersist(); renderAnalysis();
+}
+async function readComm(file){
+  if (!window.XLSX){ facts($('#commFacts'), [['bad','โหลดตัวอ่าน Excel ไม่สำเร็จ ตรวจการเชื่อมต่ออินเทอร์เน็ตแล้วเปิดหน้านี้ใหม่']]); return; }
+  try{ const wb = XLSX.read(await file.arrayBuffer(), { type:'array' }); ingestComm(XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header:1, defval:'' }), file.name, false); }
+  catch(e){ facts($('#commFacts'), [['bad','เปิดไฟล์นี้ไม่ได้ ตรวจว่าเป็นไฟล์ Excel ที่ส่งออกจาก TIS']]); }
+}
+$('#commInput').addEventListener('change', e => { const f = e.target.files[0]; if (f) readComm(f); });
+const drop3 = $('#drop3');
+['dragenter','dragover'].forEach(ev => drop3.addEventListener(ev, e => { e.preventDefault(); drop3.classList.add('over'); }));
+['dragleave','drop'].forEach(ev => drop3.addEventListener(ev, e => { e.preventDefault(); drop3.classList.remove('over'); }));
+drop3.addEventListener('drop', e => { const f = e.dataTransfer.files[0]; if (f) readComm(f); });
+$('#loadCommSample').addEventListener('click', () => ingestComm(COMM_SAMPLE_ROWS, 'ตัวอย่างจริง: ผลการวิเคราะห์ข้อมูลชุมชน ป่าแดด', true));
+$('#venueBox').addEventListener('input', () => { ana.venue = $('#venueBox').value; anaPersist(); clearTimeout(renderAnalysis._t); renderAnalysis._t = setTimeout(renderAnalysis, 400); });
+
+const STATUS_TXT = { done:'ทำแล้ว จบโครงการ', done_continue:'ทำแล้ว และทำต่อ', not_done:'ยังไม่ได้ทำ' };
+function currentEvidence(){
+  const projects = (state.ai?.part3?.projects || []).map(p => { const r = rv(p.id); return { no:p.priority_no, name:r.name ?? p.name, budget:finalBudget(p) ?? p.budget, status: STATUS_TXT[r.status], reason:r.reason }; });
+  return buildEvidence({
+    community: ana.comm, plan: state.ai?.part2, ranking: cur.tisStats, projects,
+    venue: (ana.venue || '').split('\n').map(s => s.trim()).filter(Boolean), taxonomy: TAXONOMY });
+}
+function renderAnalysis(){
+  const c = ana.comm;
+  if (c){
+    const out = [['ok', `ตำบล${esc(c.tambon||'?')} ปีงบประมาณ ${esc(c.year||'?')}${ana.commIsSample?' (ตัวอย่างจริงจากป่าแดด)':''}`]];
+    if (state.ai?.meta?.tambon && c.tambon && state.ai.meta.tambon !== c.tambon) out.push(['bad', `ตำบลไม่ตรงกับแผนเดิม (${esc(state.ai.meta.tambon)})`]);
+    c.warnings.forEach(w => out.push(['warn', esc(w)]));
+    const base = cur.base || {}, p1 = state.ai?.part1 || {};
+    const popTotal = Number(base.total ?? p1.population?.total) || null;
+    tisSwotIssues(c.tisSwot, { occupation: p1.main_occupation_note, popTotal, tisPop: c.population }).forEach(w => out.push(['warn', 'SWOT/ข้อมูลจาก TIS: ' + esc(w)]));
+    if (c.projects.length) out.push(['info', `ทะเบียนโครงการใน TIS มี ${c.projects.length} โครงการ: ${c.projects.map(x => esc(x.name)).join(', ')}`]);
+    facts($('#commFacts'), out);
+    $('#capSum').innerHTML = CAP_TYPES.map(([k,l]) => `<div><b>${(c.capitals[k]||[]).length}</b><span>${l} (รหัส ${k})</span></div>`).join('');
+    $('#a1').classList.add('done');
+  }
+  const ev = currentEvidence();
+  const cnt = g => ev.filter(e => e.group.startsWith(g)).length;
+  const ef = [];
+  ef.push([cnt('ทุน') ? 'ok':'warn', `ทุนชุมชน ${cnt('ทุน')} รายการ${cnt('ทุน')?'':' (ยังไม่ได้นำเข้ารายงานในข้อ 1)'}`]);
+  ef.push([cnt('SWOT แผนเดิม') ? 'ok':'warn', `SWOT แผนเดิม ${cnt('SWOT แผนเดิม')} ข้อ${cnt('SWOT แผนเดิม')?'':' (ยังไม่มีข้อมูลจากขั้น ⓪)'}`]);
+  ef.push([cnt('การจัดลำดับ') ? 'ok':'warn', `การจัดลำดับของหมู่บ้าน ${cnt('การจัดลำดับ') ? 'มีแล้ว' : 'ยังไม่มี (นำเข้าในขั้น ①)'}`]);
+  ef.push(['info', `ผลทบทวนโครงการ ${cnt('ผลทบทวน')} โครงการ, ข้อมูลจากเวที ${cnt('ข้อมูลจากเวที')} ประเด็น, แผนจังหวัด ${cnt('แผนพัฒนาจังหวัด')} กิจกรรมหลัก`]);
+  ef.push(['warn', `SWOT จาก TIS ${cnt('SWOT จาก TIS')} ข้อ ใช้เป็นข้อมูลประกอบเท่านั้น`]);
+  facts($('#evFacts'), ef);
+  $('#evTable').innerHTML = ev.map(e => `<tr><td>${esc(e.code)}</td><td>${esc(e.text)}<div class="meta">${esc(e.group)}</div></td></tr>`).join('');
+  const meta = Object.assign({}, state.ai?.meta || {}, c ? { tambon: c.tambon || state.ai?.meta?.tambon, amphoe: c.amphoe || state.ai?.meta?.amphoe } : {});
+  $('#p1Box').value = buildPrompt1(ev, meta);
+  renderResult1(ev);
+}
+$('#copyP1').addEventListener('click', async () => {
+  renderAnalysis();
+  const txt = $('#p1Box').value;
+  try{ await navigator.clipboard.writeText(txt); toast('คัดลอกคำสั่งแล้ว'); }
+  catch(e){ const d = document.querySelector('#a3 details.prompt'); d.open = true; $('#p1Box').focus(); $('#p1Box').select(); toast('คัดลอกอัตโนมัติไม่ได้ เลือกข้อความไว้ให้แล้ว กดคัดลอกเอง'); }
+});
+$('#check1').addEventListener('click', () => {
+  ana.answerText = $('#ans1Box').value;
+  try{ ana.answer = parseAI(ana.answerText); }
+  catch(e){ ana.answer = null; facts($('#ans1Facts'), [['bad','อ่านคำตอบไม่ได้ ต้องเป็น JSON ทั้งก้อน ตรวจว่าคัดลอกมาครบ']]); anaPersist(); return; }
+  anaPersist(); renderAnalysis();
+});
+function renderResult1(ev){
+  const box = $('#result1');
+  if (!ana.answer){ box.innerHTML = '<div class="empty">ตรวจคำตอบในขั้นที่ 3 แล้วร่างจะขึ้นที่นี่</div>'; return; }
+  const v = validateAnswer1(ana.answer, ev); ana.validation = { errors:v.errors, warns:v.warns };
+  const f = [];
+  v.errors.forEach(x => f.push(['bad', esc(x)])); v.warns.forEach(x => f.push(['warn', esc(x)])); v.infos.forEach(x => f.push(['info', esc(x)]));
+  if (!v.errors.length && !v.warns.length) f.push(['ok','ทุกข้ออ้างหลักฐานที่มีอยู่จริง และกลยุทธ์เชื่อมโยงครบ']);
+  facts($('#ans1Facts'), f);
+  const issues = v.errors.concat(v.warns);
+  $('#fixP1').hidden = !issues.length;
+  ana.fixText = issues.length ? 'คำตอบ JSON ก่อนหน้ามีปัญหาต่อไปนี้ ให้แก้เฉพาะจุดเหล่านี้ตามกติกาเดิม ข้ออื่นที่ไม่มีปัญหาให้คงไว้เหมือนเดิม และใช้เฉพาะรหัสหลักฐานจากรายการเดิม\n' + issues.map((x,i) => (i+1) + '. ' + x).join('\n') + '\n\nข้อควรจำ: SO ต้องจับคู่ S กับ O, WO ต้องจับคู่ W กับ O, ST ต้องจับคู่ S กับ T, WT ต้องจับคู่ W กับ T แต่ละด้านของ SWOT ต้องมี 4 ถึง 8 ข้อ โอกาสและอุปสรรคต้องเป็นปัจจัยภายนอก ถ้าหาหลักฐานไม่ได้ให้ใส่ evidence เป็น []\nตอบเป็น JSON ทั้งก้อนตามโครงสร้างเดิมเท่านั้น ไม่มีคำอธิบาย' : '';
+  $('#a3').classList.add('done');
+  const evMap = new Map(ev.map(e => [e.code, e]));
+  const chip = c => { const e = evMap.get(c); const cls = !e ? 'missing' : /^X/.test(c) ? 'x' : e.external ? 'ext' : ''; return `<span class="ev ${cls}" title="${esc(e ? e.group + ': ' + e.text : 'ไม่มีรหัสนี้ในหลักฐาน')}">${esc(c)}</span>`; };
+  const Q = [['S','จุดแข็ง (2.1)'],['W','จุดอ่อน (2.1)'],['O','โอกาส (2.2)'],['T','อุปสรรค (2.2)']];
+  const quad = Q.map(([k,l]) => `<div><h3>${l}</h3><ul class="sw">${Object.entries(v.items).filter(([id,it]) => it.k===k).map(([id,it]) => {
+    const worst = it.flags.some(x => x[0]==='bad') ? 'bad' : it.flags.length ? 'warn' : '';
+    return `<li class="${worst}"><span class="id">${esc(id)}</span>${esc(it.text)}<div>${it.evidence.map(chip).join('') || '<span class="ev missing">ไม่มีหลักฐาน</span>'}</div>${it.flags.map(x => `<div class="flagline ${x[0]}">${esc(x[1])}</div>`).join('')}</li>`; }).join('')}</ul></div>`).join('');
+  const tows = ana.answer.tows || [];
+  const towsHtml = ['SO','WO','ST','WT'].map(q => `<div><h3>กลยุทธ์ ${q}</h3><ul class="sw">${tows.filter(t => String(t.type).toUpperCase()===q).map(t => `<li><span class="id">${esc(t.id)}</span>${esc(t.text||'')}<div>${(t.pair||[]).map(p => `<span class="ev" title="${esc(v.items[p]?.text || 'ไม่มีข้อนี้')}">${esc(p)}</span>`).join('')}</div></li>`).join('') || '<li class="meta">ยังไม่มี</li>'}</ul></div>`).join('');
+  const strat = (ana.answer.strategies || []).map(s => `<li><b>${esc(s.no ?? '')}. ${esc(s.name||'')}</b>${s.detail ? `<div class="meta">${esc(s.detail)}</div>` : ''}<div>${(s.from||[]).map(x => `<span class="ev" title="${esc(tows.find(t=>t.id===x)?.text || 'ไม่มีใน TOWS')}">${esc(x)}</span>`).join('')}</div></li>`).join('');
+  box.innerHTML = `<div class="quad">${quad}</div>
+    <h3 class="sub" style="margin-top:20px">TOWS Matrix</h3><div class="quad">${towsHtml}</div>
+    <h3 class="sub" style="margin-top:20px">2.4 ทิศทาง/เป้าหมายการพัฒนาตำบล</h3><div class="dir">${esc(ana.answer.direction || 'ยังไม่มี')}</div>
+    <h3 class="sub" style="margin-top:20px">2.5 ยุทธศาสตร์หรือวิธีปฏิบัติ</h3><ul class="strat">${strat || '<li class="meta">ยังไม่มี</li>'}</ul>`;
+  $('#a4').classList.add('done');
+}
+$('#saveBtn3').addEventListener('click', () => $('#saveBtn').click());
+$('#fixP1').addEventListener('click', async () => {
+  const txt = ana.fixText || '';
+  try{ await navigator.clipboard.writeText(txt); toast('คัดลอกแล้ว วางในแชต Gemini เดิม แล้วนำคำตอบใหม่มาวางแทนของเก่า'); }
+  catch(e){ const b = $('#fixBox'); b.hidden = false; b.value = txt; b.focus(); b.select(); toast('คัดลอกอัตโนมัติไม่ได้ เลือกข้อความไว้ให้แล้ว กดคัดลอกเอง'); }
+});
+
+// step3-core.js — ③ ตรรกะล้วน: Prompt #2, ตรวจคำตอบ, ตรวจความครบถ้วนของแผน
+// ---- step 3 core ----
+const FORM_DIMS = ['เศรษฐกิจ','สังคม','ทรัพยากรธรรมชาติและสิ่งแวดล้อม','ความมั่นคง','บริหารจัดการ'];
+const METHODS = ['ทำเอง','ทำร่วม','หน่วยงานอื่นทำให้'];
+const NEEDS_SUPPORT = m => m === 'ทำร่วม' || m === 'หน่วยงานอื่นทำให้';
+const SINGLE_VILLAGE = t => /^\s*(ม\.?|หมู่(ที่)?)\s*\d+\s*$/.test(String(t||''));
+function buildPrompt2(ctx){
+  // ctx: {meta, part2, carried:[{name,budget,dim,method,target}], venue:[...], taxonomy:[{code,issue,name}]}
+  const p2 = ctx.part2 || {};
+  const sw = ['S','W','O','T'].map(k => (p2.swot?.[k]||[]).map(i => `${i.id}: ${i.text}`).join('\n')).join('\n');
+  const tows = (p2.tows||[]).map(t => `${t.id} (${t.type}): ${t.text||''}`).join('\n');
+  const st = (p2.strategies||[]).map(s => `ยุทธศาสตร์ ${s.no}: ${s.name}${s.from?.length ? ' (มาจาก ' + s.from.join(', ') + ')' : ''}`).join('\n');
+  const car = (ctx.carried||[]).map((c,i) => `- ${c.name} | ด้าน${c.dim||'?'} | ${c.method||'?'} | งบ ${c.budget ?? '?'}`).join('\n') || '- (ไม่มี)';
+  const ven = (ctx.venue||[]).map((v,i) => `V${i+1}: ${v}`).join('\n') || '(ไม่มี)';
+  const tax = (ctx.taxonomy||[]).map(t => `${t.code}: ${t.name}`).join('\n');
+  return `คุณคือผู้ช่วยวางแผนโครงการของแผนพัฒนาตำบล${ctx.meta?.tambon||''} อำเภอ${ctx.meta?.amphoe||''} จังหวัดเชียงราย ช่วยเสนอ “โครงการใหม่” ให้เวทีประชาคมพิจารณา ตามแนวทางการจัดทำแผนพัฒนาตำบลปี 2570
+
+## กติกาบังคับ
+1. เสนอโครงการใหม่เฉพาะยุทธศาสตร์ที่ยังมีโครงการรองรับไม่พอ ยุทธศาสตร์ละ 1 ถึง 3 โครงการ ห้ามซ้ำหรือใกล้เคียงกับโครงการที่ยกมาจากแผนเดิม
+2. โครงการต้องแก้ปัญหาร่วมที่กระทบหลายหมู่บ้าน ห้ามนำแผนหมู่บ้านมาเรียงต่อกัน
+3. แต่ละโครงการระบุยุทธศาสตร์ (strategy_no) และกลยุทธ์ TOWS ที่รองรับ (tows) จากรายการด้านล่างเท่านั้น
+4. วิธีดำเนินการเลือกจาก ทำเอง, ทำร่วม, หน่วยงานอื่นทำให้ ให้คิดก่อนว่าชุมชนทำเองได้หรือไม่ ใช้ทุนชุมชนที่มีอยู่ ถ้าทำเองได้ให้เลือก ทำเอง
+5. ห้ามกำหนดงบประมาณ ให้ใส่ budget เป็น null เวทีจะกำหนดเอง
+6. form_dimension เลือกจาก ${FORM_DIMS.join(', ')}
+7. ตอบเป็น JSON อย่างเดียว ไม่มีคำอธิบาย ไม่มี \`\`\`
+
+## โครงสร้าง JSON
+{"projects":[{"name":"","strategy_no":1,"tows":["SO1"],"form_dimension":"","method":"","target":"","detail":"","why":""}]}
+
+## SWOT
+${sw}
+
+## TOWS
+${tows}
+
+## ยุทธศาสตร์ (ข้อ 2.5)
+${st}
+
+## โครงการที่ยกมาจากแผนเดิม (ห้ามเสนอซ้ำ)
+${car}
+
+## ข้อมูลจากเวทีประชาคม
+${ven}`;
+}
+function validateAnswer2(ans, ctx){
+  const out = { errors:[], warns:[], projects:[] };
+  const strat = new Set((ctx.part2?.strategies||[]).map(s => Number(s.no)));
+  const tows = new Set((ctx.part2?.tows||[]).map(t => t.id));
+  const codes = new Set((ctx.taxonomy||[]).map(t => t.code));
+  if (/[฻๚๛]/.test(JSON.stringify(ans))) out.errors.push('พบตัวอักษรเพี้ยนในคำตอบ');
+  (ans?.projects||[]).forEach((p,i) => {
+    const f = [];
+    if (!strat.has(Number(p.strategy_no))) f.push(['bad', `ยุทธศาสตร์ ${p.strategy_no} ไม่มีอยู่จริง`]);
+    const badT = (p.tows||[]).filter(t => !tows.has(t)); if (badT.length) f.push(['bad', 'อ้างกลยุทธ์ที่ไม่มี: ' + badT.join(', ')]);
+    if (!FORM_DIMS.includes(p.form_dimension)) f.push(['warn', 'ด้านไม่ตรงแบบฟอร์ม']);
+    if (!METHODS.includes(p.method)) f.push(['warn', 'วิธีดำเนินการไม่ตรงตัวเลือก']);
+    if (p.provincial_code && !codes.has(p.provincial_code)) f.push(['bad', `รหัสแผนจังหวัด ${p.provincial_code} ไม่มีอยู่จริง`]);
+    if (p.budget !== null && p.budget !== undefined) f.push(['info', 'AI ใส่งบประมาณมาเอง แอปไม่นำไปใช้ เวทีต้องกำหนดเอง']);
+    out.projects.push(Object.assign({}, p, { flags: f }));
+    f.filter(x => x[0]==='bad').forEach(x => out.errors.push(`โครงการ “${p.name}”: ${x[1]}`));
+  });
+  if (!(ans?.projects||[]).length) out.errors.push('ไม่มีรายการโครงการในคำตอบ');
+  return out;
+}
+function checkPlan(items, ctx){
+  const out = { bad:[], warn:[], info:[], perItem:{} };
+  const codes = new Set((ctx.taxonomy||[]).map(t => t.code));
+  const strategies = ctx.part2?.strategies || [];
+  items.forEach(it => {
+    const f = [];
+    if (!String(it.name||'').trim()) f.push(['bad','ยังไม่มีชื่อโครงการ']);
+    if (it.budget === null || it.budget === undefined || it.budget === '') f.push(['warn','ยังไม่กำหนดงบประมาณ']);
+    if (!it.dim) f.push(['warn','ยังไม่ระบุด้าน']);
+    if (!it.method) f.push(['warn','ยังไม่ระบุวิธีดำเนินการ']);
+    if (strategies.length && !it.strategy) f.push(['warn','ยังไม่ระบุยุทธศาสตร์ที่รองรับ']);
+    if (/เบี้ยยังชีพ/.test(it.name||'')) f.push(['info','สวัสดิการตามกฎหมายที่ อปท. จ่ายอยู่แล้ว ควรตกลงแนวปฏิบัติว่าจะนับรวมในแผนหรือไม่']);
+    out.perItem[it.uid] = f;
+  });
+  const n = items.length;
+  if (!n){ out.warn.push('ยังไม่มีโครงการในแผนใหม่'); return out; }
+  strategies.forEach(s => { if (!items.some(it => String(it.strategy) === String(s.no))) out.warn.push(`ยุทธศาสตร์ ${s.no} “${s.name}” ยังไม่มีโครงการรองรับ`); });
+  const single = items.filter(it => SINGLE_VILLAGE(it.target)).length;
+  if (single / n > 0.5) out.warn.push(`${single} จาก ${n} โครงการมีเป้าหมายหมู่บ้านเดียว แนวทางปี 2570 ไม่ให้นำแผนหมู่บ้านมาเรียงต่อกัน`);
+  const byM = m => items.filter(it => it.method === m).length;
+  if (!byM('ทำเอง')) out.info.push('ยังไม่มีโครงการที่ชุมชนทำเอง แนวทางให้แบ่งเป็นทำเอง ทำร่วม และขอรับการสนับสนุน');
+  const bad = Object.values(out.perItem).flat().filter(x => x[0]==='bad').length;
+  const warn = Object.values(out.perItem).flat().filter(x => x[0]==='warn').length;
+  if (bad) out.bad.push(`มี ${bad} จุดที่ผิด ต้องแก้ก่อนส่งออก`);
+  if (warn) out.warn.push(`มี ${warn} จุดที่ยังไม่ครบ`);
+  return out;
+}
+function priorityOrder(items){
+  return items.slice();
+}
+
+
+// step3-projects.js — ③ หน้าจอโครงการ บัตรโครงการ และลำดับ 3.1
+const PRJ0 = () => ({ old:{}, extra:[], ans2Text:'', ans2:null, seq:1 });
+const prj = PRJ0();
+function prjPersist(){ wsSave(); }
+const TAXCODES = new Set(TAXONOMY.map(x => x.code));
+$('#crList').innerHTML = TAXONOMY.map(x => `<option value="${esc(x.code)}">${esc(x.name)}</option>`).join('');
+function carriedOld(){
+  return (state.ai?.part3?.projects || []).filter(p => { const r = rv(p.id); return r.status === 'done_continue' || (r.status === 'not_done' && r.decision === 'carry'); });
+}
+function planItems(){
+  const olds = carriedOld().map(p => {
+    const r = rv(p.id), o = prj.old[p.id] || {};
+    return Object.assign({ uid:'old:'+p.id, source:'old', oldId:p.id, name: r.name ?? p.name, budget: finalBudget(p), target: p.target || '', period:'', dim: p.form_dimension || '', method: p.method || '', strategy:'', cr:'', agency:'', royal:'', votes:'',
+      note: r.status === 'done_continue' ? 'ทำแล้ว ทำต่อ' : 'ยังไม่ได้ทำ ยกมา' }, o);
+  });
+  return olds.concat(prj.extra.filter(x => x.accepted));
+}
+function orderedItems(items){
+  const ord = prj.order || [];
+  return items.map((it,i) => ({ it, k: ord.indexOf(it.uid) === -1 ? 1e6 + i : ord.indexOf(it.uid) })).sort((a,b) => a.k - b.k).map(x => x.it);
+}
+function itemRef(uid){
+  if (uid.startsWith('old:')){ const id = uid.slice(4); return prj.old[id] || (prj.old[id] = {}); }
+  return prj.extra.find(x => x.uid === uid);
+}
+function part2Ctx(){ return { part2: ana.answer || {}, taxonomy: TAXONOMY }; }
+function renderProjects(){
+  const olds = carriedOld();
+  const all = state.ai?.part3?.projects || [];
+  const statused = all.filter(p => rv(p.id).status).length;
+  const cf = [];
+  if (!state.ai) cf.push(['warn','ยังไม่มีข้อมูลแผนเดิม ทำขั้น ⓪ ก่อน']);
+  else {
+    cf.push([olds.length ? 'ok':'info', `ยกมาจากแผนเดิม ${olds.length} โครงการ`]);
+    if (statused < all.length) cf.push(['warn', `แผนเดิมยังไม่ระบุสถานะ ${all.length - statused} จาก ${all.length} โครงการ โครงการเหล่านี้ยังไม่ถูกนำเข้า กลับไปติ๊กในขั้น ⓪`]);
+  }
+  if (!ana.answer?.strategies?.length) cf.push(['warn','ยังไม่มีร่างยุทธศาสตร์ (ข้อ 2.5) จากขั้น ② คำสั่งในข้อ 2 จะยังไม่สมบูรณ์']);
+  facts($('#carryFacts'), cf);
+  fillNewForm();
+  const items = orderedItems(planItems());
+  $('#p2Box').value = buildPrompt2({ meta: state.ai?.meta || {}, part2: ana.answer || {}, carried: items.map(i => ({ name:i.name, budget:i.budget, dim:i.dim, method:i.method })),
+    venue: (ana.venue || '').split('\n').map(s => s.trim()).filter(Boolean), taxonomy: TAXONOMY });
+  // candidates
+  const cands = prj.extra.filter(x => x.source === 'ai');
+  $('#cands').innerHTML = cands.length ? '<h3 class="sub">โครงการที่ AI เสนอ ติ๊กเลือกเฉพาะที่เวทีเห็นชอบ</h3>' + cands.map(c => `<label class="cand"><input type="checkbox" data-cand="${esc(c.uid)}" ${c.accepted?'checked':''}><span><b>${esc(c.name)}</b><span class="meta">ยุทธศาสตร์ ${esc(c.strategy)} ${esc(c.method||'')}${c.why?' / '+esc(c.why):''}</span>${(c.flags||[]).map(x => `<div class="flagline ${x[0]==='info'?'':x[0]}">${esc(x[1])}</div>`).join('')}</span></label>`).join('') : '';
+  // list
+  const chk = checkPlan(items, part2Ctx());
+  const strategies = ana.answer?.strategies || [];
+  const sel = (f, val, opts) => `<select data-f="${f}"><option value="">เลือก…</option>${opts.map(o => `<option value="${esc(o[0])}" ${String(val)===String(o[0])?'selected':''}>${esc(o[1])}</option>`).join('')}</select>`;
+  $('#pjList').innerHTML = items.length ? items.map(it => {
+    const fl = chk.perItem[it.uid] || [];
+    const cls = fl.some(x => x[0]==='bad') ? 'bad' : fl.some(x => x[0]==='warn') ? 'warn' : '';
+    const srcTxt = it.source === 'old' ? 'แผนเดิม: ' + it.note : it.source === 'ai' ? 'AI เสนอ เวทีเลือก' : 'เพิ่มเอง';
+    return `<div class="pj ${cls}" data-uid="${esc(it.uid)}">
+      <div class="pj-top"><button class="btn ghost small" data-act="up" type="button" aria-label="เลื่อนขึ้น">▲</button><button class="btn ghost small" data-act="down" type="button" aria-label="เลื่อนลง">▼</button><input data-f="name" value="${esc(it.name)}" aria-label="ชื่อโครงการ"><span class="src">${esc(srcTxt)}</span>${it.source !== 'old' ? '<button class="btn ghost small" data-act="remove" type="button">เอาออก</button>' : ''}</div>
+      <div class="pj-grid">
+        <label>งบประมาณ (บาท)<input type="number" min="0" data-f="budget" value="${esc(it.budget ?? '')}"></label>
+        <label>เป้าหมาย<input data-f="target" value="${esc(it.target||'')}"></label>
+        <label>ระยะเวลา<input data-f="period" value="${esc(it.period||'')}" placeholder="เช่น 2571"></label>
+        <label>ด้าน (แบบฟอร์ม 3.2)${sel('dim', it.dim, FORM_DIMS.map(d => [d,d]))}</label>
+        <label>วิธีดำเนินการ${sel('method', it.method, METHODS.map(d => [d,d]))}</label>
+        <label>ยุทธศาสตร์ที่รองรับ (2.5)${sel('strategy', it.strategy, strategies.map(s => [s.no, s.no + '. ' + s.name]))}</label>
+      </div>
+      ${fl.map(x => `<div class="flagline ${x[0]==='info'?'':x[0]}">${esc(x[1])}</div>`).join('')}
+    </div>`; }).join('') : '<div class="empty">ยังไม่มีโครงการ ติ๊กสถานะในขั้น ⓪ หรือเลือกโครงการที่ AI เสนอ หรือกรอกในช่องเพิ่มโครงการใหม่ด้านบน</div>';
+  const pf = [];
+  chk.bad.forEach(x => pf.push(['bad', esc(x)])); chk.warn.forEach(x => pf.push(['warn', esc(x)])); chk.info.forEach(x => pf.push(['info', esc(x)]));
+  if (items.length && !pf.length) pf.push(['ok','ข้อมูลโครงการครบตามแบบฟอร์มและแนวทาง']);
+  facts($('#planFacts'), pf);
+  $('#dimSum').innerHTML = items.length ? FORM_DIMS.map(d => { const arr = items.filter(i => i.dim === d); return `<div><b>${arr.length}</b><span>ด้าน${d} ${fmt(arr.reduce((s,i) => s + (Number(i.budget)||0), 0))} บาท</span></div>`; }).join('') : '';
+  const ord = priorityOrder(items);
+  $('#p31').innerHTML = items.length ? '<thead><tr><th>ที่</th><th>ชื่อโครงการ</th><th>งบประมาณ</th><th>เป้าหมาย</th><th>ด้าน</th><th>วิธีดำเนินการ</th></tr></thead><tbody>' +
+    ord.map((it,i) => `<tr><td>${i+1}</td><td>${esc(it.name)}</td><td class="num">${fmt(it.budget)}</td><td>${esc(it.target||'')}</td><td>${esc(it.dim||'')}</td><td>${esc(it.method||'')}</td></tr>`).join('') + '</tbody>' : '';
+  if (items.length) $('#p1').classList.add('done');
+}
+$('#copyP2').addEventListener('click', async () => {
+  renderProjects(); const txt = $('#p2Box').value;
+  try{ await navigator.clipboard.writeText(txt); toast('คัดลอกคำสั่งแล้ว'); }
+  catch(e){ const d = document.querySelector('#p2 details.prompt'); d.open = true; $('#p2Box').focus(); $('#p2Box').select(); toast('คัดลอกอัตโนมัติไม่ได้ เลือกข้อความไว้ให้แล้ว กดคัดลอกเอง'); }
+});
+$('#check2').addEventListener('click', () => {
+  prj.ans2Text = $('#ans2Box').value;
+  let ans; try{ ans = parseAI(prj.ans2Text); }catch(e){ facts($('#ans2Facts'), [['bad','อ่านคำตอบไม่ได้ ต้องเป็น JSON ทั้งก้อน ตรวจว่าคัดลอกมาครบ']]); return; }
+  const v = validateAnswer2(ans, part2Ctx());
+  const keep = prj.extra.filter(x => x.source !== 'ai' || x.accepted);
+  const fresh = v.projects.map(p => ({ uid:'ai:'+(prj.seq++), source:'ai', accepted:false, name:p.name||'', budget:null, target:p.target||'', period:'', dim: FORM_DIMS.includes(p.form_dimension) ? p.form_dimension : '', method: METHODS.includes(p.method) ? p.method : '',
+    strategy: p.strategy_no ?? '', cr: p.provincial_code && TAXCODES.has(p.provincial_code) ? p.provincial_code : '', agency:p.agency||'', royal:p.royal_link||'', votes:'', why:p.why||'', detail:p.detail||'', tows:p.tows||[], flags:p.flags }));
+  prj.extra = keep.concat(fresh);
+  const f = v.errors.map(x => ['bad', esc(x)]);
+  f.unshift(['ok', `AI เสนอ ${fresh.length} โครงการ ติ๊กเลือกด้านล่างเฉพาะที่เวทีเห็นชอบ`]);
+  facts($('#ans2Facts'), f); $('#p2').classList.add('done');
+  prjPersist(); renderProjects();
+});
+$('#cands').addEventListener('change', e => { const id = e.target.dataset.cand; if (!id) return; const c = prj.extra.find(x => x.uid === id); c.accepted = e.target.checked; prjPersist(); renderProjects(); });
+function fillNewForm(){
+  const opt = (el, list) => { const keep = el.value; el.innerHTML = '<option value="">เลือก…</option>' + list.map(o => `<option value="${esc(o[0])}">${esc(o[1])}</option>`).join(''); el.value = keep; };
+  opt($('#nDim'), FORM_DIMS.map(d => [d,d]));
+  opt($('#nMethod'), METHODS.map(d => [d,d]));
+  opt($('#nStrat'), (ana.answer?.strategies || []).map(s => [s.no, s.no + '. ' + s.name]));
+}
+$('#addPj').addEventListener('click', () => {
+  const name = $('#nName').value.trim();
+  if (!name){ $('#nMsg').textContent = 'กรอกชื่อโครงการก่อน'; $('#nName').focus(); return; }
+  const b = $('#nBudget').value;
+  prj.extra.push({ uid:'m:'+(prj.seq++), source:'manual', accepted:true, name, budget: b === '' ? null : Number(b), target:$('#nTarget').value.trim(), period:$('#nPeriod').value.trim(), dim:$('#nDim').value, method:$('#nMethod').value, strategy:$('#nStrat').value, cr:'', agency:'', royal:'', votes:'' });
+  ['#nName','#nBudget','#nTarget','#nPeriod','#nDim','#nMethod','#nStrat'].forEach(s => $(s).value = '');
+  $('#nMsg').textContent = '';
+  prjPersist(); renderProjects(); toast('เพิ่ม “' + name + '” เข้ารายการแล้ว'); $('#nName').focus();
+});
+$('#pjList').addEventListener('change', e => {
+  const el = e.target, card = el.closest('.pj'); if (!card || !el.dataset.f) return;
+  const ref = itemRef(card.dataset.uid); if (!ref) return;
+  const f = el.dataset.f;
+  ref[f] = (f === 'budget' || f === 'votes') ? (el.value === '' ? null : Number(el.value)) : (f === 'cr' ? el.value.trim().toUpperCase() : el.value);
+  if (f === 'budget' && card.dataset.uid.startsWith('old:')){ /* แก้งบของโครงการเดิมในแผนใหม่ได้ ไม่กระทบผลทบทวน */ }
+  prjPersist(); renderProjects();
+});
+$('#pjList').addEventListener('click', e => {
+  const b = e.target.closest('button[data-act=remove]'); if (!b) return;
+  const uid = b.closest('.pj').dataset.uid;
+  const it = prj.extra.find(x => x.uid === uid);
+  if (it.source === 'ai') it.accepted = false; else prj.extra = prj.extra.filter(x => x.uid !== uid);
+  prjPersist(); renderProjects();
+});
+$('#saveBtn4').addEventListener('click', () => $('#saveBtn').click());
+$('#pjList').addEventListener('click', e => {
+  const b = e.target.closest('button[data-act=up],button[data-act=down]'); if (!b) return;
+  const uids = orderedItems(planItems()).map(x => x.uid), uid = b.closest('.pj').dataset.uid, i = uids.indexOf(uid);
+  const j = b.dataset.act === 'up' ? i - 1 : i + 1; if (j < 0 || j >= uids.length) return;
+  [uids[i], uids[j]] = [uids[j], uids[i]]; prj.order = uids; prjPersist(); renderProjects();
+  const n = document.querySelector(`#pjList .pj[data-uid="${CSS.escape(uid)}"] button[data-act=${b.dataset.act}]`); if (n) n.focus();
+});
+
+// step4-docx.js — ④ สร้างรูปเล่ม .docx ด้วยไลบรารี docx (ไม่แตะ DOM)
+// ---- step 4: book builder (docx) ----
+function buildBook(D, X){
+  // D: {tambon, amphoe, changwat, year, base:{...}, swot, direction, strategies, tisOrder:[{dim,counts,avg}], tisN, items:[...], review:{date,round,resolution,attendees}, sources:[...], reviewSummary:{...}}
+  const FONT = 'TH SarabunPSK';
+  const f = { ascii:FONT, hAnsi:FONT, cs:FONT, eastAsia:FONT };
+  const R = (text, o={}) => new X.TextRun(Object.assign({ text:String(text), font:f, size:o.size||32, sizeComplexScript:o.size||32, bold:!!o.b, boldComplexScript:!!o.b }, o.hl ? { highlight:'yellow' } : {}));
+  const FILL = label => R(`[ต้องเติม: ${label}]`, { hl:true });
+  const P = (runs, o={}) => new X.Paragraph(Object.assign({ children: Array.isArray(runs) ? runs : [typeof runs === 'string' ? R(runs, o) : runs], spacing:{ after: o.after ?? 80 } },
+    o.center ? { alignment: X.AlignmentType.CENTER } : {}, o.right ? { alignment: X.AlignmentType.RIGHT } : {}, o.indent ? { indent:{ left:o.indent } } : {}, o.page ? { pageBreakBefore:true } : {}));
+  const H = (text, o={}) => P([R(text, { b:true, size:o.size||36 })], Object.assign({ after:120 }, o));
+  const val = (v, label) => (v === null || v === undefined || v === '') ? FILL(label) : R(typeof v === 'number' ? v.toLocaleString('en-US') : v);
+  const cell = (content, o={}) => new X.TableCell({ children: [P(Array.isArray(content) ? content : [typeof content === 'string' ? R(content, { b:o.b, size:o.size||28 }) : content], { center:o.center, after:0 })],
+    columnSpan:o.span, rowSpan:o.rowSpan, verticalAlign: X.VerticalAlign.CENTER, shading: o.head ? { fill:'E8E8E8', type: X.ShadingType.CLEAR, color:'auto' } : undefined });
+  const table = (rows, widths) => new X.Table({ width:{ size:100, type: X.WidthType.PERCENTAGE }, columnWidths: widths, rows: rows.map(r => new X.TableRow({ children:r, tableHeader: r._head })) });
+  const head = arr => { const r = arr; r._head = true; return r; };
+  const T = D.tambon || '…', A = D.amphoe || '…', C = D.changwat || 'เชียงราย';
+  const b = D.base || {};
+  const portrait = [], land = [], tail = [];
+  // cover
+  portrait.push(P([R('แผนพัฒนาตำบล', { b:true, size:48 })], { center:true, after:200 }));
+  portrait.push(P([R('ประจำปี พ.ศ. ', { size:40, b:true }), D.year ? R(D.year, { size:40, b:true }) : FILL('ปี พ.ศ.')], { center:true, after:400 }));
+  portrait.push(P([R(`ตำบล${T}`, { size:40, b:true })], { center:true }));
+  portrait.push(P([R(`อำเภอ${A} จังหวัด${C}`, { size:40, b:true })], { center:true, after:600 }));
+  portrait.push(P([R(`คณะกรรมการบริหารงานตำบลแบบบูรณาการ (ก.บ.ต.) ตำบล${T} ได้ประชุมพิจารณาแผนชุมชนระดับตำบล มีมติเห็นชอบและรับรองแล้ว เมื่อวันที่ `), FILL('วันที่รับรอง')]));
+  portrait.push(P('(ลงชื่อ) ................................................................', { center:true, after:0 }));
+  portrait.push(P('(...........................................................)', { center:true, after:0 }));
+  portrait.push(P('ประธานคณะกรรมการบริหารงานตำบลแบบบูรณาการ', { center:true, after:0 }));
+  portrait.push(P(`ตำบล${T}`, { center:true }));
+  // foreword (official form text)
+  portrait.push(H('คำนำ', { center:true, page:true }));
+  [`การจัดแผนพัฒนาตำบลฉบับนี้ มีความสำคัญยิ่งต่อการส่งเสริมและสนับสนุนให้เกิดกระบวนการเรียนรู้และการจัดการตนเองของคนในตำบล ผ่านกลไกการมีส่วนร่วมจากทุกภาคส่วนทุกหมู่บ้านในตำบล โดยมีการค้นหา รวบรวมข้อมูลความรู้ และสร้างกระบวนการวิเคราะห์ปัญหา เพื่อร่วมกันกำหนดทิศทางการพัฒนาหมู่บ้านเชื่อมโยงสู่ระดับตำบลที่สอดคล้องกับปัญหาและความต้องการที่แท้จริง สามารถแก้ไขปัญหาที่หมู่บ้านและตำบลเผชิญร่วมกันอยู่ได้ รวมทั้งก่อเกิดการค้นหาศักยภาพจากทรัพยากรธรรมชาติ ฝีมือ ทักษะของคนในตำบล เพื่อแก้ไขปัญหาของตำบล ลดการพึ่งพาจากภายนอก เพื่อให้ชุมชนเข้มแข็งและพึ่งตนเองได้`,
+   `สำหรับกระบวนการทบทวน และปรับปรุงแผนพัฒนาตำบล ของตำบล${T} ได้ก่อเกิดจากกลไกของคณะกรรมการบริหารงานตำบลแบบบูรณาการ (ก.บ.ต.) ศูนย์ประสานงานองค์การชุมชนระดับตำบล (ศอช.ต.) ที่เป็นการมีส่วนร่วมของผู้นำกลุ่ม/องค์การ ผู้ใหญ่บ้าน กำนัน องค์กรปกครองส่วนท้องถิ่นและจากทุกหมู่บ้าน พร้อมทั้งการส่งเสริมและสนับสนุนจากส่วนราชการ/ภาคเอกชนที่เกี่ยวข้อง เพื่อร่วมกันบูรณาการปัญหาและความต้องการจากทุกหมู่บ้านเชื่อมโยงสู่ตำบล ผ่านกระบวนการเรียนรู้ร่วมกันจากข้อมูลที่ได้จากการจัดเก็บนำมาการวิเคราะห์ข้อมูลจนไปสู่การกำหนดแผนงาน/โครงการ/กิจกรรม ที่ตอบสนองต่อปัญหาและความต้องการของหมู่บ้านเชื่อมโยงสู่ตำบล โดยกำหนดออกมา 3 กลุ่มโครงการ/กิจกรรม คือ โครงการ/กิจกรรมที่ดำเนินการได้เอง โครงการ/กิจกรรมที่ต้องดำเนินการร่วมกันกับหน่วยงานภายนอก และโครงการ/กิจกรรมที่ต้องขอรับการสนับสนุนจากภายนอก`,
+   `คณะกรรมการบริหารงานตำบลแบบบูรณาการและศูนย์ประสานงานองค์การชุมชนระดับตำบล ตำบล${T} หวังเป็นอย่างยิ่งว่าแผนพัฒนาตำบลเล่มนี้จะเป็นประโยชน์แก่หน่วยงานราชการ ภาคเอกชน ภาคประชาสังคม และผู้ที่เกี่ยวข้องได้นำไปใช้ในการประสานเชื่อมโยงสู่แผนพัฒนาองค์กรปกครองส่วนท้องถิ่น แผนพัฒนาอำเภอ และแผนพัฒนาทุกระดับ เพื่อการแก้ไขปัญหา และตอบสนองความต้องการ ของหมู่บ้านและตำบลได้อย่างทั่วถึง และอันจะเป็นประโยชน์ต่อการพึ่งพาตนเองได้ของหมู่บ้านและตำบลต่อไป`
+  ].forEach(x => portrait.push(P([R(x)], { indent:0, after:160 })));
+  portrait.push(P(`คณะกรรมการบริหารงานตำบลแบบบูรณาการ ตำบล${T}`, { right:true, after:0 }));
+  portrait.push(P([R('เดือน '), FILL('เดือน พ.ศ.')], { right:true }));
+  // TOC
+  portrait.push(H('สารบัญ', { center:true, page:true }));
+  ['ส่วนที่ 1 ข้อมูลทั่วไปของตำบล','ส่วนที่ 2 การวิเคราะห์ข้อมูล','     2.1 จุดอ่อน จุดแข็ง','     2.2 โอกาส ภัยคุกคาม','     2.3 ผลการวิเคราะห์ข้อมูลชุมชน (TIS)','     2.4 ทิศทาง/เป้าหมายการพัฒนาตำบล','     2.5 กลยุทธ์/วิธีปฏิบัติเพื่อไปสู่ทิศทาง/เป้าหมาย','ส่วนที่ 3 แผนงาน/โครงการ/กิจกรรม แผนพัฒนาตำบล','     3.1 แผนงาน/โครงการ/กิจกรรม เรียงตามลำดับความสำคัญ','     3.2 แผนงาน/โครงการ/กิจกรรม แยกแต่ละด้าน','ส่วนที่ 4 การทบทวนแผนพัฒนาตำบล','ส่วนที่ 5 เรื่องอื่นๆ (ที่เห็นว่าสำคัญและควรบรรจุไว้ในแผนพัฒนาตำบล)','ภาคผนวก'].forEach(x => portrait.push(P(x, { after:40 })));
+  // part 1
+  portrait.push(H('ส่วนที่ 1 ข้อมูลทั่วไปของตำบล', { center:true, page:true }));
+  const L = (label, runs) => portrait.push(P([R(label)].concat(runs || [])));
+  L('1. แผนที่ตำบล ', [FILL('แนบแผนที่')]);
+  L('2. ประวัติความเป็นมาของตำบล/รายชื่อหมู่บ้าน/รายชื่อผู้นำในตำบล ', [FILL('ประวัติและรายชื่อหมู่บ้าน')]);
+  L('3. พื้นที่ทั้งหมด ', [FILL('พื้นที่ ไร่ หรือ ตารางกิโลเมตร')]);
+  L('4. อาณาเขต ', [FILL('ที่ตั้งและอาณาเขตติดต่อ 4 ทิศ')]);
+  L('5. ลักษณะภูมิประเทศ ', [FILL('ลักษณะภูมิประเทศ')]);
+  L('6. จำนวนประชากรรวมทั้งสิ้น ', [val(b.total,'จำนวน'), R(' คน แยกเป็น ชาย '), val(b.male,'จำนวน'), R(' คน หญิง '), val(b.female,'จำนวน'), R(' คน')]);
+  portrait.push(P([R('6.1 ผู้สูงอายุ (อายุ 60 ปีบริบูรณ์ขึ้นไป) รวมทั้งสิ้น '), FILL('จำนวน ชาย หญิง'), R(' (รายชื่อแนบ)')], { indent:500 }));
+  portrait.push(P([R('6.2 คนพิการ รวมทั้งสิ้น '), FILL('จำนวน ชาย หญิง'), R(' (รายชื่อแนบ)')], { indent:500 }));
+  L('7. จำนวนครัวเรือน ', [val(b.households,'จำนวน'), R(' ครัวเรือน (ตามข้อมูลการจัดเก็บ จปฐ.)')]);
+  L('8. การประกอบอาชีพ ', [FILL('อาชีพหลักและอาชีพเสริม พร้อมจำนวนครัวเรือน')]);
+  L('9. ผู้ว่างงาน ', [FILL('จำนวนแยกกลุ่มอายุ 13–18, 19–24, 25 ปีขึ้นไป')]);
+  L('10. ตำบลมีรายได้/รายจ่าย/หนี้สิน ', [FILL('บาท/ปี')]);
+  L('11. รายได้เฉลี่ยของประชากร ', [b.year ? R(`(${b.year}) `) : R(''), val(b.income,'บาท/คน/ปี'), R(' บาท/คน/ปี ครัวเรือนยากจน '), FILL('จำนวนครัวเรือน')]);
+  L('12. จำนวนกลุ่มกิจกรรม/อาชีพ ', [FILL('ชื่อกลุ่มและจำนวนสมาชิก')]);
+  L('13. กองทุนในตำบล ', [FILL('ชื่อกองทุน จำนวน งบประมาณ')]);
+  L('14. ข้อมูลความต้องการพัฒนาฝีมือแรงงานของประชาชน ', [FILL('กิจกรรม/อาชีพ และจำนวนคน')]);
+  L('15. ข้อมูลคมนาคม/สาธารณูปโภค ', [FILL('การเดินทาง สาธารณูปโภค แหล่งน้ำ')]);
+  // part 2
+  portrait.push(H('ส่วนที่ 2 การวิเคราะห์ข้อมูล', { center:true, page:true }));
+  const sw = D.swot || {};
+  const list = (arr, prefix) => (arr && arr.length) ? arr.forEach((x,i) => portrait.push(P(`(${prefix}.${i+1}) ${x.text}`, { indent:500, after:40 }))) : portrait.push(P([FILL('ยังไม่มีข้อมูล')], { indent:500 }));
+  portrait.push(P([R('2.1 การวิเคราะห์ปัจจัยภายในหรือสภาพแวดล้อมภายใน', { b:true })]));
+  portrait.push(P([R('(1) จุดอ่อน', { b:true })], { indent:250 })); list(sw.W, '1');
+  portrait.push(P([R('(2) จุดแข็ง', { b:true })], { indent:250 })); list(sw.S, '2');
+  portrait.push(P([R('2.2 การวิเคราะห์ปัจจัยภายนอกหรือสภาพแวดล้อมภายนอก', { b:true })]));
+  portrait.push(P([R('(1) โอกาส', { b:true })], { indent:250 })); list(sw.O, '1');
+  portrait.push(P([R('(2) อุปสรรค', { b:true })], { indent:250 })); list(sw.T, '2');
+  portrait.push(P([R('2.3 ผลการวิเคราะห์ข้อมูลชุมชน (TIS)', { b:true })]));
+  if (D.tisOrder && D.tisOrder.length){
+    portrait.push(P(`การจัดลำดับประเด็นการพัฒนาของ ${D.tisN} หมู่บ้าน จากระบบสารสนเทศเพื่อการวิเคราะห์ข้อมูลชุมชน (TIS)${D.tisYear ? ' ปีงบประมาณ ' + D.tisYear : ''} (จำนวนหมู่บ้านที่จัดไว้ในแต่ละอันดับ)`));
+    portrait.push(table([head([cell('ประเด็นการพัฒนา',{b:true,head:true}), ...[1,2,3,4,5].map(k => cell('อันดับ '+k,{b:true,head:true,center:true})), cell('อันดับเฉลี่ย',{b:true,head:true,center:true})])]
+      .concat(D.tisOrder.map(o => [cell(o.dim), ...o.counts.map(c => cell(String(c),{center:true})), cell(o.avg.toFixed(2),{center:true})])), [3200,1000,1000,1000,1000,1000,1300]));
+  } else portrait.push(P([FILL('ผลการวิเคราะห์จาก TIS')]));
+  portrait.push(P([R('2.4 ทิศทางการพัฒนา ', { b:true }), D.direction ? R(D.direction) : FILL('ทิศทาง/เป้าหมาย')], { after:160 }));
+  portrait.push(P([R('2.5 กลยุทธ์หรือวิธีปฏิบัติเพื่อไปสู่ทิศทาง/เป้าหมายของการพัฒนา', { b:true })]));
+  (D.strategies && D.strategies.length) ? D.strategies.forEach(s => { portrait.push(P([R(`${s.no}. ${s.name}`, { b:true })], { indent:250, after:20 })); if (s.detail) portrait.push(P(s.detail, { indent:500 })); }) : portrait.push(P([FILL('กลยุทธ์')]));
+  portrait.push(P([R('การวิเคราะห์ปัญหาของตำบล', { b:true })]));
+  portrait.push(table([head(['ลำดับความสำคัญของปัญหา','ชื่อปัญหา','สาเหตุของปัญหา','ข้อมูลบ่งชี้สภาพ ขนาด และความรุนแรงของปัญหา','แนวทางการแก้ไขปัญหา'].map(x => cell(x,{b:true,head:true,center:true}))),
+    [cell([FILL('จากเวที')]), cell(''), cell(''), cell(''), cell('')]], [1300,1800,2000,2200,2200]));
+  // part 3 landscape
+  const items = D.items || [];
+  const DIMS = ['เศรษฐกิจ','สังคม','ทรัพยากรธรรมชาติและสิ่งแวดล้อม','ความมั่นคง','บริหารจัดการ'];
+  const DSHORT = ['ด้านเศรษฐกิจ','ด้านสังคม','ด้านทรัพยากรฯ','ด้านความมั่นคง','ด้านการบริหารจัดการ'];
+  const MET = ['ทำเอง','ทำร่วม','หน่วยงานอื่นทำให้'];
+  const ck = ok => cell(ok ? '✓' : '', { center:true });
+  const money = v => (v === null || v === undefined || v === '') ? cell([FILL('งบ')]) : cell(Number(v) === 0 ? 'ไม่ใช้งบประมาณ' : Number(v).toLocaleString('en-US'), { center:true });
+  land.push(H('ส่วนที่ 3 แผนงาน/โครงการ/กิจกรรม', { center:true }));
+  land.push(P([R('3.1 แผนงาน/โครงการ/กิจกรรม เรียงตามลำดับความสำคัญ (รวมทุกด้าน)', { b:true })]));
+  const h1 = head([cell('ที่',{b:true,head:true,center:true,rowSpan:2}), cell('ชื่อโครงการ',{b:true,head:true,center:true,rowSpan:2}), cell('งบประมาณ',{b:true,head:true,center:true,rowSpan:2}), cell('เป้าหมาย',{b:true,head:true,center:true,rowSpan:2}), cell('ประเภทของแผนด้านต่าง ๆ (ระบุ ✓)',{b:true,head:true,center:true,span:5}), cell('วิธีการดำเนินการ (ระบุ ✓)',{b:true,head:true,center:true,span:3})]);
+  const h2 = head([...DSHORT.map(x => cell(x,{b:true,head:true,center:true,size:24})), ...MET.map(x => cell(x,{b:true,head:true,center:true,size:24}))]);
+  land.push(table([h1, h2].concat(items.map((it,i) => [cell(String(i+1),{center:true}), cell(it.name || ''), money(it.budget), cell(it.target ? it.target : [FILL('เป้าหมาย')]), ...DIMS.map(d => ck(it.dim === d)), ...MET.map(m => ck(it.method === m))])),
+    [500,3600,1300,1500,700,700,700,700,800,700,700,900]));
+  land.push(P([R('3.2 แผนงาน/โครงการ/กิจกรรม แยกตามด้าน', { b:true })], { page:true }));
+  DIMS.forEach((d, di) => {
+    land.push(P([R(`${di+1}. ด้าน${d}`, { b:true })]));
+    const arr = items.filter(it => it.dim === d);
+    const hh1 = head([cell('ลำดับที่',{b:true,head:true,center:true,rowSpan:2}), cell('ชื่อโครงการ',{b:true,head:true,center:true,rowSpan:2}), cell('งบประมาณ',{b:true,head:true,center:true,rowSpan:2}), cell('เป้าหมาย/ระยะเวลาดำเนินการ',{b:true,head:true,center:true,rowSpan:2}), cell('รายละเอียด/วิธีดำเนินการ',{b:true,head:true,center:true,rowSpan:2}), cell('วิธีการดำเนินการ (ระบุ ✓)',{b:true,head:true,center:true,span:3}), cell('หมายเหตุ (หน่วยดำเนินงาน)',{b:true,head:true,center:true,rowSpan:2})]);
+    const hh2 = head(MET.map(x => cell(x,{b:true,head:true,center:true,size:24})));
+    const rows = arr.length ? arr.map((it,i) => [cell(String(i+1),{center:true}), cell(it.name||''), money(it.budget), cell([it.target ? R(it.target,{size:28}) : FILL('เป้าหมาย'), R(' / ',{size:28}), it.period ? R(it.period,{size:28}) : FILL('ระยะเวลา')]), cell(it.detail ? it.detail : [FILL('รายละเอียด')]), ...MET.map(m => ck(it.method === m)), cell('')])
+      : [[cell('-',{center:true}), cell('ไม่มีโครงการในด้านนี้'), cell(''), cell(''), cell(''), cell(''), cell(''), cell(''), cell('')]];
+    land.push(table([hh1, hh2].concat(rows), [700,3300,1300,1900,2600,700,700,900,1500]));
+    land.push(P(' '));
+  });
+  // part 4-5 + appendix
+  tail.push(H('ส่วนที่ 4 การทบทวนแผนพัฒนาตำบล', { center:true }));
+  const rvw = D.review || {};
+  tail.push(table([head(['วัน/เดือน/ปี','มติที่ประชุม','จำนวนผู้เข้าร่วมประชุม','หมายเหตุ'].map(x => cell(x,{b:true,head:true,center:true}))),
+    [cell(rvw.date ? rvw.date : [FILL('วันที่')],{center:true}), cell(rvw.resolution ? rvw.resolution : [FILL('มติ')],{center:true}), cell(rvw.attendees ? String(rvw.attendees) : [FILL('จำนวน')],{center:true}), cell('')]], [2200,2600,2600,1600]));
+  tail.push(H('ส่วนที่ 5 เรื่องอื่นๆ (ที่เห็นว่าสำคัญและควรบรรจุไว้ในแผนพัฒนาตำบล)', { center:true, page:true }));
+  if (D.sources && D.sources.length){ tail.push(P([R('แหล่งข้อมูลที่ใช้ประกอบการจัดทำแผน', { b:true })])); D.sources.forEach(s => tail.push(P('- ' + s, { indent:250, after:40 }))); }
+  if (D.reviewSummary) tail.push(P([R('ผลการทบทวนโครงการในแผนพัฒนาตำบลฉบับเดิม: ', { b:true }), R(D.reviewSummary)]));
+  tail.push(P([FILL('เรื่องอื่นที่ ก.บ.ต. เห็นว่าสำคัญ')]));
+  tail.push(H('ภาคผนวก', { center:true, page:true }));
+  tail.push(P([FILL('แนบรายชื่อผู้สูงอายุและคนพิการตามข้อ 6.1 และ 6.2 (จัดทำนอกระบบ ไม่บันทึกในแอป)')]));
+  tail.push(P([FILL('แนบแบบประเมินแผนพัฒนาตำบลของอำเภอ และภาพกิจกรรมเวที')]));
+  const pageA4 = { size:{ width:11906, height:16838 }, margin:{ top:1134, bottom:1134, left:1418, right:1134 } };
+  const pageA4L = { size:{ width:11906, height:16838, orientation: X.PageOrientation.LANDSCAPE }, margin:{ top:1134, bottom:1134, left:1134, right:1134 } };
+  return new X.Document({ creator:'ต้นแบบระบบเตรียมข้อมูลแผนพัฒนาตำบล', title:`แผนพัฒนาตำบล${T}`,
+    styles:{ default:{ document:{ run:{ font:f, size:32, sizeComplexScript:32 } } } },
+    sections:[ { properties:{ page:pageA4 }, children:portrait }, { properties:{ page:pageA4L }, children:land }, { properties:{ page:pageA4 }, children:tail } ] });
+}
+
+
+// step4-book.js — ④ หน้าจอส่งออกรูปเล่ม
+const BK0 = () => ({ year:'', rdate:'', rround:'', rres:'', ratt:'' });
+const bk = BK0();
+function bkPersist(){ wsSave(); }
+function baseNow(){
+  const p1 = state.ai?.part1 || {}, b = cur.base || {};
+  const pick = (k, dv) => (b[k] !== undefined && b[k] !== null && b[k] !== '') ? b[k] : dv;
+  return { total: pick('total', p1.population?.total), male: pick('male', p1.population?.male), female: pick('female', p1.population?.female), households: pick('households', p1.households), income: pick('income', p1.avg_income_per_person_year), year: b.year || '' };
+}
+function bookData(){
+  const m = state.ai?.meta || {};
+  const ps = state.ai?.part3?.projects || [];
+  const cnt = k => ps.filter(p => rv(p.id).status === k).length;
+  const nd = ps.filter(p => rv(p.id).status === 'not_done');
+  const sources = [];
+  if (state.ai) sources.push(`แผนพัฒนาตำบลฉบับเดิม${m.plan_year ? ' ปี ' + m.plan_year : ''}`);
+  if (cur.tis) sources.push(`รายงานผลการวิเคราะห์ TIS (การจัดลำดับประเด็นการพัฒนารายหมู่บ้าน)${cur.tis.year ? ' ปีงบประมาณ ' + cur.tis.year : ''}`);
+  if (ana.comm) sources.push(`รายงานผลการวิเคราะห์ข้อมูลชุมชน TIS (ทุนชุมชน)${ana.comm.year ? ' ปีงบประมาณ ' + ana.comm.year : ''}`);
+  const baseYear = (cur.base || {}).year; if (baseYear) sources.push(`ข้อมูลพื้นฐาน ${baseYear}`);
+  const venueN = (ana.venue || '').split('\n').filter(s => s.trim()).length; if (venueN) sources.push(`ข้อมูลจากเวทีประชาคม ${venueN} ประเด็น`);
+  if (ana.answer) sources.push('แผนพัฒนาจังหวัดเชียงราย 5 ปี (พ.ศ. 2571-2575)');
+  return {
+    tambon: m.tambon || cur.tis?.tambon || ana.comm?.tambon, amphoe: m.amphoe || cur.tis?.amphoe || ana.comm?.amphoe, changwat: m.changwat || 'เชียงราย',
+    year: bk.year, base: baseNow(), swot: ana.answer?.swot, direction: ana.answer?.direction, strategies: ana.answer?.strategies,
+    tisOrder: cur.tisStats?.order, tisN: cur.tisStats?.n, tisYear: cur.tis?.year,
+    items: orderedItems(planItems()), review: { date: bk.rdate, round: bk.rround, resolution: bk.rres, attendees: bk.ratt },
+    sources, reviewSummary: ps.length ? `จากทั้งหมด ${ps.length} โครงการ ทำแล้วจบโครงการ ${cnt('done')} โครงการ ทำแล้วและทำต่อ ${cnt('done_continue')} โครงการ ยังไม่ได้ทำ ${nd.length} โครงการ (ยกไปแผนใหม่ ${nd.filter(p => rv(p.id).decision==='carry').length} ตัดออก ${nd.filter(p => rv(p.id).decision==='drop').length})${ps.length - cnt('done') - cnt('done_continue') - nd.length ? ' ยังไม่ระบุสถานะ ' + (ps.length - cnt('done') - cnt('done_continue') - nd.length) + ' โครงการ' : ''}` : ''
+  };
+}
+function renderBook(){
+  const defs = [['year','ปี พ.ศ. ของแผน','text','เช่น 2570'],['rdate','วันที่ประชุมทบทวน','text','เช่น 15 ม.ค. 2570'],['rres','มติที่ประชุม','text','เช่น เห็นชอบ'],['ratt','จำนวนผู้เข้าร่วมประชุม','number','']];
+  $('#bookForm').innerHTML = defs.map(([k,l,ty,ph]) => `<label>${l}<input data-bk="${k}" type="${ty}" placeholder="${esc(ph)}" value="${esc(bk[k] ?? '')}"></label>`).join('');
+  const D = bookData(), f = [];
+  const b = D.base;
+  f.push([b.total && b.households ? 'ok' : 'warn', `ส่วนที่ 1: ${b.total ? 'มีจำนวนประชากรและครัวเรือน' : 'ยังไม่มีจำนวนประชากร'} ส่วนอื่นของส่วนที่ 1 (แผนที่ อาณาเขต อาชีพ กลุ่ม กองทุน ฯลฯ) ต้องเติมใน Word`]);
+  const sw = D.swot || {}; const nsw = ['S','W','O','T'].reduce((s,k) => s + (sw[k]||[]).length, 0);
+  const verr = ana.validation?.errors?.length || 0;
+  f.push([nsw ? (verr ? 'warn' : 'ok') : 'warn', nsw ? `ส่วนที่ 2.1–2.2: SWOT ${nsw} ข้อ${verr ? ` ยังมีจุดผิด ${verr} จุดในขั้น ②` : ''}` : 'ส่วนที่ 2.1–2.2: ยังไม่มี SWOT จากขั้น ②']);
+  f.push([D.tisOrder ? 'ok' : 'warn', D.tisOrder ? `ส่วนที่ 2.3: ใช้ผลการจัดลำดับจาก TIS ${D.tisN} หมู่บ้าน` : 'ส่วนที่ 2.3: ยังไม่ได้นำเข้ารายงาน TIS ในขั้น ①']);
+  f.push([D.direction && D.strategies?.length ? 'ok' : 'warn', D.direction ? `ส่วนที่ 2.4–2.5: มีทิศทางและกลยุทธ์ ${D.strategies?.length || 0} ข้อ` : 'ส่วนที่ 2.4–2.5: ยังไม่มีจากขั้น ②']);
+  f.push(['warn','ตารางการวิเคราะห์ปัญหาของตำบล: แอปยังไม่สร้างให้ ต้องเติมจากเวที']);
+  const chk = checkPlan(D.items, part2Ctx());
+  f.push([D.items.length ? (chk.bad.length || chk.warn.length ? 'warn' : 'ok') : 'warn', D.items.length ? `ส่วนที่ 3: ${D.items.length} โครงการ${chk.bad.concat(chk.warn).length ? ' ' + chk.bad.concat(chk.warn).join(' ') : ''}` : 'ส่วนที่ 3: ยังไม่มีโครงการ']);
+  f.push([bk.rdate && bk.rres ? 'ok' : 'warn', bk.rdate ? 'ส่วนที่ 4: มีบันทึกการทบทวน' : 'ส่วนที่ 4: ยังไม่ได้กรอกข้อมูลการประชุมทบทวนในข้อ 1']);
+  f.push(['info', `ส่วนที่ 5: แอปใส่แหล่งข้อมูลที่ใช้ ${D.sources.length} แหล่ง และสรุปผลทบทวนแผนเดิมให้ ช่วยตอบเกณฑ์ข้อ 3.3 ของแบบประเมินอำเภอ`]);
+  f.push(['info','ภาคผนวก: รายชื่อผู้สูงอายุและคนพิการต้องแนบเองนอกระบบ แอปไม่บันทึกข้อมูลส่วนบุคคล']);
+  if (!window.docx) f.unshift(['bad','โหลดตัวสร้างไฟล์ Word ไม่สำเร็จ ตรวจการเชื่อมต่ออินเทอร์เน็ตแล้วเปิดหน้านี้ใหม่']);
+  facts($('#bookFacts'), f);
+}
+$('#bookForm').addEventListener('input', e => { const k = e.target.dataset.bk; if (!k) return; bk[k] = e.target.value; bkPersist(); clearTimeout(renderBook._t); renderBook._t = setTimeout(() => { const a = document.activeElement?.dataset?.bk; renderBook(); if (a){ const el = document.querySelector(`[data-bk="${a}"]`); if (el){ el.focus(); const v = el.value; if (el.type === 'text') el.setSelectionRange(v.length, v.length); } } }, 600); });
+$('#dlBook').addEventListener('click', async () => {
+  if (!window.docx){ $('#bookNote').textContent = 'โหลดตัวสร้างไฟล์ Word ไม่สำเร็จ'; return; }
+  const D = bookData();
+  if (!D.tambon){ $('#bookNote').textContent = 'ยังไม่รู้ชื่อตำบล ทำขั้น ⓪ หรือนำเข้ารายงาน TIS ก่อน'; return; }
+  $('#bookNote').textContent = 'กำลังสร้างไฟล์…';
+  let blob; try{ blob = await docx.Packer.toBlob(buildBook(D, docx)); }catch(e){ $('#bookNote').textContent = 'สร้างไฟล์ไม่สำเร็จ'; return; }
+  const name = `แผนพัฒนาตำบล_${D.tambon}_${D.year || 'ร่าง'}.docx`;
+  let dl = null; try{ dl = await window.claude?.use?.('downloads'); }catch(e){}
+  if (dl){
+    try{ await dl.save({ filename:name, data:blob }); $('#bookNote').textContent = 'บันทึกไฟล์แล้ว เปิดใน Word แล้วค้นหาแถบเหลือง “ต้องเติม” เพื่อเติมให้ครบ'; return; }
+    catch(e){ if (e?.code === 'declined'){ $('#bookNote').textContent = 'ยกเลิกการบันทึก'; return; } }
+  }
+  try{ const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove(); $('#bookNote').textContent = 'ถ้าไฟล์ไม่ถูกดาวน์โหลด ให้เปิดหน้านี้จากลิงก์ของ artifact โดยตรง'; }
+  catch(e){ $('#bookNote').textContent = 'บันทึกไฟล์จากหน้านี้ไม่ได้'; }
+});
+$('#saveBtn5').addEventListener('click', () => $('#saveBtn').click());
+[['#aiBox','#checkBtn'],['#ans1Box','#check1'],['#ans2Box','#check2']].forEach(([box, btn]) => $(box).addEventListener('paste', () => setTimeout(() => $(btn).click(), 60)));
+
+// workspace.js — ชุดข้อมูลรายตำบล: บันทึก/สลับ/เริ่มใหม่/เปิดไฟล์ .json/ย้ายข้อมูลรูปแบบเดิม
+/* ================= ชุดข้อมูลรายตำบล (workspace) =================
+ * งานทุกขั้น (⓪–④) ของตำบลหนึ่งเก็บรวมใน key เดียว: tambon-ws:{อำเภอ}|{ตำบล}|{ปีแผนเดิม}
+ *   tambon-ws:index  = รายการตำบลที่มีในเครื่อง   tambon-ws:active = ตำบลที่เปิดอยู่
+ *   tambon-ws:draft  = งานที่ยังไม่รู้ตำบล (ยังไม่ได้ทำขั้น ⓪) เมื่อทำขั้น ⓪ แล้วจะย้ายเข้าชุดของตำบลนั้น
+ * ข้อมูลรูปแบบเดิม (tambon-review:*, tambon-current:*, *:last) ย้ายมาครั้งเดียวตอนเปิดแอป โดยไม่ลบ key เดิม */
+const WS = 'tambon-ws:', WS_INDEX = WS + 'index', WS_ACTIVE = WS + 'active', WS_MIGRATED = WS + 'migrated', WS_DRAFT = 'draft';
+let wsId = WS_DRAFT, wsQuiet = false, wsWarnedFull = false, wsNotice = null;
+const UI0 = { drop: $('#dropTitle').textContent, drop2: $('#drop2Title').textContent, drop3: $('#drop3Title').textContent, heat: $('#heatWrap').innerHTML };
+function lsGet(k){ try{ const r = localStorage.getItem(k); return r ? JSON.parse(r) : null; }catch(e){ return null; } }
+function lsSet(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); return true; }catch(e){ return false; } }
+function wsIdOf(meta){ return meta?.tambon ? [meta.amphoe || '?', meta.tambon, meta.plan_year || '?'].join('|') : WS_DRAFT; }
+function wsIndex(){ const x = lsGet(WS_INDEX); return Array.isArray(x) ? x : []; }
+function fmtTime(iso){ try{ return iso ? new Date(iso).toLocaleString('th-TH', { day:'numeric', month:'short', year:'2-digit', hour:'2-digit', minute:'2-digit' }) : ''; }catch(e){ return ''; } }
+function wsFacts(items){ facts($('#wsFacts'), items); }
+
+// ภาพรวมสถานะทั้งหมดของตำบลที่เปิดอยู่ (ใช้ทั้งเก็บในเครื่องและใส่ในไฟล์ .json)
+function wsSnapshot(){
+  const p = state.pdf;
+  return { v:1, updated_at: new Date().toISOString(),
+    review: { review: state.review, ai: state.ai, usingSample: state.usingSample },
+    // ผลอ่าน PDF เก็บเฉพาะตัวเลขงบรายแถว ไม่เก็บข้อความจากไฟล์
+    pdf: p ? { name: state.pdfName, hasText: p.hasText, s31: p.s31, s32: p.s32, pages: p.pages, problemRows: p.problemRows,
+      rows: Object.fromEntries(Object.entries(p.rows || {}).map(([k, r]) => [k, { page: r.page, budget: r.budget, nobudget: r.nobudget }])) } : null,
+    cur, ana, prj, bk, notice: wsNotice };
+}
+function wsSnapHasData(s){
+  if (!s) return false;
+  const filled = o => Object.values(o || {}).some(v => v !== null && v !== undefined && v !== '');
+  return !!(s.review?.ai || s.pdf || s.cur?.tis || filled(s.cur?.base) || s.ana?.comm || s.ana?.venue || s.ana?.answerText || s.prj?.extra?.length || s.prj?.ans2Text || filled(s.bk));
+}
+function wsSave(){
+  if (wsQuiet) return;
+  const snap = wsSnapshot();
+  if (wsId === WS_DRAFT && !wsSnapHasData(snap) && !lsGet(WS + WS_DRAFT)) return;   // ยังไม่มีอะไรให้เก็บ
+  if (!lsSet(WS + wsId, snap)){
+    if (!wsWarnedFull){ wsWarnedFull = true; toast('พื้นที่เก็บข้อมูลในเครื่องเต็ม งานล่าสุดยังไม่ถูกบันทึก กดปุ่มบันทึก (.json) เพื่อเก็บงานเป็นไฟล์ไว้ก่อน'); }
+    return;
+  }
+  wsWarnedFull = false;
+  const m = state.ai?.meta || {};
+  const idx = wsIndex().filter(x => x.id !== wsId);
+  idx.push({ id: wsId, tambon: m.tambon || cur.tis?.tambon || ana.comm?.tambon || null, amphoe: m.amphoe || cur.tis?.amphoe || null, plan_year: m.plan_year || null, updated_at: snap.updated_at });
+  lsSet(WS_INDEX, idx); lsSet(WS_ACTIVE, wsId);
+  wsRenderBar();
+}
+function wsReset(){
+  Object.assign(state, { pdfName:null, pdf:null, ai:null, usingSample:false, review:{}, filter:'all' });
+  for (const [o, f] of [[cur, CUR0], [ana, ANA0], [prj, PRJ0], [bk, BK0]]){ Object.keys(o).forEach(k => delete o[k]); Object.assign(o, f()); }
+  wsNotice = null;
+}
+function wsApply(s){
+  wsReset();
+  const r = s?.review || {};
+  if (r.ai?.part3?.projects){ state.ai = r.ai; state.review = migrate(r.review || {}); state.usingSample = !!r.usingSample; }
+  if (s?.pdf){ state.pdf = s.pdf; state.pdfName = s.pdf.name || null; }
+  Object.assign(cur, s?.cur || {}); if (!cur.base || typeof cur.base !== 'object') cur.base = {};
+  Object.assign(ana, s?.ana || {});
+  Object.assign(prj, s?.prj || {}); if (!Array.isArray(prj.extra)) prj.extra = []; if (!prj.old || typeof prj.old !== 'object') prj.old = {};
+  Object.assign(bk, s?.bk || {});
+  wsNotice = s?.notice || null;
+}
+// วาดหน้าจอทุกขั้นใหม่ตามข้อมูลที่โหลด (ไม่บันทึกระหว่างวาด)
+function wsRefreshUI(){
+  wsQuiet = true;
+  try{
+    // ⓪
+    $('#dropTitle').textContent = state.pdfName || UI0.drop;
+    $('#s1').classList.toggle('done', !!state.pdf);
+    facts($('#pdfFacts'), state.pdf ? [['info', `ใช้ผลการอ่านไฟล์ ${esc(state.pdfName || 'PDF')} ที่บันทึกไว้${state.pdf.pages ? ` (${state.pdf.pages} หน้า)` : ''} ถ้าเปลี่ยนเล่ม ให้แนบไฟล์ใหม่`]] : []);
+    $('#aiBox').value = state.ai ? JSON.stringify(state.ai, null, 1) : '';
+    $('#sampleNote').hidden = !state.usingSample;
+    $('#s2').classList.toggle('done', !!state.ai);
+    document.querySelectorAll('.chip').forEach(c => c.setAttribute('aria-pressed', String(c.dataset.f === 'all')));
+    $('#exportBox').hidden = true; $('#exportBox').value = '';
+    ['#saveNote','#saveNote2','#saveNote3','#saveNote4','#bookNote'].forEach(s => { const el = $(s); if (el) el.textContent = ''; });
+    if (state.ai) runChecks(); else { facts($('#aiFacts'), []); render(); }
+    // ①
+    $('#drop2Title').textContent = cur.tisFile || UI0.drop2;
+    $('#c1').classList.toggle('done', !!cur.tis);
+    if (!cur.tis){ facts($('#tisFacts'), []); facts($('#heatFacts'), []); $('#heatWrap').innerHTML = UI0.heat; }
+    // ②
+    $('#drop3Title').textContent = ana.commFile || UI0.drop3;
+    $('#a1').classList.toggle('done', !!ana.comm);
+    $('#venueBox').value = ana.venue || ''; $('#ans1Box').value = ana.answerText || '';
+    if (!ana.comm){ facts($('#commFacts'), []); $('#capSum').innerHTML = ''; }
+    if (!ana.answer){ facts($('#ans1Facts'), []); $('#fixP1').hidden = true; }
+    $('#a3').classList.toggle('done', !!ana.answer); $('#a4').classList.toggle('done', !!ana.answer);
+    // ③
+    $('#ans2Box').value = prj.ans2Text || ''; facts($('#ans2Facts'), []);
+    $('#p1').classList.remove('done'); $('#p2').classList.toggle('done', !!prj.ans2Text);
+    wsRenderBar();
+    showView();
+  } finally { wsQuiet = false; }
+}
+function wsLoad(id){
+  wsId = id;
+  wsApply(lsGet(WS + id));
+  wsRefreshUI();
+  lsSet(WS_ACTIVE, id);
+  wsFacts(wsNotice ? [['warn', esc(wsNotice)]] : []);
+}
+function wsName(x){
+  if (!x || x.id === WS_DRAFT) return 'งานที่ยังไม่ระบุตำบล';
+  return `ตำบล${x.tambon || '?'}${x.amphoe ? ' อำเภอ' + x.amphoe : ''} แผนปี ${x.plan_year || '?'}`;
+}
+function wsLabel(x){
+  if (x.id === WS_DRAFT) return 'งานใหม่ ยังไม่ระบุตำบล (ทำขั้น ⓪ ก่อน)' + (x.tambon ? ` · TIS ตำบล${x.tambon}` : '');
+  return `ตำบล${x.tambon || '?'}${x.amphoe ? ' อ.' + x.amphoe : ''} · แผนปี ${x.plan_year || '?'}`;
+}
+function wsRenderBar(){
+  const sel = $('#wsSel'); if (!sel) return;
+  const idx = wsIndex().sort((a, b) => String(b.updated_at || '').localeCompare(String(a.updated_at || '')));
+  if (!idx.some(x => x.id === wsId)) idx.unshift({ id: wsId, tambon: state.ai?.meta?.tambon, amphoe: state.ai?.meta?.amphoe, plan_year: state.ai?.meta?.plan_year });
+  sel.innerHTML = idx.map(x => `<option value="${esc(x.id)}"${x.id === wsId ? ' selected' : ''}>${esc(wsLabel(x))}${x.updated_at ? ' · แก้ไข ' + esc(fmtTime(x.updated_at)) : ''}</option>`).join('');
+}
+function wsSwitch(id){
+  if (id === wsId) return;
+  wsSave(); wsLoad(id);
+  toast('เปิดงานของ' + wsName(wsIndex().find(x => x.id === id) || { id }) + ' แล้ว');
+}
+function wsNew(){
+  wsSave();
+  if (wsId === WS_DRAFT && wsSnapHasData(wsSnapshot())){
+    location.hash = '#review';
+    toast('งานที่เปิดอยู่ยังไม่ระบุตำบล ทำขั้น ⓪ ให้เสร็จก่อน แล้วค่อยเริ่มตำบลใหม่'); return;
+  }
+  if (wsSnapHasData(lsGet(WS + WS_DRAFT))){
+    wsLoad(WS_DRAFT); location.hash = '#review';
+    toast('มีงานที่ยังไม่ระบุตำบลค้างอยู่ เปิดให้ทำต่อแล้ว ทำขั้น ⓪ ให้เสร็จก่อนเริ่มตำบลอื่น'); return;
+  }
+  wsLoad(WS_DRAFT); location.hash = '#review';
+  toast('เริ่มตำบลใหม่แล้ว งานเดิมบันทึกไว้ในเครื่อง เลือกกลับมาทำต่อได้จากรายการ “ตำบลที่ทำอยู่”');
+}
+// เรียกจากขั้น ⓪ เมื่อวางคำตอบ AI: ผูกงานกับตำบลในคำตอบ คืนค่า true ถ้าทำต่อได้
+function wsAdoptAi(ai){
+  const id = wsIdOf(ai.meta);
+  if (id === wsId){ state.ai = ai; return true; }          // ตำบลเดิม: แทนคำตอบ AI แต่คงผลทบทวนไว้
+  // PDF ที่เพิ่งแนบในขั้นที่ 1 เป็นของเล่มที่กำลังวางคำตอบ จึงย้ายตามไปด้วย
+  const keep = { pdf: state.pdf, pdfName: state.pdfName, usingSample: state.usingSample };
+  const name = wsName({ id, tambon: ai.meta?.tambon, amphoe: ai.meta?.amphoe, plan_year: ai.meta?.plan_year });
+  const exists = wsSnapHasData(lsGet(WS + id));
+  if (!exists && wsId === WS_DRAFT){
+    // งานที่ยังไม่ระบุตำบล → กลายเป็นงานของตำบลนี้ (ย้ายข้อมูล ไม่ได้ลบ)
+    try{ localStorage.removeItem(WS + WS_DRAFT); }catch(e){}
+    lsSet(WS_INDEX, wsIndex().filter(x => x.id !== WS_DRAFT));
+    wsId = id; state.ai = ai; state.review = {};
+    return true;
+  }
+  wsSave();
+  const prevName = wsName(wsIndex().find(x => x.id === wsId) || { id: wsId });
+  wsId = id; wsApply(exists ? lsGet(WS + id) : null);
+  if (keep.pdf){ state.pdf = keep.pdf; state.pdfName = keep.pdfName; }
+  state.ai = ai; state.usingSample = keep.usingSample;
+  wsRefreshUI();
+  $('#aiBox').value = JSON.stringify(ai, null, 1);
+  wsFacts(wsNotice ? [['warn', esc(wsNotice)]] : []);
+  toast(exists ? `เปิดงานเดิมของ${name} ที่บันทึกไว้ในเครื่องแล้ว` : `เริ่มงานของ${name} งานของ${prevName} บันทึกไว้ในเครื่องแล้ว`);
+  return true;
+}
+
+// ---- เปิดไฟล์ .json ที่บันทึกไว้ ----
+// ไฟล์รุ่นก่อน (ไม่มี workspace) สร้างสถานะกลับจากคีย์เดิมเท่าที่ทำได้ และบอกส่วนที่กู้คืนไม่ได้
+function wsFromLegacy(o){
+  const lost = [], review = {};
+  const projects = (o.projects || []).map(p => {
+    const { review: r, budget_ai, budget_pdf, budget_final, budget_check, budget_confirmed, ...rest } = p;
+    const x = { ...rest, budget: budget_ai !== undefined ? budget_ai : (rest.budget ?? null) };
+    const rr = {};
+    if (r?.status) rr.status = r.status; if (r?.reason) rr.reason = r.reason; if (r?.decision) rr.decision = r.decision;
+    if (budget_confirmed){ rr.budgetConfirmed = true; rr.budgetFinal = budget_final ?? x.budget; }
+    review[x.id] = rr;
+    return x;
+  });
+  const ai = projects.length ? { meta: o.meta || {}, part1: o.part1 || {}, part2: o.part2 || {}, part3: { projects }, part4: o.part4 || {}, flags: o.flags || [] } : null;
+  const c = o.current || {}, a = o.analysis || {}, n = o.new_plan_projects || {};
+  const old = {}, extra = [];
+  let seq = 1;
+  const bump = uid => { const k = parseInt(String(uid || '').split(':')[1], 10); if (k >= seq) seq = k + 1; };
+  (n.items || []).forEach(it => {
+    if (it.source === 'old'){
+      // เก็บเฉพาะช่องที่แก้ต่างจากค่าตั้งต้นของโครงการเดิม
+      const p = projects.find(x => x.id === it.oldId) || {}, rr = review[it.oldId] || {};
+      const def = { name: p.name, budget: rr.budgetConfirmed ? rr.budgetFinal : null, target: p.target || '', period:'', dim: p.form_dimension || '', method: p.method || '', strategy:'', cr:'', agency:'', royal:'', votes:'' };
+      const ov = {};
+      Object.keys(it).forEach(k => { if (!['uid','source','oldId','note'].includes(k) && JSON.stringify(it[k]) !== JSON.stringify(def[k])) ov[k] = it[k]; });
+      if (Object.keys(ov).length) old[it.oldId] = ov;
+    } else { extra.push({ ...it, accepted: true }); bump(it.uid); }
+  });
+  const notSel = n.ai_candidates_not_selected || [];
+  notSel.forEach(name => extra.push({ uid: 'ai:' + (seq++), source:'ai', accepted:false, name, budget:null, target:'', period:'', dim:'', method:'', strategy:'', cr:'', agency:'', royal:'', votes:'' }));
+  if (notSel.length) lost.push('รายละเอียดของโครงการที่ AI เสนอแต่เวทียังไม่เลือก (เหลือแค่ชื่อ)');
+  if ((n.items || []).some(x => x.source === 'ai') || notSel.length) lost.push('ข้อความคำตอบ AI ในขั้น ③');
+  if (o.source?.pdf_file) lost.push('ผลการอ่าน PDF (ถ้าจะเทียบงบอีกครั้ง ให้แนบ PDF ในขั้น ⓪ ใหม่ งบที่ยืนยันไว้แล้วยังอยู่)');
+  lost.push('ข้อมูลการประชุมทบทวนและปีแผนในขั้น ④');
+  return { lost, snap: { v:1,
+    review: { review, ai, usingSample: !!o.source?.ai_answer_is_test_sample },
+    pdf: null,
+    cur: { tis: c.tis ?? null, tisStats: c.tis_village_stats ?? null, base: c.baseline || {}, tisFile: c.tis_file ?? null, tisIsSample: !!c.tis_is_test_sample },
+    ana: { comm: a.tis_community ?? null, commFile: a.tis_community_file ?? null, commIsSample: !!a.tis_community_is_test_sample, venue: (a.venue_notes || []).join('\n'),
+      answer: a.part2_draft ?? null, answerText: a.part2_draft ? JSON.stringify(a.part2_draft, null, 1) : '', validation: a.validation ?? null },
+    prj: { old, extra, ans2Text:'', ans2:null, seq, order: n.priority_3_1 || [] },
+    bk: BK0() } };
+}
+function wsImport(obj, fname){
+  if (obj?.type !== 'tambon-plan-review'){ wsFacts([['bad','ไฟล์นี้ไม่ใช่ไฟล์ที่บันทึกจากระบบนี้ ให้เลือกไฟล์ .json ที่ได้จากปุ่มบันทึก (.json)']]); return false; }
+  let snap, lost = [];
+  if (obj.workspace?.review) snap = JSON.parse(JSON.stringify(obj.workspace));
+  else ({ snap, lost } = wsFromLegacy(obj));
+  const m = snap.review?.ai?.meta;
+  const id = wsIdOf(m);
+  const name = wsName({ id, tambon: m?.tambon, amphoe: m?.amphoe, plan_year: m?.plan_year });
+  const old = lsGet(WS + id);
+  if ((id === wsId ? wsSnapHasData(wsSnapshot()) : wsSnapHasData(old)) &&
+      !confirm(`ในเครื่องนี้มีงานของ${name} อยู่แล้ว${old?.updated_at ? ' (แก้ไขล่าสุด ' + fmtTime(old.updated_at) + ')' : ''}\nแทนที่ด้วยข้อมูลจากไฟล์ ${fname || ''} หรือไม่?\nกด “ยกเลิก” เพื่อเก็บงานในเครื่องไว้เหมือนเดิม`)){
+    wsFacts([['info','ยกเลิกการเปิดไฟล์ งานในเครื่องยังเหมือนเดิม']]); return false;
+  }
+  if (id !== wsId) wsSave();
+  if (!lsSet(WS + id, snap)){ wsFacts([['bad','พื้นที่เก็บข้อมูลในเครื่องเต็ม เปิดไฟล์ไม่สำเร็จ']]); return false; }
+  wsLoad(id); wsSave();
+  const f = [['ok', `เปิดงานของ${esc(name)} จากไฟล์แล้ว`]];
+  if (lost.length) f.push(['warn', 'ไฟล์นี้บันทึกจากระบบรุ่นก่อน ส่วนที่กู้คืนไม่ได้: ' + lost.map(esc).join(', ')]);
+  if (wsNotice) f.push(['warn', esc(wsNotice)]);
+  wsFacts(f);
+  return true;
+}
+async function wsOpenFile(file){
+  let obj;
+  try{ const txt = file.text ? await file.text() : new TextDecoder().decode(await file.arrayBuffer()); obj = JSON.parse(txt); }
+  catch(e){ wsFacts([['bad','เปิดไฟล์นี้ไม่ได้ ต้องเป็นไฟล์ .json ที่ได้จากปุ่มบันทึก (.json) ของระบบนี้']]); return false; }
+  return wsImport(obj, file.name);
+}
+
+// ---- ย้ายข้อมูลรูปแบบเดิม (ทำครั้งเดียว ไม่ลบ key เดิม) ----
+function wsMigrate(){
+  let keys = [];
+  try{ if (localStorage.getItem(WS_MIGRATED) !== null) return; for (let i = 0; i < localStorage.length; i++) keys.push(localStorage.key(i)); }catch(e){ return; }
+  const legacy = keys.filter(k => /^tambon-(review|current|analysis|projects|book):/.test(k));
+  const now = new Date().toISOString();
+  if (!legacy.length){ lsSet(WS_MIGRATED, { at: now, keys: 0 }); return; }
+  const blank = () => ({ v:1, updated_at: now, review: { review:{}, ai:null, usingSample:false }, pdf:null, cur:null, ana:null, prj:null, bk:null, notice:null });
+  const out = {};
+  // ⓪ ทุกตำบล
+  for (const k of legacy){
+    if (!k.startsWith('tambon-review:') || k === 'tambon-review:last') continue;
+    const d = lsGet(k); if (!d?.ai?.part3?.projects) continue;
+    const id = wsIdOf(d.ai.meta);
+    (out[id] = out[id] || blank()).review = { review: migrate(d.review || {}), ai: d.ai, usingSample: !!d.usingSample };
+  }
+  let lastKey = null; try{ lastKey = localStorage.getItem('tambon-review:last'); }catch(e){}
+  const lastD = lastKey ? lsGet(lastKey) : null;
+  const lastId = lastD?.ai?.meta && out[wsIdOf(lastD.ai.meta)] ? wsIdOf(lastD.ai.meta) : null;
+  // ① ผูกกับตำบลชื่อเดียวกัน (ถ้ามีหลายปี ใช้ตัวที่ทำล่าสุด หรือปีแผนล่าสุด)
+  for (const k of legacy){
+    if (!k.startsWith('tambon-current:') || k === 'tambon-current:last') continue;
+    const c = lsGet(k); if (!c) continue;
+    const tb = k.slice('tambon-current:'.length);
+    const cands = Object.keys(out).filter(id => out[id].review.ai?.meta?.tambon === tb);
+    let id = cands.includes(lastId) ? lastId : cands.sort((a, b) => (out[b].review.ai.meta.plan_year || 0) - (out[a].review.ai.meta.plan_year || 0))[0];
+    if (!id){ if (out[WS_DRAFT]?.cur) continue; id = WS_DRAFT; out[id] = out[id] || blank(); }
+    out[id].cur = c;
+  }
+  // ②③④ เดิมมีชุดเดียว ผูกกับตำบลที่ทำล่าสุด
+  const target = lastId || Object.keys(out).find(id => id !== WS_DRAFT) || WS_DRAFT;
+  const t = out[target] = out[target] || blank();
+  const A = lsGet('tambon-analysis:last'), P = lsGet('tambon-projects:last'), B = lsGet('tambon-book:last');
+  if (A) t.ana = A; if (P) t.prj = P; if (B) t.bk = B;
+  const tb = t.review.ai?.meta?.tambon;
+  if (A?.comm?.tambon && tb && A.comm.tambon !== tb) t.notice = `ข้อมูลขั้น ② ที่ย้ายมาจากระบบรุ่นก่อนเป็นของตำบล${A.comm.tambon} ไม่ตรงกับตำบล${tb} ตรวจก่อนใช้`;
+  const idx = [];
+  let ok = true;
+  for (const [id, s] of Object.entries(out)){
+    if (id === WS_DRAFT && !wsSnapHasData(s)) continue;
+    ok = lsSet(WS + id, s) && ok;
+    const m = s.review.ai?.meta || {};
+    idx.push({ id, tambon: m.tambon || s.cur?.tis?.tambon || null, amphoe: m.amphoe || s.cur?.tis?.amphoe || null, plan_year: m.plan_year || null, updated_at: now });
+  }
+  if (!ok) return;   // เครื่องเต็ม: คงข้อมูลเดิมไว้ ลองใหม่ครั้งหน้า
+  lsSet(WS_INDEX, idx);
+  lsSet(WS_ACTIVE, idx.some(x => x.id === target) ? target : (idx[0]?.id || WS_DRAFT));
+  lsSet(WS_MIGRATED, { at: now, keys: legacy.length });
+}
+
+// main.js — ผูกปุ่มของแถบตำบลและเริ่มแอป (ต้องโหลดเป็นไฟล์สุดท้าย)
+$('#wsSel').addEventListener('change', e => wsSwitch(e.target.value));
+$('#wsNew').addEventListener('click', wsNew);
+$('#wsOpen').addEventListener('click', () => $('#wsFile').click());
+$('#wsFile').addEventListener('change', async e => { const f = e.target.files[0]; e.target.value = ''; if (f) await wsOpenFile(f); });
+
+wsMigrate();
+{ const a = lsGet(WS_ACTIVE); wsLoad(a && lsGet(WS + a) ? a : WS_DRAFT); }
+</script>
+</body>
+</html>
