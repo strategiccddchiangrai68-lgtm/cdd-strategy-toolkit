@@ -281,8 +281,8 @@ nav.tabs a{ white-space:nowrap; }
     </div></div>
     <div class="panel">
       <div class="row-actions">
-        <button class="btn" id="copyPrompt" type="button">คัดลอกคำสั่งสำหรับ AI</button>
-        <a class="btn ghost" style="text-decoration:none" href="https://gemini.google.com/app" target="_blank" rel="noopener">เปิด Gemini</a>
+        <button class="btn" id="copyPrompt" type="button">คัดลอกคำสั่งและเปิด Gemini</button>
+        <a class="btn ghost" style="text-decoration:none" href="https://gemini.google.com/app" target="gemini" rel="noopener">เปิด Gemini</a>
         <button class="btn ghost" id="loadSample" type="button">ลองด้วยคำตอบจริงของ Gemini (ป่าแดด)</button>
       </div>
       <details class="prompt"><summary>ดูคำสั่งทั้งหมด</summary><textarea id="promptBox" readonly></textarea></details>
@@ -404,7 +404,7 @@ nav.tabs a{ white-space:nowrap; }
       <p>คัดลอกคำสั่ง วางใน Gemini (ไม่ต้องแนบไฟล์) แล้วคัดลอกคำตอบทั้งหมดกลับมาวาง</p>
     </div></div>
     <div class="panel">
-      <div class="row-actions"><button class="btn" id="copyP1" type="button">คัดลอกคำสั่งสำหรับ AI</button><a class="btn ghost" style="text-decoration:none" href="https://gemini.google.com/app" target="_blank" rel="noopener">เปิด Gemini</a></div>
+      <div class="row-actions"><button class="btn" id="copyP1" type="button">คัดลอกคำสั่งและเปิด Gemini</button><a class="btn ghost" style="text-decoration:none" href="https://gemini.google.com/app" target="gemini" rel="noopener">เปิด Gemini</a></div>
       <details class="prompt"><summary>ดูคำสั่งทั้งหมด</summary><textarea id="p1Box" readonly></textarea></details>
       <label for="ans1Box" style="display:block;margin:14px 0 6px;font-weight:600">คำตอบจาก AI</label>
       <textarea id="ans1Box" placeholder="วางคำตอบ JSON ทั้งหมดจาก Gemini ที่นี่"></textarea>
@@ -439,7 +439,7 @@ nav.tabs a{ white-space:nowrap; }
       <p>คำสั่งสร้างจากร่างส่วนที่ 2 ในขั้น ② AI จะเสนอเฉพาะยุทธศาสตร์ที่ยังขาดโครงการ และไม่กำหนดงบประมาณให้ เวทีเป็นผู้กำหนดเอง</p>
     </div></div>
     <div class="panel">
-      <div class="row-actions"><button class="btn" id="copyP2" type="button">คัดลอกคำสั่งสำหรับ AI</button><a class="btn ghost" style="text-decoration:none" href="https://gemini.google.com/app" target="_blank" rel="noopener">เปิด Gemini</a></div>
+      <div class="row-actions"><button class="btn" id="copyP2" type="button">คัดลอกคำสั่งและเปิด Gemini</button><a class="btn ghost" style="text-decoration:none" href="https://gemini.google.com/app" target="gemini" rel="noopener">เปิด Gemini</a></div>
       <details class="prompt"><summary>ดูคำสั่งทั้งหมด</summary><textarea id="p2Box" readonly></textarea></details>
       <label for="ans2Box" style="display:block;margin:14px 0 6px;font-weight:600">คำตอบจาก AI</label>
       <textarea id="ans2Box" placeholder="วางคำตอบ JSON ทั้งหมดจาก Gemini ที่นี่"></textarea>
@@ -609,7 +609,15 @@ const REASONS = ['ไม่ได้รับงบประมาณ','ชุ�
 
 const state = { pdfName:null, pdf:null, ai:null, usingSample:false, review:{}, filter:'all' };
 
-function toast(msg){ const t=$('#toast'); t.textContent=msg; t.hidden=false; clearTimeout(toast._t); toast._t=setTimeout(()=>t.hidden=true,2600); }
+function toast(msg){ const t=$('#toast'); t.textContent=msg; t.hidden=false; clearTimeout(toast._t); toast._t=setTimeout(()=>t.hidden=true,Math.max(2600, msg.length*70)); }
+// เปิด Gemini หลังคัดลอกคำสั่งสำเร็จ ใช้แท็บชื่อ "gemini" แท็บเดียว กดซ้ำจะไม่เปิดแท็บใหม่เพิ่ม
+// (เรียกหลัง clipboard สำเร็จเท่านั้น ถ้าเปิดก่อน แท็บใหม่จะแย่งโฟกัสแล้วคัดลอกไม่สำเร็จ)
+const GEMINI_URL = 'https://gemini.google.com/app';
+function openGemini(hint){
+  let w = null; try{ w = window.open(GEMINI_URL, 'gemini'); }catch(e){}
+  toast(w ? 'คัดลอกคำสั่งแล้ว เปิด Gemini ในแท็บใหม่ให้แล้ว ' + hint
+          : 'คัดลอกคำสั่งแล้ว แต่เบราว์เซอร์ไม่ให้เปิดแท็บใหม่ กดปุ่ม “เปิด Gemini” แล้ว' + hint);
+}
 // การบันทึกทุกขั้นไปรวมที่ชุดข้อมูลของตำบล (ดู wsSave ด้านล่าง)
 function persist(){ wsSave(); }
 
@@ -650,7 +658,7 @@ drop.addEventListener('drop', e => { const f=e.dataTransfer.files[0]; if(f) read
 /* ---------- step 2: AI answer ---------- */
 $('#promptBox').value = PROMPT;
 $('#copyPrompt').addEventListener('click', async () => {
-  try{ await navigator.clipboard.writeText(PROMPT); toast('คัดลอกคำสั่งแล้ว'); }
+  try{ await navigator.clipboard.writeText(PROMPT); openGemini('แนบไฟล์ PDF แผนเดิม แล้ววางคำสั่ง (Ctrl+V)'); }
   catch(e){ const d=document.querySelector('details.prompt'); d.open=true; const b=$('#promptBox'); b.focus(); b.select(); toast('คัดลอกอัตโนมัติไม่ได้ เลือกข้อความไว้ให้แล้ว กดคัดลอกเอง'); }
 });
 $('#loadSample').addEventListener('click', () => { $('#aiBox').value = JSON.stringify(SAMPLE, null, 1); state.usingSample = true; $('#sampleNote').hidden=false; ingest(); });
@@ -1209,7 +1217,7 @@ function renderAnalysis(){
 $('#copyP1').addEventListener('click', async () => {
   renderAnalysis();
   const txt = $('#p1Box').value;
-  try{ await navigator.clipboard.writeText(txt); toast('คัดลอกคำสั่งแล้ว'); }
+  try{ await navigator.clipboard.writeText(txt); openGemini('วางคำสั่ง (Ctrl+V) ไม่ต้องแนบไฟล์'); }
   catch(e){ const d = document.querySelector('#a3 details.prompt'); d.open = true; $('#p1Box').focus(); $('#p1Box').select(); toast('คัดลอกอัตโนมัติไม่ได้ เลือกข้อความไว้ให้แล้ว กดคัดลอกเอง'); }
 });
 $('#check1').addEventListener('click', () => {
@@ -1425,7 +1433,7 @@ function renderProjects(){
 }
 $('#copyP2').addEventListener('click', async () => {
   renderProjects(); const txt = $('#p2Box').value;
-  try{ await navigator.clipboard.writeText(txt); toast('คัดลอกคำสั่งแล้ว'); }
+  try{ await navigator.clipboard.writeText(txt); openGemini('วางคำสั่ง (Ctrl+V) ไม่ต้องแนบไฟล์'); }
   catch(e){ const d = document.querySelector('#p2 details.prompt'); d.open = true; $('#p2Box').focus(); $('#p2Box').select(); toast('คัดลอกอัตโนมัติไม่ได้ เลือกข้อความไว้ให้แล้ว กดคัดลอกเอง'); }
 });
 $('#check2').addEventListener('click', () => {

@@ -69,6 +69,25 @@ const file = p => { const b = fs.readFileSync(p); return { name: path.basename(p
   assert.ok(buf.length > 5000, '④ ต้องสร้าง docx ได้');
   console.log('✓ ④ สร้างรูปเล่ม .docx', buf.length, 'bytes');
 
+  // ===== คัดลอกคำสั่งแล้วเปิด Gemini =====
+  {
+    let copied = null, opened = [], openResult = {}, clipOk = true;
+    Object.defineProperty(w.navigator, 'clipboard', { configurable: true, value: { writeText: async t => { if (!clipOk) throw new Error('denied'); copied = t; } } });
+    w.open = (url, name) => { opened.push([url, name]); return openResult; };
+    for (const [btn, hash] of [['#copyPrompt', '#review'], ['#copyP1', '#analysis'], ['#copyP2', '#projects']]){
+      w.location.hash = hash; await wait(30); copied = null; opened = [];
+      d.querySelector(btn).click(); await wait(20);
+      assert.ok(copied && copied.length > 200, `gemini: ${btn} ต้องคัดลอกคำสั่ง`);
+      assert.deepStrictEqual(opened, [['https://gemini.google.com/app', 'gemini']], `gemini: ${btn} ต้องเปิด Gemini แท็บเดียว`);
+    }
+    assert.strictEqual(w.eval('PROMPT'), (w.location.hash = '#review', d.querySelector('#copyPrompt').click(), await wait(20), copied), 'gemini: ขั้น ⓪ ต้องคัดลอก Prompt #0 ทั้งก้อน');
+    openResult = null; d.querySelector('#copyPrompt').click(); await wait(20);
+    assert.ok(/ไม่ให้เปิดแท็บใหม่/.test(d.querySelector('#toast').textContent), 'gemini: ถ้าเบราว์เซอร์บล็อกแท็บใหม่ ต้องบอกให้กดปุ่มเปิด Gemini');
+    clipOk = false; opened = []; d.querySelector('#copyPrompt').click(); await wait(20);
+    assert.strictEqual(opened.length, 0, 'gemini: คัดลอกไม่สำเร็จต้องไม่เปิดแท็บ (ให้ผู้ใช้คัดลอกเองก่อน)');
+    console.log('✓ คัดลอกคำสั่งแล้วเปิด Gemini');
+  }
+
   // ===== ชุดข้อมูลรายตำบล =====
   const ev = (win, el, type = 'change') => el.dispatchEvent(new win.Event(type, { bubbles: true }));
   const J = (win, expr) => JSON.parse(JSON.stringify(win.eval(expr)));   // ค่าจากหน้าเว็บแบบคัดลอก

@@ -57,7 +57,7 @@ function renderAnalysis(){
 $('#copyP1').addEventListener('click', async () => {
   renderAnalysis();
   const txt = $('#p1Box').value;
-  try{ await navigator.clipboard.writeText(txt); toast('คัดลอกคำสั่งแล้ว'); }
+  try{ await navigator.clipboard.writeText(txt); openGemini('วางคำสั่ง (Ctrl+V) ไม่ต้องแนบไฟล์'); }
   catch(e){ const d = document.querySelector('#a3 details.prompt'); d.open = true; $('#p1Box').focus(); $('#p1Box').select(); toast('คัดลอกอัตโนมัติไม่ได้ เลือกข้อความไว้ให้แล้ว กดคัดลอกเอง'); }
 });
 $('#check1').addEventListener('click', () => {

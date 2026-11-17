@@ -35,7 +35,7 @@ drop.addEventListener('drop', e => { const f=e.dataTransfer.files[0]; if(f) read
 /* ---------- step 2: AI answer ---------- */
 $('#promptBox').value = PROMPT;
 $('#copyPrompt').addEventListener('click', async () => {
-  try{ await navigator.clipboard.writeText(PROMPT); toast('คัดลอกคำสั่งแล้ว'); }
+  try{ await navigator.clipboard.writeText(PROMPT); openGemini('แนบไฟล์ PDF แผนเดิม แล้ววางคำสั่ง (Ctrl+V)'); }
   catch(e){ const d=document.querySelector('details.prompt'); d.open=true; const b=$('#promptBox'); b.focus(); b.select(); toast('คัดลอกอัตโนมัติไม่ได้ เลือกข้อความไว้ให้แล้ว กดคัดลอกเอง'); }
 });
 $('#loadSample').addEventListener('click', () => { $('#aiBox').value = JSON.stringify(SAMPLE, null, 1); state.usingSample = true; $('#sampleNote').hidden=false; ingest(); });

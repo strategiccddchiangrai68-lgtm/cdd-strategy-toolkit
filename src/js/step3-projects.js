@@ -75,7 +75,7 @@ function renderProjects(){
 }
 $('#copyP2').addEventListener('click', async () => {
   renderProjects(); const txt = $('#p2Box').value;
-  try{ await navigator.clipboard.writeText(txt); toast('คัดลอกคำสั่งแล้ว'); }
+  try{ await navigator.clipboard.writeText(txt); openGemini('วางคำสั่ง (Ctrl+V) ไม่ต้องแนบไฟล์'); }
   catch(e){ const d = document.querySelector('#p2 details.prompt'); d.open = true; $('#p2Box').focus(); $('#p2Box').select(); toast('คัดลอกอัตโนมัติไม่ได้ เลือกข้อความไว้ให้แล้ว กดคัดลอกเอง'); }
 });
 $('#check2').addEventListener('click', () => {
